@@ -26,7 +26,7 @@ const updateGigSchema = z.object({
 // PUT - Update full gig details
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { gigId: string } }
+  { params }: { params: Promise<{ gigId: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -35,7 +35,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { gigId } = params;
+    const { gigId } = await params;
     const body = await request.json();
     const validated = updateGigSchema.parse(body);
 
@@ -135,7 +135,7 @@ export async function PUT(
 // PATCH - Update gig status (pause/activate)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { gigId: string } }
+  { params }: { params: Promise<{ gigId: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -144,7 +144,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { gigId } = params;
+    const { gigId } = await params;
     const body = await request.json();
     const { status } = body;
 
@@ -199,7 +199,7 @@ export async function PATCH(
 // DELETE - Delete gig
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { gigId: string } }
+  { params }: { params: Promise<{ gigId: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -208,7 +208,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { gigId } = params;
+    const { gigId } = await params;
 
     // Verify gig belongs to user
     const gig = await prisma.gig.findUnique({

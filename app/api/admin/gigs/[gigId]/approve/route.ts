@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { gigId: string } }
+  { params }: { params: Promise<{ gigId: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -13,7 +13,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { gigId } = params;
+    const { gigId } = await params;
 
     // Check if gig exists
     const gig = await prisma.gig.findUnique({

@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -17,9 +17,11 @@ export async function GET(
       return NextResponse.json({ error: 'Only fixers can view requests' }, { status: 403 });
     }
 
+    const { id } = await params;
+
     // Fetch service request
     const serviceRequest = await prisma.serviceRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         subcategory: {
           include: {
@@ -46,7 +48,7 @@ export async function GET(
     const existingQuote = await prisma.quote.findUnique({
       where: {
         requestId_fixerId: {
-          requestId: params.id,
+          requestId: id,
           fixerId: user.id,
         },
       },

@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -17,12 +17,13 @@ export async function PATCH(
       return NextResponse.json({ error: 'Only fixers can update services' }, { status: 403 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const { isActive } = body;
 
     // Verify service belongs to fixer
     const service = await prisma.fixerService.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!service || service.fixerId !== user.id) {
@@ -31,7 +32,7 @@ export async function PATCH(
 
     // Update service
     const updatedService = await prisma.fixerService.update({
-      where: { id: params.id },
+      where: { id },
       data: { isActive },
       include: {
         subcategory: {
@@ -55,7 +56,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -68,9 +69,11 @@ export async function DELETE(
       return NextResponse.json({ error: 'Only fixers can delete services' }, { status: 403 });
     }
 
+    const { id } = await params;
+
     // Verify service belongs to fixer
     const service = await prisma.fixerService.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!service || service.fixerId !== user.id) {
@@ -79,7 +82,7 @@ export async function DELETE(
 
     // Delete service
     await prisma.fixerService.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });
