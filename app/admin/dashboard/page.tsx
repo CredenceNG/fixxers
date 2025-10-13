@@ -72,6 +72,15 @@ export default async function AdminDashboard() {
               },
             },
           },
+          gig: {
+            include: {
+              subcategory: {
+                include: {
+                  category: true,
+                },
+              },
+            },
+          },
         },
       },
     },
