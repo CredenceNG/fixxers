@@ -66,7 +66,7 @@ export default async function AdminGigReviewPage({ params }: { params: Promise<{
           style={{
             marginBottom: '24px',
             backgroundColor:
-              gig.status === 'PENDING_REVIEW' ? colors.warningLight : colors.bgSecondary,
+              gig.status === 'PENDING_REVIEW' ? '#FEF5E7' : colors.bgSecondary,
             borderLeft: `4px solid ${statusColor}`,
           }}
         >
