@@ -7,16 +7,18 @@ import { DashboardCard, DashboardButton } from '@/components/DashboardLayout';
 import { colors } from '@/lib/theme';
 import { EditGigForm } from './EditGigForm';
 
-export default async function EditGigPage({ params }: { params: { gigId: string } }) {
+export default async function EditGigPage({ params }: { params: Promise<{ gigId: string }> }) {
   const user = await getCurrentUser();
 
   if (!user || user.role !== 'FIXER') {
     redirect('/auth/login');
   }
 
+  const { gigId } = await params;
+
   // Fetch the gig
   const gig = await prisma.gig.findUnique({
-    where: { id: params.gigId },
+    where: { id: gigId },
     include: {
       packages: {
         orderBy: { price: 'asc' },
