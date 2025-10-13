@@ -8,9 +8,9 @@ import Header from '@/components/Header';
 export default async function GigsPage({
   searchParams,
 }: {
-  searchParams: { category?: string; subcategory?: string; q?: string };
+  searchParams: Promise<{ category?: string; subcategory?: string; q?: string }>;
 }) {
-  const { category, subcategory, q } = searchParams;
+  const { category, subcategory, q } = await searchParams;
   const user = await getCurrentUser();
 
   // Fetch categories for sidebar
