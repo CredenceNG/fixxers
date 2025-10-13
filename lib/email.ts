@@ -1,8 +1,9 @@
 import { Resend } from 'resend';
 
-// Only initialize Resend if we have a valid API key and not in development
+// Initialize Resend if we have a valid API key
+// Can be forced in development with FORCE_SEND_EMAILS=true
 const resend =
-  process.env.NODE_ENV === 'production' && process.env.RESEND_API_KEY
+  process.env.RESEND_API_KEY && (process.env.NODE_ENV === 'production' || process.env.FORCE_SEND_EMAILS === 'true')
     ? new Resend(process.env.RESEND_API_KEY)
     : null;
 
@@ -15,10 +16,10 @@ export async function sendMagicLinkEmail(email: string, token: string, isRegistr
     : `${APP_URL}/auth/verify?token=${token}`;
   const subject = isRegistration ? 'Complete Your Registration' : 'Login to Fixxers';
 
-  // In development, just log to console
-  if (process.env.NODE_ENV === 'development') {
+  // In development, log to console unless FORCE_SEND_EMAILS is set
+  if (process.env.NODE_ENV === 'development' && process.env.FORCE_SEND_EMAILS !== 'true') {
     console.log('\n' + '='.repeat(80));
-    console.log('📧 MAGIC LINK EMAIL (Development Mode)');
+    console.log('📧 MAGIC LINK EMAIL (Development Mode - Console Only)');
     console.log('='.repeat(80));
     console.log(`To: ${email}`);
     console.log(`Subject: ${subject}`);
@@ -26,6 +27,7 @@ export async function sendMagicLinkEmail(email: string, token: string, isRegistr
     console.log('\n🔗 Magic Link:');
     console.log(`   ${magicLink}`);
     console.log('\n⏰ Expires in 15 minutes');
+    console.log('💡 Tip: Set FORCE_SEND_EMAILS=true to send real emails in development');
     console.log('='.repeat(80) + '\n');
     return { success: true };
   }
