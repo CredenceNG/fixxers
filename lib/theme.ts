@@ -20,10 +20,13 @@ export const colors = {
 
   // Status colors
   warning: '#FFBE5B',
+  warningLight: '#FEF5E7',
   warningDark: '#F59E0B',
   success: '#1DBF73',
+  successLight: '#E8F7F0',
   successDark: '#0D7D47',
   error: '#E74C3C',
+  errorLight: '#FDEDEC',
   errorDark: '#C0392B',
   info: '#446EE7',
 
