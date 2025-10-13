@@ -9,13 +9,15 @@ export default async function OrderPage({
   params,
   searchParams,
 }: {
-  params: { slug: string };
-  searchParams: { package?: string };
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ package?: string }>;
 }) {
   const user = await getCurrentUser();
+  const { slug } = await params;
+  const { package: packageParam } = await searchParams;
 
   if (!user) {
-    redirect(`/auth/login?redirect=/gigs/${params.slug}/order?package=${searchParams.package || 'standard'}`);
+    redirect(`/auth/login?redirect=/gigs/${slug}/order?package=${packageParam || 'standard'}`);
   }
 
   if (user.role !== 'CLIENT') {
@@ -23,7 +25,7 @@ export default async function OrderPage({
   }
 
   const gig = await prisma.gig.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
     include: {
       seller: {
         select: {
@@ -42,12 +44,12 @@ export default async function OrderPage({
   }
 
   // Determine which package to show
-  const packageParam = searchParams.package?.toLowerCase();
+  const packageParamLower = packageParam?.toLowerCase();
   let selectedPackage = gig.packages[1]; // Default to Standard (middle)
 
-  if (packageParam === 'basic') {
+  if (packageParamLower === 'basic') {
     selectedPackage = gig.packages[0];
-  } else if (packageParam === 'premium') {
+  } else if (packageParamLower === 'premium') {
     selectedPackage = gig.packages[2];
   }
 
