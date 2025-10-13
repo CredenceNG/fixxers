@@ -433,13 +433,13 @@ export default async function AdminDashboard() {
                   {flaggedPayments.map((payment) => (
                     <tr key={payment.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
                       <td style={{ padding: '16px 24px', fontSize: '15px', color: colors.textPrimary }}>
-                        {payment.order.request.subcategory.name}
+                        {payment.order?.request?.subcategory?.name || payment.order?.gig?.subcategory?.name || 'N/A'}
                       </td>
                       <td style={{ padding: '16px 24px', fontSize: '15px', color: colors.textSecondary }}>
-                        {payment.order.client.name || payment.order.client.email || payment.order.client.phone}
+                        {payment.order?.client?.name || payment.order?.client?.email || payment.order?.client?.phone || 'N/A'}
                       </td>
                       <td style={{ padding: '16px 24px', fontSize: '15px', color: colors.textSecondary }}>
-                        {payment.order.fixer.name || payment.order.fixer.email || payment.order.fixer.phone}
+                        {payment.order?.fixer?.name || payment.order?.fixer?.email || payment.order?.fixer?.phone || 'N/A'}
                       </td>
                       <td style={{ padding: '16px 24px', fontSize: '15px', color: colors.textPrimary }}>
                         ₦{payment.amount.toLocaleString()}
