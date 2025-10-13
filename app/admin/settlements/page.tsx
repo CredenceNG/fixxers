@@ -19,6 +19,7 @@ export default async function SettlementsPage() {
     include: {
       gig: true,
       package: true,
+      request: true,
       client: {
         select: {
           id: true,

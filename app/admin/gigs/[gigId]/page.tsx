@@ -247,17 +247,17 @@ export default async function AdminGigReviewPage({ params }: { params: Promise<{
                         Bio
                       </label>
                       <p style={{ fontSize: '14px', color: colors.textPrimary, lineHeight: '1.6' }}>
-                        {gig.seller.fixerProfile.bio || 'No bio provided'}
+                        {gig.seller.bio || 'No bio provided'}
                       </p>
                     </div>
 
-                    {gig.seller.fixerProfile.skills && gig.seller.fixerProfile.skills.length > 0 && (
+                    {gig.seller.fixerProfile?.qualifications && gig.seller.fixerProfile.qualifications.length > 0 && (
                       <div>
                         <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, marginBottom: '8px' }}>
                           Skills
                         </label>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                          {gig.seller.fixerProfile.skills.map((skill, index) => (
+                          {gig.seller.fixerProfile.qualifications.map((qualification, index) => (
                             <span
                               key={index}
                               style={{
@@ -268,7 +268,7 @@ export default async function AdminGigReviewPage({ params }: { params: Promise<{
                                 fontSize: '12px',
                               }}
                             >
-                              {skill}
+                              {qualification}
                             </span>
                           ))}
                         </div>
@@ -303,7 +303,7 @@ export default async function AdminGigReviewPage({ params }: { params: Promise<{
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '14px', color: colors.textSecondary }}>Orders</span>
-                  <span style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary }}>{gig.orders}</span>
+                  <span style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary }}>{gig.ordersCount}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '14px', color: colors.textSecondary }}>Views</span>

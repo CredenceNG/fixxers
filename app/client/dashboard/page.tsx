@@ -59,7 +59,15 @@ export default async function ClientDashboard() {
         },
       },
       // Gig order relations
-      gig: true,
+      gig: {
+        include: {
+          subcategory: {
+            include: {
+              category: true,
+            },
+          },
+        },
+      },
       package: true,
       payment: true,
     },
@@ -83,7 +91,15 @@ export default async function ClientDashboard() {
           },
         },
       },
-      gig: true,
+      gig: {
+        include: {
+          subcategory: {
+            include: {
+              category: true,
+            },
+          },
+        },
+      },
       package: true,
       review: true,
     },
@@ -159,7 +175,7 @@ export default async function ClientDashboard() {
                       {order.fixer?.name || order.fixer?.email || 'Anonymous'}
                     </td>
                     <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>
-                      {order.package.name}
+                      {order.package?.name || 'N/A'}
                     </td>
                     <td style={{ padding: '16px', fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
                       ₦{order.totalAmount?.toLocaleString() || '0'}
@@ -170,15 +186,13 @@ export default async function ClientDashboard() {
                         fontSize: '12px',
                         fontWeight: '600',
                         borderRadius: borderRadius.full,
-                        backgroundColor: order.status === 'PENDING' ? colors.warningLight
-                          : order.status === 'IN_PROGRESS' ? colors.primaryLight
-                          : order.status === 'DELIVERED' ? colors.successLight
-                          : order.status === 'COMPLETED' ? colors.successLight
+                        backgroundColor: order.status === 'COMPLETED' ? colors.successLight
+                          : order.status === 'PAID' ? colors.primaryLight
+                          : order.status === 'PAID_PARTIAL' ? colors.warningLight
                           : colors.errorLight,
-                        color: order.status === 'PENDING' ? colors.warning
-                          : order.status === 'IN_PROGRESS' ? colors.primary
-                          : order.status === 'DELIVERED' ? colors.success
-                          : order.status === 'COMPLETED' ? colors.success
+                        color: order.status === 'COMPLETED' ? colors.success
+                          : order.status === 'PAID' ? colors.primary
+                          : order.status === 'PAID_PARTIAL' ? colors.warning
                           : colors.error
                       }}>
                         {order.status}
@@ -349,10 +363,10 @@ export default async function ClientDashboard() {
                 {completedOrders.map((order) => (
                   <tr key={order.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
                     <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>
-                      {order.request.subcategory.name}
+                      {order.request?.subcategory?.name || order.gig?.subcategory?.name || 'N/A'}
                     </td>
                     <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>
-                      {order.fixer.name || order.fixer.email || order.fixer.phone}
+                      {order.fixer?.name || order.fixer?.email || order.fixer?.phone || 'N/A'}
                     </td>
                     <td style={{ padding: '16px', fontSize: '14px', color: colors.textSecondary }}>
                       {order.completedAt ? new Date(order.completedAt).toLocaleDateString() : 'N/A'}

@@ -132,7 +132,7 @@ export async function POST(
       await tx.notification.create({
         data: {
           userId: order.clientId,
-          type: 'PAYMENT_CONFIRMED',
+          type: 'PAYMENT_RECEIVED',
           title: 'Payment Successful',
           message: `Your ${paymentType} of ₦${amountPaid.toLocaleString()} for "${serviceTitle}" has been processed. Funds are held in escrow until admin approves settlement.`,
           link: order.gigId ? `/client/orders/${order.id}` : `/client/requests/${order.requestId}`,
@@ -148,7 +148,7 @@ export async function POST(
         await tx.notification.create({
           data: {
             userId: admin.id,
-            type: 'ADMIN_PAYMENT_REVIEW',
+            type: 'GENERAL',
             title: 'New Payment to Review',
             message: `${paymentType.charAt(0).toUpperCase() + paymentType.slice(1)} of ₦${amountPaid.toLocaleString()} received for order "${serviceTitle}". Please review and approve settlement.`,
             link: `/admin/orders/${order.id}`,
