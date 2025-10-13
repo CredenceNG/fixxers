@@ -45,10 +45,29 @@ export default function ClientProfilePage() {
   useEffect(() => {
     // Fetch neighborhoods and existing profile data
     Promise.all([
-      fetch('/api/neighborhoods').then(res => res.json()),
-      fetch('/api/client/profile').then(res => res.ok ? res.json() : null),
+      fetch('/api/neighborhoods').then(async res => {
+        if (!res.ok) throw new Error('Failed to fetch neighborhoods');
+        const contentType = res.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new Error('Invalid response format from neighborhoods API');
+        }
+        return res.json();
+      }),
+      fetch('/api/client/profile').then(async res => {
+        if (!res.ok) return null; // Profile might not exist yet
+        const contentType = res.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          return null;
+        }
+        return res.json();
+      }),
     ]).then(([neighborhoodsData, profileData]) => {
-      setNeighborhoods(neighborhoodsData);
+      console.log('[Client Profile] Neighborhoods loaded:', neighborhoodsData?.length || 0);
+      if (!neighborhoodsData || neighborhoodsData.length === 0) {
+        console.warn('[Client Profile] No neighborhoods found in database');
+        setError('No neighborhoods available. Please contact support.');
+      }
+      setNeighborhoods(neighborhoodsData || []);
 
       // Populate form with existing profile data if it exists
       if (profileData) {

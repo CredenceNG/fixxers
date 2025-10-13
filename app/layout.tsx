@@ -3,7 +3,7 @@ import "./globals.css";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Fixxers - Local Services Marketplace",
+  title: "FIXI-NG - Local Services Marketplace",
   description: "Connect with trusted local service providers for home repairs and maintenance",
 };
 

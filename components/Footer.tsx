@@ -31,7 +31,7 @@ export default function Footer() {
           {/* Company Info */}
           <div>
             <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '16px', color: colors.white }}>
-              fixxers
+              FIXI-NG
             </h3>
             <p style={{ fontSize: '14px', color: colors.gray400, lineHeight: '1.6', marginBottom: '20px' }}>
               Connect with trusted, verified service professionals in your neighborhood.
@@ -230,7 +230,7 @@ export default function Footer() {
           }}
         >
           <p style={{ fontSize: '14px', color: colors.gray500, margin: 0 }}>
-            © {currentYear} Fixxers. All rights reserved.
+            © {currentYear} FIXI-NG. All rights reserved.
           </p>
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
             <Link href="/terms" style={{ fontSize: '14px', color: colors.gray500, textDecoration: 'none' }}>

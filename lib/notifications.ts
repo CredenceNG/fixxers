@@ -275,7 +275,7 @@ export async function notifyAdminNewFixerApplication(fixerId: string, fixerName:
     'GENERAL',
     'New Service Provider Application',
     `${fixerName} applied as a service provider for: ${services.join(', ')} - Pending approval`,
-    `/admin/fixers/${fixerId}`
+    `/admin/users/${fixerId}`
   );
 }
 
@@ -284,6 +284,6 @@ export async function notifyAdminFixerProfileUpdate(fixerId: string, fixerName: 
     'GENERAL',
     'Service Provider Profile Update',
     `${fixerName} updated their profile - Pending review`,
-    `/admin/fixers/${fixerId}`
+    `/admin/users/${fixerId}`
   );
 }

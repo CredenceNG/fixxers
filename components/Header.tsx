@@ -40,7 +40,7 @@ export default async function Header() {
             gap: '8px',
           }}
         >
-          <span style={{ color: colors.primary }}>fixxers</span>
+          <span style={{ color: colors.primary }}>FIXI-NG</span>
         </Link>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
           {user ? (
