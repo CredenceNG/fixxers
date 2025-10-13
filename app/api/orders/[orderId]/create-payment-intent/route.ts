@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { stripe } from '@/lib/stripe';
+import { requireStripe } from '@/lib/stripe';
 
 export async function POST(
   request: NextRequest,
@@ -59,6 +59,7 @@ export async function POST(
     }
 
     // Create Stripe PaymentIntent
+    const stripe = requireStripe();
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amountToPay * 100), // Convert to kobo (cents)
       currency: 'ngn',
