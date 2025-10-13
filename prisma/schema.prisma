@@ -1,0 +1,710 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserRole {
+  CLIENT
+  FIXER
+  ADMIN
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  REJECTED
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  QUOTED
+  ACCEPTED
+  CANCELLED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID_PARTIAL
+  PAID
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  DISPUTED
+  SETTLED
+}
+
+enum QuoteType {
+  DIRECT
+  INSPECTION_REQUIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  HELD_IN_ESCROW
+  RELEASED
+  REFUNDED
+  FLAGGED
+}
+
+enum NotificationType {
+  NEW_REQUEST
+  NEW_QUOTE
+  QUOTE_ACCEPTED
+  INSPECTION_ACCEPTED
+  INSPECTION_COMPLETED
+  FINAL_QUOTE_SUBMITTED
+  PAYMENT_RECEIVED
+  DOWN_PAYMENT_RECEIVED
+  JOB_STARTED
+  JOB_COMPLETED
+  REVIEW_RECEIVED
+  FIXER_APPROVED
+  FIXER_REJECTED
+  GIG_ORDER
+  GENERAL
+}
+
+enum GigStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  PAUSED
+  REJECTED
+  DELETED
+}
+
+enum TransactionType {
+  PAYMENT_RECEIVED      // Client pays → Platform
+  COMMISSION_HOLD       // Platform takes commission
+  ESCROW_HOLD          // Remaining held for fixer
+  PAYOUT               // Escrow → Fixer
+  REFUND_ESCROW        // Escrow → Client
+  REFUND_COMMISSION    // Commission → Client (partial)
+  COMMISSION_TO_REVENUE // Commission → Available (finalized)
+  WITHDRAWAL           // User → Bank
+  DEPOSIT              // Manual credit
+  ADJUSTMENT           // Admin adjustment
+}
+
+// Models
+model User {
+  id                String          @id @default(cuid())
+  email             String?         @unique
+  phone             String?         @unique
+  name              String?
+  role              UserRole        @default(CLIENT)
+  status            UserStatus      @default(PENDING)
+  profileImage      String?
+  bio               String?
+
+  // Notification preferences
+  emailNotifications    Boolean     @default(true)
+  smsNotifications      Boolean     @default(false)
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  // Relationships
+  clientRequests    ServiceRequest[] @relation("ClientRequests")
+  fixerQuotes       Quote[]          @relation("FixerQuotes")
+  fixerServices     FixerService[]
+  fixerProfile      FixerProfile?
+  clientProfile     ClientProfile?
+  clientOrders      Order[]          @relation("ClientOrders")
+  fixerOrders       Order[]          @relation("FixerOrders")
+  sentMessages      Message[]        @relation("SentMessages")
+  reviewsGiven      Review[]         @relation("ReviewsGiven")
+  reviewsReceived   Review[]         @relation("ReviewsReceived")
+  notifications     Notification[]
+  magicLinks        MagicLink[]
+  invitedBy         User?            @relation("Invitations", fields: [invitedById], references: [id])
+  invitedById       String?
+  invitations       User[]           @relation("Invitations")
+  gigs              Gig[]
+  requestMessages   RequestMessage[] @relation("RequestMessages")
+  sentDirectMessages    DirectMessage[] @relation("SentDirectMessages")
+  receivedDirectMessages DirectMessage[] @relation("ReceivedDirectMessages")
+  purse             Purse?
+
+  @@index([email])
+  @@index([phone])
+  @@index([role])
+  @@index([status])
+}
+
+model FixerProfile {
+  id                String    @id @default(cuid())
+  fixerId           String    @unique
+  fixer             User      @relation(fields: [fixerId], references: [id], onDelete: Cascade)
+
+  yearsOfService    Int
+  qualifications    String[]  @default([])
+  streetAddress     String?
+  neighbourhood     String
+  city              String
+  state             String
+  country           String
+  primaryPhone      String
+  secondaryPhone    String?
+
+  approvedAt        DateTime?
+  pendingChanges    Boolean   @default(true)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([fixerId])
+  @@index([pendingChanges])
+}
+
+model ClientProfile {
+  id                String    @id @default(cuid())
+  clientId          String    @unique
+  client            User      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  streetAddress     String?
+  neighbourhood     String
+  city              String
+  state             String
+  country           String
+  primaryPhone      String
+  secondaryPhone    String?
+  alternateEmail    String?
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([clientId])
+}
+
+model MagicLink {
+  id          String    @id @default(cuid())
+  token       String    @unique
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  used        Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  @@index([token])
+  @@index([userId])
+}
+
+model Neighborhood {
+  id              String            @id @default(cuid())
+  name            String
+  city            String
+  state           String
+  country         String
+  latitude        Float?
+  longitude       Float?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  serviceRequests ServiceRequest[]
+  fixerServices   FixerService[]
+
+  @@unique([name, city, state])
+  @@index([city, state])
+}
+
+model ServiceCategory {
+  id              String              @id @default(cuid())
+  name            String              @unique
+  description     String?
+  icon            String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  subcategories   ServiceSubcategory[]
+
+  @@index([name])
+}
+
+model ServiceSubcategory {
+  id              String            @id @default(cuid())
+  name            String
+  description     String?
+  categoryId      String
+  category        ServiceCategory   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  serviceRequests ServiceRequest[]
+  fixerServices   FixerService[]
+  gigs            Gig[]
+
+  @@unique([name, categoryId])
+  @@index([categoryId])
+}
+
+model FixerService {
+  id              String              @id @default(cuid())
+  fixerId         String
+  fixer           User                @relation(fields: [fixerId], references: [id], onDelete: Cascade)
+  subcategoryId   String
+  subcategory     ServiceSubcategory  @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+  description     String?
+  basePrice       Float?
+  priceUnit       String?             // e.g., "per hour", "per job", "per sq ft"
+  isActive        Boolean             @default(true)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  neighborhoods   Neighborhood[]
+
+  @@unique([fixerId, subcategoryId])
+  @@index([fixerId])
+  @@index([subcategoryId])
+}
+
+model ServiceRequest {
+  id                String              @id @default(cuid())
+  clientId          String
+  client            User                @relation("ClientRequests", fields: [clientId], references: [id], onDelete: Cascade)
+  subcategoryId     String
+  subcategory       ServiceSubcategory  @relation(fields: [subcategoryId], references: [id])
+  neighborhoodId    String
+  neighborhood      Neighborhood        @relation(fields: [neighborhoodId], references: [id])
+
+  title             String
+  description       String
+  address           String?
+  latitude          Float?
+  longitude         Float?
+
+  urgency           String?             // e.g., "immediate", "within_week", "flexible"
+  preferredDate     DateTime?
+  images            String[]            @default([])
+
+  status            RequestStatus       @default(PENDING)
+  adminApproved     Boolean             @default(false)
+  aiMatchScore      Float?
+  fraudScore        Float?
+
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  quotes            Quote[]
+  order             Order?
+  messages          RequestMessage[]
+  directMessages    DirectMessage[]
+
+  @@index([clientId])
+  @@index([subcategoryId])
+  @@index([neighborhoodId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Quote {
+  id                String          @id @default(cuid())
+  requestId         String
+  request           ServiceRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  fixerId           String
+  fixer             User            @relation("FixerQuotes", fields: [fixerId], references: [id], onDelete: Cascade)
+
+  // Quote Type & Inspection
+  type              QuoteType       @default(DIRECT)
+  inspectionFee     Float?
+  inspectionFeePaid Boolean         @default(false)
+  isRevised         Boolean         @default(false)
+  originalQuoteId   String?
+
+  totalAmount       Float
+  laborCost         Float
+  materialCost      Float
+  otherCosts        Float           @default(0)
+
+  description       String
+  estimatedDuration String?         // e.g., "2-3 hours", "1 day"
+  startDate         DateTime?
+
+  // Down Payment
+  requiresDownPayment   Boolean     @default(false)
+  downPaymentAmount     Float?
+  downPaymentPercentage Float?
+  downPaymentReason     String?
+
+  isAccepted        Boolean         @default(false)
+  aiPriceSuggestion Float?
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  order             Order?
+
+  @@unique([requestId, fixerId])
+  @@index([requestId])
+  @@index([fixerId])
+  @@index([isAccepted])
+  @@index([type])
+}
+
+model Order {
+  id                String          @id @default(cuid())
+
+  // ORIGIN - One of these pairs will be populated
+  // Service Request Origin
+  requestId         String?         @unique
+  request           ServiceRequest? @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  quoteId           String?         @unique
+  quote             Quote?          @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  // Gig Origin
+  gigId             String?
+  gig               Gig?            @relation(fields: [gigId], references: [id], onDelete: Cascade)
+  packageId         String?
+  package           GigPackage?     @relation(fields: [packageId], references: [id])
+
+  // PARTIES
+  clientId          String
+  client            User            @relation("ClientOrders", fields: [clientId], references: [id], onDelete: Cascade)
+  fixerId           String
+  fixer             User            @relation("FixerOrders", fields: [fixerId], references: [id], onDelete: Cascade)
+
+  // FINANCIALS
+  status            OrderStatus     @default(PENDING)
+  totalAmount       Float
+  platformFee       Float
+  fixerAmount       Float
+
+  // WORKFLOW
+  startedAt         DateTime?
+  completedAt       DateTime?
+  deliveredAt       DateTime?
+  deliveryDate      DateTime?       // Expected delivery date (from gig packages)
+  acceptedAt        DateTime?       // When client accepted delivery
+
+  // DELIVERY (from GigOrder)
+  deliveryNote      String?
+  deliveryFiles     String[]        @default([])
+
+  // REVISIONS (from GigOrder)
+  revisionsUsed     Int             @default(0)
+  revisionsAllowed  Int             @default(0)
+  revisionRequested Boolean         @default(false)
+  revisionNote      String?
+
+  // DOWN PAYMENT (for service requests)
+  downPaymentRequired Boolean       @default(false)
+  downPaymentAmount   Float?
+  downPaymentPaid     Boolean       @default(false)
+
+  // BUYER REQUIREMENTS (from GigOrder)
+  requirementResponses Json?
+
+  // INLINE REVIEW (from GigOrder - can coexist with Review table)
+  rating            Int?
+  reviewComment     String?
+  reviewedAt        DateTime?
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  // RELATIONS
+  payment           Payment?
+  review            Review?
+  messages          Message[]
+  directMessages    DirectMessage[]
+  purseTransactions PurseTransaction[]
+
+  @@index([clientId])
+  @@index([fixerId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([requestId])
+  @@index([gigId])
+}
+
+model Payment {
+  id                  String          @id @default(cuid())
+  orderId             String?         @unique
+  order               Order?          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  stripePaymentId     String          @unique
+  amount              Float
+  status              PaymentStatus   @default(PENDING)
+
+  paidAt              DateTime?
+  releasedAt          DateTime?
+  refundedAt          DateTime?
+
+  isFlagged           Boolean         @default(false)
+  flagReason          String?
+  adminApproved       Boolean         @default(false)
+  adminApprovedAt     DateTime?
+  adminApprovedBy     String?
+
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  purseTransactions   PurseTransaction[]
+
+  @@index([orderId])
+  @@index([status])
+  @@index([isFlagged])
+}
+
+model Review {
+  id              String    @id @default(cuid())
+  orderId         String    @unique
+  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  reviewerId      String
+  reviewer        User      @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+  revieweeId      String
+  reviewee        User      @relation("ReviewsReceived", fields: [revieweeId], references: [id], onDelete: Cascade)
+
+  rating          Int       // 1-5 stars
+  comment         String?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([reviewerId])
+  @@index([revieweeId])
+  @@index([orderId])
+}
+
+model Message {
+  id          String    @id @default(cuid())
+  orderId     String
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  senderId    String
+  sender      User      @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  content     String
+  isRead      Boolean   @default(false)
+
+  createdAt   DateTime  @default(now())
+
+  @@index([orderId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type        NotificationType
+  title       String
+  message     String
+  link        String?
+
+  isRead      Boolean           @default(false)
+
+  createdAt   DateTime          @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model PlatformSettings {
+  id                String    @id @default(cuid())
+  key               String    @unique
+  value             String
+  description       String?
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([key])
+}
+
+// Fiverr-style Gig System
+model Gig {
+  id                String              @id @default(cuid())
+  sellerId          String
+  seller            User                @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  subcategoryId     String
+  subcategory       ServiceSubcategory  @relation(fields: [subcategoryId], references: [id])
+
+  // Basic Info
+  title             String
+  description       String
+  slug              String              @unique
+
+  // Media
+  images            String[]            @default([])
+  videoUrl          String?
+
+  // Pricing & Packages
+  packages          GigPackage[]
+
+  // Delivery & Features
+  tags              String[]            @default([])
+
+  // Requirements from buyers
+  requirements      String[]            @default([])
+
+  // SEO & Metadata
+  searchKeywords    String[]            @default([])
+
+  // Status & Metrics
+  status            GigStatus           @default(DRAFT)
+  impressions       Int                 @default(0)
+  clicks            Int                 @default(0)
+  ordersCount       Int                 @default(0)
+
+  // Admin review
+  rejectionReason   String?
+
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  publishedAt       DateTime?
+
+  orders            Order[]
+  directMessages    DirectMessage[]
+
+  @@index([sellerId])
+  @@index([subcategoryId])
+  @@index([status])
+  @@index([slug])
+  @@index([publishedAt])
+}
+
+model GigPackage {
+  id                String    @id @default(cuid())
+  gigId             String
+  gig               Gig       @relation(fields: [gigId], references: [id], onDelete: Cascade)
+
+  // Package tier: BASIC, STANDARD, PREMIUM
+  name              String
+  description       String
+  price             Float
+
+  // Delivery details
+  deliveryDays      Int
+  revisions         Int       // -1 for unlimited
+
+  // Features included
+  features          String[]  @default([])
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  orders            Order[]
+
+  @@index([gigId])
+}
+
+model RequestMessage {
+  id                String          @id @default(cuid())
+  requestId         String
+  request           ServiceRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  senderId          String
+  sender            User            @relation("RequestMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  message           String
+  attachments       String[]        @default([])
+
+  isRead            Boolean         @default(false)
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([requestId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+// Direct messaging between users (client-to-fixer communication)
+model DirectMessage {
+  id                String    @id @default(cuid())
+  senderId          String
+  sender            User      @relation("SentDirectMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  recipientId       String
+  recipient         User      @relation("ReceivedDirectMessages", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  // Optional references to related entities
+  gigId             String?
+  gig               Gig?      @relation(fields: [gigId], references: [id], onDelete: SetNull)
+  orderId           String?
+  order             Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  requestId         String?
+  request           ServiceRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+
+  message           String
+  attachments       String[]  @default([])
+
+  isRead            Boolean   @default(false)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([gigId])
+  @@index([orderId])
+  @@index([requestId])
+  @@index([createdAt])
+}
+
+// Purse system for internal wallet/accounting
+model Purse {
+  id                  String   @id @default(cuid())
+  userId              String?  @unique  // null for platform purse
+  user                User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  availableBalance    Decimal  @default(0) @db.Decimal(10, 2)  // Withdrawable funds
+  pendingBalance      Decimal  @default(0) @db.Decimal(10, 2)  // In escrow
+  commissionBalance   Decimal  @default(0) @db.Decimal(10, 2)  // Commission held
+  totalRevenue        Decimal  @default(0) @db.Decimal(10, 2)  // Lifetime revenue (read-only)
+
+  currency            String   @default("USD")
+  isActive            Boolean  @default(true)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  fromTransactions    PurseTransaction[] @relation("FromTransactions")
+  toTransactions      PurseTransaction[] @relation("ToTransactions")
+
+  @@index([userId])
+}
+
+model PurseTransaction {
+  id                   String          @id @default(cuid())
+  type                 TransactionType
+  amount               Decimal         @db.Decimal(10, 2)
+
+  // Double-entry bookkeeping
+  fromPurseId         String?
+  fromPurse           Purse?          @relation("FromTransactions", fields: [fromPurseId], references: [id])
+  toPurseId           String?
+  toPurse             Purse?          @relation("ToTransactions", fields: [toPurseId], references: [id])
+
+  // Balance verification (before/after snapshots)
+  fromBalanceBefore   Decimal?        @db.Decimal(10, 2)
+  fromBalanceAfter    Decimal?        @db.Decimal(10, 2)
+  toBalanceBefore     Decimal?        @db.Decimal(10, 2)
+  toBalanceAfter      Decimal?        @db.Decimal(10, 2)
+
+  // References
+  orderId             String?
+  order               Order?          @relation(fields: [orderId], references: [id])
+  paymentId           String?
+  payment             Payment?        @relation(fields: [paymentId], references: [id])
+
+  description         String
+  metadata            Json?
+  processedBy         String?         // Admin user ID if manual
+
+  createdAt           DateTime        @default(now())
+
+  @@index([fromPurseId, createdAt])
+  @@index([toPurseId, createdAt])
+  @@index([type])
+  @@index([orderId])
+  @@index([paymentId])
+}
