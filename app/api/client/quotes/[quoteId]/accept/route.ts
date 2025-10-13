@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-09-30.clover',
-});
+import { requireStripe } from '@/lib/stripe';
 
 export async function POST(
   request: NextRequest,
@@ -64,6 +60,7 @@ export async function POST(
 
     // If requires down payment, create Stripe payment intent
     if (quote.requiresDownPayment && quote.downPaymentAmount) {
+      const stripe = requireStripe();
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(quote.downPaymentAmount * 100), // Convert to kobo
         currency: 'ngn',
