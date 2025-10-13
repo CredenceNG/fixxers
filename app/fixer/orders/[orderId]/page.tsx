@@ -271,7 +271,7 @@ export default async function OrderDetailPage({
                       Due Date
                     </div>
                     <div style={{ fontSize: '13px', color: colors.textSecondary }}>
-                      {formatDate(order.deliveryDate)}
+                      {order.deliveryDate ? formatDate(order.deliveryDate) : 'Not set'}
                     </div>
                   </div>
                 </div>
@@ -282,22 +282,26 @@ export default async function OrderDetailPage({
           {/* Package Details */}
           <DashboardCard title="Package Details">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div>
-                <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '4px' }}>
-                  Package
-                </div>
-                <div style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary }}>
-                  {order.package.name}
-                </div>
-              </div>
-              <div>
-                <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '4px' }}>
-                  Delivery Time
-                </div>
-                <div style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary }}>
-                  {order.package.deliveryDays} days
-                </div>
-              </div>
+              {order.package && (
+                <>
+                  <div>
+                    <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '4px' }}>
+                      Package
+                    </div>
+                    <div style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary }}>
+                      {order.package.name}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '4px' }}>
+                      Delivery Time
+                    </div>
+                    <div style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary }}>
+                      {order.package.deliveryDays} days
+                    </div>
+                  </div>
+                </>
+              )}
               <div>
                 <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '4px' }}>
                   Revisions
@@ -308,20 +312,22 @@ export default async function OrderDetailPage({
               </div>
             </div>
 
-            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: `1px solid ${colors.border}` }}>
-              <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px' }}>
-                Features Included
+            {order.package?.features && order.package.features.length > 0 && (
+              <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: `1px solid ${colors.border}` }}>
+                <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px' }}>
+                  Features Included
+                </div>
+                <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                  {order.package.features.map((feature, index) => (
+                    <li key={index} style={{ fontSize: '14px', color: colors.textPrimary, marginBottom: '4px' }}>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul style={{ margin: 0, paddingLeft: '20px' }}>
-                {order.package.features.map((feature, index) => (
-                  <li key={index} style={{ fontSize: '14px', color: colors.textPrimary, marginBottom: '4px' }}>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            )}
 
-            {order.package.description && (
+            {order.package?.description && (
               <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: `1px solid ${colors.border}` }}>
                 <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '4px' }}>
                   Description
@@ -449,22 +455,24 @@ export default async function OrderDetailPage({
           </DashboardCard>
 
           {/* Gig Info */}
-          <DashboardCard title="Service Offer">
-            <Link
-              href={`/gigs/${order.gig.slug}`}
-              style={{
-                fontSize: '15px',
-                fontWeight: '500',
-                color: colors.primary,
-                textDecoration: 'none',
-              }}
-            >
-              {order.gig.title}
-            </Link>
-            <div style={{ fontSize: '13px', color: colors.textSecondary, marginTop: '8px' }}>
-              View the full service offer details
-            </div>
-          </DashboardCard>
+          {order.gig && (
+            <DashboardCard title="Service Offer">
+              <Link
+                href={`/gigs/${order.gig.slug}`}
+                style={{
+                  fontSize: '15px',
+                  fontWeight: '500',
+                  color: colors.primary,
+                  textDecoration: 'none',
+                }}
+              >
+                {order.gig.title}
+              </Link>
+              <div style={{ fontSize: '13px', color: colors.textSecondary, marginTop: '8px' }}>
+                View the full service offer details
+              </div>
+            </DashboardCard>
+          )}
         </div>
       </div>
     </DashboardLayoutWithHeader>

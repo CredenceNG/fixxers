@@ -38,19 +38,18 @@ export default async function FixerOrdersPage() {
   const stats = {
     total: orders.length,
     pending: orders.filter((o) => o.status === 'PENDING').length,
-    inProgress: orders.filter((o) => o.status === 'IN_PROGRESS').length,
-    delivered: orders.filter((o) => o.status === 'DELIVERED').length,
+    paid: orders.filter((o) => o.status === 'PAID').length,
     completed: orders.filter((o) => o.status === 'COMPLETED').length,
   };
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, any> = {
       PENDING: { bg: colors.warningLight, color: colors.warning },
-      IN_PROGRESS: { bg: colors.primaryLight, color: colors.primary },
-      DELIVERED: { bg: colors.infoLight, color: colors.info },
+      PAID: { bg: colors.primaryLight, color: colors.primary },
       COMPLETED: { bg: colors.successLight, color: colors.success },
       CANCELLED: { bg: colors.errorLight, color: colors.error },
       DISPUTED: { bg: colors.errorLight, color: colors.error },
+      SETTLED: { bg: colors.successLight, color: colors.success },
     };
 
     const style = styles[status] || styles.PENDING;
