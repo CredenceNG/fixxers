@@ -18,7 +18,7 @@ export function useOptimizedPolling(
   interval: number = 30000,
   dependencies: any[] = []
 ) {
-  const intervalRef = useRef<NodeJS.Timeout>();
+  const intervalRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     // Initial fetch

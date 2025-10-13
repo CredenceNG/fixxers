@@ -100,16 +100,10 @@ export default async function FixerOrdersPage() {
           color={colors.warning}
         />
         <DashboardStat
-          label="In Progress"
-          value={stats.inProgress}
-          icon="🔄"
+          label="Paid"
+          value={stats.paid}
+          icon="💰"
           color={colors.primary}
-        />
-        <DashboardStat
-          label="Delivered"
-          value={stats.delivered}
-          icon="📮"
-          color={colors.info}
         />
         <DashboardStat
           label="Completed"
@@ -176,17 +170,19 @@ export default async function FixerOrdersPage() {
                       </div>
                     </td>
                     <td style={{ padding: '16px' }}>
-                      <Link
-                        href={`/gigs/${order.gig.slug}`}
-                        style={{
-                          fontSize: '14px',
-                          color: colors.primary,
-                          textDecoration: 'none',
-                          fontWeight: '500',
-                        }}
-                      >
-                        {order.gig.title}
-                      </Link>
+                      {order.gig && (
+                        <Link
+                          href={`/gigs/${order.gig.slug}`}
+                          style={{
+                            fontSize: '14px',
+                            color: colors.primary,
+                            textDecoration: 'none',
+                            fontWeight: '500',
+                          }}
+                        >
+                          {order.gig.title}
+                        </Link>
+                      )}
                     </td>
                     <td style={{ padding: '16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -204,28 +200,28 @@ export default async function FixerOrdersPage() {
                             color: colors.textSecondary,
                           }}
                         >
-                          {order.buyer.name?.charAt(0).toUpperCase() || '?'}
+                          {order.client.name?.charAt(0).toUpperCase() || '?'}
                         </div>
                         <div>
                           <div style={{ fontSize: '14px', fontWeight: '500', color: colors.textPrimary }}>
-                            {order.buyer.name || 'Anonymous'}
+                            {order.client.name || 'Anonymous'}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>
-                      {order.package.name}
+                      {order.package?.name || 'N/A'}
                     </td>
                     <td style={{ padding: '16px' }}>
                       <div style={{ fontSize: '15px', fontWeight: '600', color: colors.textPrimary }}>
-                        ₦{order.price.toLocaleString()}
+                        ₦{order.totalAmount.toLocaleString()}
                       </div>
                       <div style={{ fontSize: '12px', color: colors.success }}>
-                        You earn: ₦{order.sellerEarnings.toLocaleString()}
+                        You earn: ₦{order.fixerAmount.toLocaleString()}
                       </div>
                     </td>
                     <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>
-                      {formatDate(order.deliveryDate)}
+                      {order.deliveryDate ? formatDate(order.deliveryDate) : 'Not set'}
                     </td>
                     <td style={{ padding: '16px' }}>{getStatusBadge(order.status)}</td>
                     <td style={{ padding: '16px' }}>

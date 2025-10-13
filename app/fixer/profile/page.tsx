@@ -85,9 +85,9 @@ export default function FixerProfilePage() {
 
           // Set all selected neighborhoods
           const allNeighborhoods = profile.services.flatMap((s: any) =>
-            s.neighborhoods.map((n: any) => n.id)
+            s.neighborhoods.map((n: any) => n.id as string)
           );
-          setSelectedNeighborhoods([...new Set(allNeighborhoods)]);
+          setSelectedNeighborhoods(Array.from(new Set(allNeighborhoods)) as string[]);
 
           // Set selected categories and subcategories
           const categoryMap = new Map<string, Set<string>>();

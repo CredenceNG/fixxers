@@ -147,6 +147,19 @@ export async function sendInvitationEmail(email: string, invitedBy: string, role
   const magicLink = `${APP_URL}/auth/verify?token=${token}&invited=true`;
   const roleText = role === 'FIXER' ? 'service provider' : 'client';
 
+  // In development or without API key, log to console
+  if (!resend) {
+    console.log('\n' + '='.repeat(80));
+    console.log('INVITATION EMAIL (Not sent - Development Mode)');
+    console.log('='.repeat(80));
+    console.log('To:', email);
+    console.log('Invited by:', invitedBy);
+    console.log('Role:', roleText);
+    console.log('Magic Link:', magicLink);
+    console.log('='.repeat(80) + '\n');
+    return;
+  }
+
   try {
     await resend.emails.send({
       from: FROM_EMAIL,

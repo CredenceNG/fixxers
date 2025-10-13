@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { colors, borderRadius, typography } from '@/lib/theme';
 
-export default function LoginPage() {
+function LoginContent() {
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const searchParams = useSearchParams();
@@ -188,5 +188,35 @@ export default function LoginPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div style={{
+        minHeight: '100vh',
+        backgroundColor: colors.bgSecondary,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px'
+      }}>
+        <div style={{
+          backgroundColor: colors.white,
+          borderRadius: borderRadius.lg,
+          padding: '40px',
+          border: `1px solid ${colors.border}`,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+          textAlign: 'center'
+        }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary }}>
+            Loading...
+          </h2>
+        </div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
