@@ -194,13 +194,25 @@ export default function ClientProfilePage() {
             <h1 style={{ ...styles.headerTitle, margin: 0 }}>
               Complete Your Profile
             </h1>
-            <button
-              type="button"
-              onClick={() => router.push('/client/dashboard')}
-              style={{ padding: '8px 16px', fontSize: '14px', color: colors.textSecondary, backgroundColor: 'transparent', border: '1px solid #E4E6EB', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}
-            >
-              Skip for now
-            </button>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={() => router.push('/client/dashboard')}
+                style={{ padding: '8px 16px', fontSize: '14px', color: colors.textSecondary, backgroundColor: 'transparent', border: '1px solid #E4E6EB', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}
+              >
+                Skip for now
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  await fetch('/api/auth/logout', { method: 'POST' });
+                  window.location.href = '/';
+                }}
+                style={{ padding: '8px 16px', fontSize: '14px', color: '#DC2626', backgroundColor: 'transparent', border: '1px solid #DC2626', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}
+              >
+                Logout
+              </button>
+            </div>
           </div>
           <p style={{ fontSize: '15px', color: colors.textSecondary, marginBottom: '32px' }}>
             To create service requests, please provide the following information.
