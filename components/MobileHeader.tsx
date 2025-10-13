@@ -9,10 +9,14 @@ import { NotificationBell } from './NotificationBell';
 interface MobileHeaderProps {
   user: {
     id: string;
-    email: string;
+    email: string | null;
+    phone: string | null;
     name: string | null;
     role: string;
     status: string;
+    profileImage: string | null;
+    bio: string | null;
+    createdAt: Date;
   } | null;
 }
 
