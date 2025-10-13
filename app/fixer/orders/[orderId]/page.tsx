@@ -118,7 +118,7 @@ export default async function OrderDetailPage({
   return (
     <DashboardLayoutWithHeader
       title={`Order #${order.id.slice(-8).toUpperCase()}`}
-      subtitle={`For: ${order.gig.title}`}
+      subtitle={`For: ${order.gig?.title || order.request?.title || 'Service'}`}
       actions={
         <Link href="/fixer/orders">
           <DashboardButton variant="outline">← Back to Orders</DashboardButton>

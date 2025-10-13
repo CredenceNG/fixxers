@@ -126,6 +126,15 @@ export default async function FixerDashboard() {
           },
         },
       },
+      gig: {
+        include: {
+          subcategory: {
+            include: {
+              category: true,
+            },
+          },
+        },
+      },
       payment: true,
     },
     orderBy: { createdAt: 'desc' },
@@ -140,6 +149,15 @@ export default async function FixerDashboard() {
     include: {
       client: true,
       request: {
+        include: {
+          subcategory: {
+            include: {
+              category: true,
+            },
+          },
+        },
+      },
+      gig: {
         include: {
           subcategory: {
             include: {
@@ -462,9 +480,11 @@ export default async function FixerDashboard() {
               <tbody>
                 {completedOrders.map((order) => (
                   <tr key={order.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
-                    <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>{order.request.subcategory.name}</td>
                     <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>
-                      {order.client.name || order.client.email || order.client.phone}
+                      {order.request?.subcategory?.name || order.gig?.subcategory?.name || 'N/A'}
+                    </td>
+                    <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>
+                      {order.client?.name || order.client?.email || order.client?.phone || 'N/A'}
                     </td>
                     <td style={{ padding: '16px', fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>₦{order.fixerAmount.toLocaleString()}</td>
                     <td style={{ padding: '16px', fontSize: '14px', color: colors.textSecondary }}>

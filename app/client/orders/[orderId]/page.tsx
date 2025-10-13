@@ -227,24 +227,32 @@ export default async function ClientOrderDetailPage({ params }: { params: Promis
                   <label style={{ fontSize: '14px', fontWeight: '600', color: colors.textSecondary, display: 'block', marginBottom: '4px' }}>
                     Service
                   </label>
-                  <Link
-                    href={`/gigs/${order.gig.slug}`}
-                    style={{ fontSize: '16px', fontWeight: '600', color: colors.primary, textDecoration: 'none' }}
-                  >
-                    {order.gig.title}
-                  </Link>
+                  {order.gig ? (
+                    <Link
+                      href={`/gigs/${order.gig.slug}`}
+                      style={{ fontSize: '16px', fontWeight: '600', color: colors.primary, textDecoration: 'none' }}
+                    >
+                      {order.gig.title}
+                    </Link>
+                  ) : (
+                    <span style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary }}>
+                      {order.request?.title || 'Service Request'}
+                    </span>
+                  )}
                 </div>
 
-                <div>
-                  <label style={{ fontSize: '14px', fontWeight: '600', color: colors.textSecondary, display: 'block', marginBottom: '4px' }}>
-                    Package
-                  </label>
-                  <div style={{ fontSize: '15px', color: colors.textPrimary }}>
-                    {order.package.name} - ₦{order.package.price.toLocaleString()}
+                {order.package && (
+                  <div>
+                    <label style={{ fontSize: '14px', fontWeight: '600', color: colors.textSecondary, display: 'block', marginBottom: '4px' }}>
+                      Package
+                    </label>
+                    <div style={{ fontSize: '15px', color: colors.textPrimary }}>
+                      {order.package.name} - ₦{order.package.price.toLocaleString()}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {order.package.deliveryDays && (
+                {order.package?.deliveryDays && (
                   <div>
                     <label style={{ fontSize: '14px', fontWeight: '600', color: colors.textSecondary, display: 'block', marginBottom: '4px' }}>
                       Delivery Time
