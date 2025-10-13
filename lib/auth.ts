@@ -1,18 +1,17 @@
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { prisma } from './prisma';
+import type { JWTPayload } from './auth-jwt';
+import { verifySessionToken as verifyToken } from './auth-jwt';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const TOKEN_EXPIRY = '15m'; // 15 minutes for magic link
 const SESSION_EXPIRY = '7d'; // 7 days for session
 
-export interface JWTPayload {
-  userId: string;
-  email?: string;
-  phone?: string;
-  role: string;
-  hasProfile?: boolean;
-}
+// Re-export types and functions from auth-jwt for convenience
+// This allows existing code to continue importing from '@/lib/auth'
+export type { JWTPayload } from './auth-jwt';
+export { verifySessionToken } from './auth-jwt';
 
 // Generate magic link token
 export async function generateMagicLink(userId: string): Promise<string> {
@@ -66,15 +65,8 @@ export function generateSessionToken(payload: JWTPayload): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: SESSION_EXPIRY });
 }
 
-// Verify session token
-export function verifySessionToken(token: string): JWTPayload | null {
-  try {
-    return jwt.verify(token, JWT_SECRET) as JWTPayload;
-  } catch (error) {
-    console.error('[verifySessionToken] Failed to verify token:', error instanceof Error ? error.message : error);
-    return null;
-  }
-}
+// Note: verifySessionToken is re-exported from auth-jwt.ts at the top of this file
+// This avoids including Prisma in the middleware bundle
 
 // Set auth cookie
 export async function setAuthCookie(token: string) {
@@ -105,7 +97,7 @@ export async function getCurrentUser() {
   const token = await getAuthCookie();
   if (!token) return null;
 
-  const payload = verifySessionToken(token);
+  const payload = verifyToken(token);
   if (!payload) return null;
 
   const user = await prisma.user.findUnique({
