@@ -103,6 +103,28 @@ export const shadows = {
   hover: '0 4px 12px rgba(0, 0, 0, 0.12)',
 };
 
+// Breakpoints for responsive design
+export const breakpoints = {
+  mobile: '640px',
+  tablet: '768px',
+  desktop: '1024px',
+  wide: '1280px',
+};
+
+// Mobile-first media queries
+export const mediaQueries = {
+  mobile: `@media (max-width: ${breakpoints.mobile})`,
+  tablet: `@media (max-width: ${breakpoints.tablet})`,
+  desktop: `@media (min-width: ${breakpoints.desktop})`,
+  wide: `@media (min-width: ${breakpoints.wide})`,
+};
+
+// Helper to check if user is on mobile (for client-side)
+export const isMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth <= parseInt(breakpoints.tablet);
+};
+
 // Typography
 export const typography = {
   h1: {
@@ -497,4 +519,7 @@ export default {
   styles,
   gradientText,
   statusBadgeStyles,
+  breakpoints,
+  mediaQueries,
+  isMobile,
 };

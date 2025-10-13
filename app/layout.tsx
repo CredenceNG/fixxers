@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 export const metadata: Metadata = {
   title: "FIXI-NG - Local Services Marketplace",
   description: "Connect with trusted local service providers for home repairs and maintenance",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=5",
 };
 
 export default function RootLayout({
