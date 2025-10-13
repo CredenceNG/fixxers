@@ -626,7 +626,7 @@ export default async function AdminDashboard() {
                             ? { backgroundColor: colors.gray100, color: colors.gray700 }
                             : request.status === 'QUOTED'
                             ? { backgroundColor: colors.blueLight, color: '#2952A3' }
-                            : request.status === 'ACCEPTED' || request.status === 'COMPLETED'
+                            : request.status === 'ACCEPTED'
                             ? { backgroundColor: colors.primaryLight, color: colors.primaryDark }
                             : { backgroundColor: '#FEF5E7', color: '#95620D' }
                           )
