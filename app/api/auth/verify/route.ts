@@ -15,9 +15,33 @@ export async function GET(request: NextRequest) {
     const userId = await verifyMagicLink(token);
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Invalid or expired token' },
-        { status: 400 }
+      // Try to get user email from the magic link record (even if expired)
+      const magicLink = await prisma.magicLink.findUnique({
+        where: { token },
+        include: { user: true }
+      });
+
+      if (magicLink) {
+        const userEmail = magicLink.user.email || magicLink.user.phone;
+        const isExpired = magicLink.expiresAt < new Date();
+        const isUsed = magicLink.used;
+
+        if (isExpired) {
+          // Redirect to home with expired message
+          return NextResponse.redirect(
+            new URL(`/?message=expired&email=${encodeURIComponent(userEmail || '')}`, request.url)
+          );
+        } else if (isUsed) {
+          // Already used - redirect to login
+          return NextResponse.redirect(
+            new URL(`/auth/login?message=already_used`, request.url)
+          );
+        }
+      }
+
+      // Invalid token - redirect to home
+      return NextResponse.redirect(
+        new URL(`/?message=invalid`, request.url)
       );
     }
 
