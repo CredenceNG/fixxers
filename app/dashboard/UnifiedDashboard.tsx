@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { styles, colors } from '@/lib/theme';
-import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
 
 interface UnifiedDashboardProps {
   user: {
@@ -22,7 +21,7 @@ export default function UnifiedDashboard({ user }: UnifiedDashboardProps) {
   const hasFixerRole = user.roles.includes('FIXER');
 
   return (
-    <DashboardLayoutWithHeader>
+    <div style={{ minHeight: '100vh', backgroundColor: '#F9FAFB' }}>
       <div style={{ padding: '24px' }}>
         {/* Welcome Section */}
         <div style={{ marginBottom: '32px' }}>
@@ -117,6 +116,6 @@ export default function UnifiedDashboard({ user }: UnifiedDashboardProps) {
           )}
         </div>
       </div>
-    </DashboardLayoutWithHeader>
+    </div>
   );
 }

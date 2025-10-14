@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
+import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
 import UnifiedDashboard from './UnifiedDashboard';
 
 export default async function DashboardPage() {
@@ -25,5 +26,9 @@ export default async function DashboardPage() {
   }
 
   // User has multiple roles - show unified dashboard
-  return <UnifiedDashboard user={{ id: user.id, name: user.name, email: user.email, roles }} />;
+  return (
+    <DashboardLayoutWithHeader>
+      <UnifiedDashboard user={{ id: user.id, name: user.name, email: user.email, roles }} />
+    </DashboardLayoutWithHeader>
+  );
 }
