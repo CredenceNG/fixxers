@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { sendRequestRejectionEmail } from '@/lib/email';
 
 export async function POST(
   request: NextRequest,
@@ -15,9 +16,18 @@ export async function POST(
 
     const { requestId } = await params;
 
+    // Parse request body for rejection reason
+    const body = await request.json();
+    const reason = body.reason || 'Your service request did not meet our platform guidelines.';
+
     // Fetch the service request
     const serviceRequest = await prisma.serviceRequest.findUnique({
       where: { id: requestId },
+      include: {
+        client: {
+          select: { email: true, name: true },
+        },
+      },
     });
 
     if (!serviceRequest) {
@@ -31,6 +41,16 @@ export async function POST(
         status: 'CANCELLED',
       },
     });
+
+    // Send rejection notification email
+    if (serviceRequest.client?.email) {
+      await sendRequestRejectionEmail(
+        serviceRequest.client.email,
+        serviceRequest.client.name || 'Client',
+        serviceRequest.title,
+        reason
+      );
+    }
 
     return NextResponse.json({
       success: true,

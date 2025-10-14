@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { sendFixerApprovalEmail, sendFixerRejectionEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +20,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.redirect(new URL('/admin/dashboard?error=invalid_request', request.url));
     }
 
+    // Fetch fixer details for email
+    const fixer = await prisma.user.findUnique({
+      where: { id: fixerId },
+      select: { email: true, name: true },
+    });
+
+    if (!fixer || !fixer.email) {
+      return NextResponse.redirect(new URL('/admin/dashboard?error=fixer_not_found', request.url));
+    }
+
     if (approved) {
       // Approve the fixer
       await prisma.user.update({
@@ -35,7 +46,9 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // TODO: Send approval notification email/SMS
+      // Send approval notification email
+      await sendFixerApprovalEmail(fixer.email, fixer.name || 'Fixer');
+
       return NextResponse.redirect(new URL(`/admin/users/${fixerId}?success=approved`, request.url));
     } else {
       // Reject the fixer
@@ -52,7 +65,9 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // TODO: Send rejection notification email/SMS
+      // Send rejection notification email
+      await sendFixerRejectionEmail(fixer.email, fixer.name || 'Fixer', 'Your profile needs additional information or updates.');
+
       return NextResponse.redirect(new URL(`/admin/users/${fixerId}?success=rejected`, request.url));
     }
   } catch (error) {

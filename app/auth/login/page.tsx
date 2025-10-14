@@ -58,12 +58,14 @@ function LoginContent() {
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
             <Link href="/" style={{ textDecoration: 'none' }}>
               <h1 style={{
-                fontSize: '40px',
-                fontWeight: '700',
+                fontSize: '48px',
+                fontWeight: '800',
                 color: colors.textPrimary,
-                marginBottom: '8px'
+                marginBottom: '8px',
+                letterSpacing: '-0.02em'
               }}>
-                <span style={{ color: colors.primary }}>fixxers</span>
+                <span style={{ color: colors.primary }}>FIXI</span>
+                <span style={{ color: colors.textPrimary }}>-NG</span>
               </h1>
             </Link>
             <p style={{ fontSize: '18px', color: colors.textSecondary }}>

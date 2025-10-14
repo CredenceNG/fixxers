@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { sendGigApprovalEmail } from '@/lib/email';
 
 export async function POST(
   request: NextRequest,
@@ -18,7 +19,13 @@ export async function POST(
     // Check if gig exists
     const gig = await prisma.gig.findUnique({
       where: { id: gigId },
-      select: { status: true },
+      select: {
+        status: true,
+        title: true,
+        seller: {
+          select: { email: true, name: true },
+        },
+      },
     });
 
     if (!gig) {
@@ -37,6 +44,16 @@ export async function POST(
       where: { id: gigId },
       data: { status: 'ACTIVE' },
     });
+
+    // Send approval notification email
+    if (gig.seller?.email) {
+      await sendGigApprovalEmail(
+        gig.seller.email,
+        gig.seller.name || 'Fixer',
+        gig.title,
+        gigId
+      );
+    }
 
     return NextResponse.json({
       success: true,

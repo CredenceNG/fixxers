@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { sendGigRejectionEmail } from '@/lib/email';
 
 export async function POST(
   request: NextRequest,
@@ -27,7 +28,15 @@ export async function POST(
     // Check if gig exists
     const gig = await prisma.gig.findUnique({
       where: { id: gigId },
-      select: { status: true, sellerId: true },
+      select: {
+        status: true,
+        sellerId: true,
+        title: true,
+        description: true,
+        seller: {
+          select: { email: true, name: true },
+        },
+      },
     });
 
     if (!gig) {
@@ -49,12 +58,19 @@ export async function POST(
         // Store rejection reason in a way the fixer can see it
         // You might want to add a rejectionReason field to the Gig model
         // For now, we'll prepend it to the description
-        description: `[REJECTED: ${reason}]\n\n${await prisma.gig.findUnique({ where: { id: gigId }, select: { description: true } }).then(g => g?.description || '')}`,
+        description: `[REJECTED: ${reason}]\n\n${gig.description || ''}`,
       },
     });
 
-    // TODO: Send notification to fixer about rejection
-    // This could be via email or in-app notification
+    // Send rejection notification email
+    if (gig.seller?.email) {
+      await sendGigRejectionEmail(
+        gig.seller.email,
+        gig.seller.name || 'Fixer',
+        gig.title,
+        reason
+      );
+    }
 
     return NextResponse.json({
       success: true,

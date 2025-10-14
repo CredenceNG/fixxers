@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { sendRequestApprovalEmail } from '@/lib/email';
 
 export async function POST(
   request: NextRequest,
@@ -18,6 +19,11 @@ export async function POST(
     // Fetch the service request
     const serviceRequest = await prisma.serviceRequest.findUnique({
       where: { id: requestId },
+      include: {
+        client: {
+          select: { email: true, name: true },
+        },
+      },
     });
 
     if (!serviceRequest) {
@@ -32,6 +38,16 @@ export async function POST(
         status: 'APPROVED',
       },
     });
+
+    // Send approval notification email
+    if (serviceRequest.client?.email) {
+      await sendRequestApprovalEmail(
+        serviceRequest.client.email,
+        serviceRequest.client.name || 'Client',
+        serviceRequest.title,
+        requestId
+      );
+    }
 
     return NextResponse.json({
       success: true,
