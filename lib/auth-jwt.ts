@@ -7,7 +7,10 @@ export interface JWTPayload {
   email?: string;
   phone?: string;
   role: string;
+  roles: string[];
   hasProfile?: boolean;
+  hasFixerProfile?: boolean;
+  hasClientProfile?: boolean;
 }
 
 /**

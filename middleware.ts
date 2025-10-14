@@ -47,29 +47,30 @@ export function middleware(request: NextRequest) {
     if (payload) {
       // Role-based access control
       const role = payload.role;
+      const roles = payload.roles || [role];
 
       // Admin routes
-      if (pathname.startsWith('/admin') && role !== 'ADMIN') {
+      if (pathname.startsWith('/admin') && !roles.includes('ADMIN')) {
         return NextResponse.redirect(new URL('/', request.url));
       }
 
       // Fixer routes
-      if (pathname.startsWith('/fixer') && role !== 'FIXER') {
+      if (pathname.startsWith('/fixer') && !roles.includes('FIXER')) {
         return NextResponse.redirect(new URL('/', request.url));
       }
 
       // Client routes
-      if (pathname.startsWith('/client') && role !== 'CLIENT') {
+      if (pathname.startsWith('/client') && !roles.includes('CLIENT')) {
         return NextResponse.redirect(new URL('/', request.url));
       }
 
       // Check if fixer needs to complete profile
-      if (role === 'FIXER' && !payload.hasProfile && !profileExemptRoutes.some(route => pathname.startsWith(route))) {
+      if (roles.includes('FIXER') && !payload.hasFixerProfile && !profileExemptRoutes.some(route => pathname.startsWith(route))) {
         return NextResponse.redirect(new URL('/fixer/profile', request.url));
       }
 
       // Check if client needs to complete profile
-      if (role === 'CLIENT' && !payload.hasProfile && !profileExemptRoutes.some(route => pathname.startsWith(route))) {
+      if (roles.includes('CLIENT') && !payload.hasClientProfile && !profileExemptRoutes.some(route => pathname.startsWith(route))) {
         return NextResponse.redirect(new URL('/client/profile', request.url));
       }
 

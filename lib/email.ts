@@ -677,3 +677,176 @@ export async function sendGigRejectionEmail(email: string, fixerName: string, gi
     `,
   });
 }
+
+// Order notification emails
+export async function sendOrderCreatedEmailToFixer(email: string, fixerName: string, clientName: string, orderTitle: string, amount: number, orderId: string, isGigOrder: boolean) {
+  const orderLink = isGigOrder ? `${APP_URL}/fixer/orders/${orderId}` : `${APP_URL}/fixer/orders/${orderId}/view`;
+
+  return sendEmail({
+    to: email,
+    subject: 'New Order Received!',
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+            }
+            .container {
+              background: #f9f9f9;
+              border-radius: 10px;
+              padding: 30px;
+              margin: 20px 0;
+            }
+            .button {
+              display: inline-block;
+              padding: 12px 30px;
+              background: #10b981;
+              color: white;
+              text-decoration: none;
+              border-radius: 6px;
+              margin: 20px 0;
+            }
+            .footer {
+              margin-top: 30px;
+              font-size: 12px;
+              color: #666;
+            }
+            .amount-box {
+              background: #ecfdf5;
+              border-left: 4px solid #10b981;
+              padding: 15px;
+              margin: 20px 0;
+              font-size: 18px;
+              font-weight: bold;
+              color: #047857;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h2>🎉 New Order Received!</h2>
+            <p>Hello ${fixerName},</p>
+            <p>Great news! You have received a new order from <strong>${clientName}</strong>.</p>
+            <p><strong>Order Details:</strong></p>
+            <ul>
+              <li><strong>Service:</strong> ${orderTitle}</li>
+              <li><strong>Client:</strong> ${clientName}</li>
+            </ul>
+            <div class="amount-box">
+              Order Amount: ₦${amount.toLocaleString()}
+            </div>
+            <p><strong>Next Steps:</strong></p>
+            <ul>
+              <li>Review the order details</li>
+              <li>Check the client's requirements</li>
+              <li>Start working on the order</li>
+              <li>Deliver quality work on time</li>
+            </ul>
+            <a href="${orderLink}" class="button">View Order Details</a>
+            <p style="margin-top: 20px; font-size: 14px;">
+              Or copy and paste this link into your browser:<br>
+              <span style="color: #2563eb;">${orderLink}</span>
+            </p>
+            <div class="footer">
+              <p>💡 Tip: Communicate with your client to clarify any requirements!</p>
+              <p>&copy; ${new Date().getFullYear()} FIXI-NG. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `,
+  });
+}
+
+export async function sendOrderCreatedEmailToClient(email: string, clientName: string, fixerName: string, orderTitle: string, amount: number, orderId: string) {
+  const orderLink = `${APP_URL}/client/orders/${orderId}`;
+
+  return sendEmail({
+    to: email,
+    subject: 'Order Confirmation',
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+            }
+            .container {
+              background: #f9f9f9;
+              border-radius: 10px;
+              padding: 30px;
+              margin: 20px 0;
+            }
+            .button {
+              display: inline-block;
+              padding: 12px 30px;
+              background: #2563eb;
+              color: white;
+              text-decoration: none;
+              border-radius: 6px;
+              margin: 20px 0;
+            }
+            .footer {
+              margin-top: 30px;
+              font-size: 12px;
+              color: #666;
+            }
+            .amount-box {
+              background: #eff6ff;
+              border-left: 4px solid #2563eb;
+              padding: 15px;
+              margin: 20px 0;
+              font-size: 18px;
+              font-weight: bold;
+              color: #1e40af;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h2>✅ Order Confirmed!</h2>
+            <p>Hello ${clientName},</p>
+            <p>Your order has been successfully placed! <strong>${fixerName}</strong> will start working on it soon.</p>
+            <p><strong>Order Details:</strong></p>
+            <ul>
+              <li><strong>Service:</strong> ${orderTitle}</li>
+              <li><strong>Service Provider:</strong> ${fixerName}</li>
+            </ul>
+            <div class="amount-box">
+              Total Amount: ₦${amount.toLocaleString()}
+            </div>
+            <p><strong>What happens next?</strong></p>
+            <ul>
+              <li>The service provider will review your requirements</li>
+              <li>They will start working on your order</li>
+              <li>You'll be notified of progress updates</li>
+              <li>You can track the order status anytime</li>
+            </ul>
+            <a href="${orderLink}" class="button">View Order Status</a>
+            <p style="margin-top: 20px; font-size: 14px;">
+              Or copy and paste this link into your browser:<br>
+              <span style="color: #2563eb;">${orderLink}</span>
+            </p>
+            <div class="footer">
+              <p>Need help? Contact us anytime!</p>
+              <p>&copy; ${new Date().getFullYear()} FIXI-NG. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `,
+  });
+}

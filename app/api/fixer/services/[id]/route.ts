@@ -13,7 +13,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (user.role !== 'FIXER') {
+    if (!user.roles?.includes('FIXER')) {
       return NextResponse.json({ error: 'Only fixers can update services' }, { status: 403 });
     }
 
@@ -65,7 +65,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (user.role !== 'FIXER') {
+    if (!user.roles?.includes('FIXER')) {
       return NextResponse.json({ error: 'Only fixers can delete services' }, { status: 403 });
     }
 

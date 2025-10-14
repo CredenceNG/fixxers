@@ -35,20 +35,24 @@ export async function GET(request: NextRequest) {
     }
 
     // Update user status to ACTIVE if it was PENDING
-    if (user.status === 'PENDING' && user.role === 'CLIENT') {
+    if (user.status === 'PENDING' && user.roles?.includes('CLIENT')) {
       await prisma.user.update({
         where: { id: userId },
         data: { status: 'ACTIVE' },
       });
     }
 
-    // Check if user has profile based on role
-    let hasProfile = true;
-    if (user.role === 'FIXER') {
-      hasProfile = !!user.fixerProfile;
-    } else if (user.role === 'CLIENT') {
-      hasProfile = !!user.clientProfile;
-    }
+    // Check if user has profiles
+    const hasFixerProfile = !!user.fixerProfile;
+    const hasClientProfile = !!user.clientProfile;
+
+    // Determine primary role and overall profile status
+    const roles = user.roles && user.roles.length > 0 ? user.roles : [user.role];
+    const hasProfile = roles.some(role =>
+      (role === 'FIXER' && hasFixerProfile) ||
+      (role === 'CLIENT' && hasClientProfile) ||
+      role === 'ADMIN'
+    );
 
     // Generate session token
     const sessionToken = generateSessionToken({
@@ -56,21 +60,24 @@ export async function GET(request: NextRequest) {
       email: user.email || undefined,
       phone: user.phone || undefined,
       role: user.role,
+      roles,
       hasProfile,
+      hasFixerProfile,
+      hasClientProfile,
     });
 
     // Redirect based on role
     let redirectUrl = '/';
     if (user.role === 'ADMIN') {
       redirectUrl = '/admin/dashboard';
-    } else if (user.role === 'FIXER') {
+    } else if (user.roles?.includes('FIXER')) {
       // Check if profile is completed first
       if (!hasProfile) {
         redirectUrl = '/fixer/profile';
       } else {
         redirectUrl = user.status === 'PENDING' ? '/fixer/pending' : '/fixer/dashboard';
       }
-    } else if (user.role === 'CLIENT') {
+    } else if (user.roles?.includes('CLIENT')) {
       // Check if profile is completed first
       if (!hasProfile) {
         redirectUrl = '/client/profile';

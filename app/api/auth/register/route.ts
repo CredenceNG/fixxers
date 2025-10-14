@@ -10,6 +10,7 @@ const registerSchema = z.object({
   phone: z.string().optional(),
   name: z.string().optional(),
   role: z.enum(['CLIENT', 'FIXER']).optional(),
+  roles: z.array(z.enum(['CLIENT', 'FIXER'])).optional(),
 }).refine(data => data.email || data.phone, {
   message: 'Either email or phone is required',
 });
@@ -36,13 +37,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Determine roles: use roles array if provided, otherwise fallback to role, default to CLIENT
+    const roles = validated.roles && validated.roles.length > 0
+      ? validated.roles
+      : validated.role
+        ? [validated.role]
+        : ['CLIENT' as const];
+
+    const primaryRole = roles[0] as 'CLIENT' | 'FIXER';
+
     // Create new user with PENDING status
     const user = await prisma.user.create({
       data: {
         email: validated.email,
         phone: validated.phone,
         name: validated.name,
-        role: validated.role || 'CLIENT',
+        role: primaryRole,
+        roles: roles,
       },
     });
 

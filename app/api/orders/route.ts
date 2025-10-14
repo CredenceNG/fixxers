@@ -13,8 +13,23 @@ export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser();
 
-    if (!user || user.role !== 'CLIENT') {
+    if (!user || !user.roles?.includes('CLIENT')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get user with emailNotifications field
+    const fullUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        emailNotifications: true,
+      },
+    });
+
+    if (!fullUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     const body = await request.json();
@@ -25,7 +40,14 @@ export async function POST(request: NextRequest) {
       where: { id: validated.gigId },
       include: {
         packages: true,
-        seller: true,
+        seller: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            emailNotifications: true,
+          },
+        },
       },
     });
 
@@ -100,8 +122,38 @@ export async function POST(request: NextRequest) {
       data: { ordersCount: { increment: 1 } },
     });
 
-    // TODO: Send notification to seller
-    // TODO: Send confirmation email to buyer
+    // Send notifications to both parties
+    try {
+      const { sendOrderCreatedEmailToFixer, sendOrderCreatedEmailToClient } = await import('@/lib/email');
+
+      // Notify fixer
+      if (gig.seller.email && gig.seller.emailNotifications) {
+        await sendOrderCreatedEmailToFixer(
+          gig.seller.email,
+          gig.seller.name || 'Service Provider',
+          user.name || 'Client',
+          gig.title,
+          selectedPackage.price,
+          order.id,
+          true // isGigOrder
+        );
+      }
+
+      // Notify client
+      if (fullUser.email && fullUser.emailNotifications) {
+        await sendOrderCreatedEmailToClient(
+          fullUser.email,
+          fullUser.name || 'Client',
+          gig.seller.name || 'Service Provider',
+          gig.title,
+          selectedPackage.price,
+          order.id
+        );
+      }
+    } catch (error) {
+      console.error('Failed to send order notification emails:', error);
+      // Don't fail the order creation if emails fail
+    }
 
     return NextResponse.json({
       success: true,

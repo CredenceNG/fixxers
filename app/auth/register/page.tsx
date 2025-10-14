@@ -9,20 +9,35 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     name: '',
     emailOrPhone: '',
-    role: 'CLIENT' as 'CLIENT' | 'FIXER',
+    roles: ['CLIENT'] as ('CLIENT' | 'FIXER')[],
   });
   const [loading, setLoading] = useState(false);
 
   const isEmail = formData.emailOrPhone.includes('@');
 
+  const toggleRole = (role: 'CLIENT' | 'FIXER') => {
+    setFormData(prev => ({
+      ...prev,
+      roles: prev.roles.includes(role)
+        ? prev.roles.filter(r => r !== role)
+        : [...prev.roles, role]
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.roles.length === 0) {
+      toast.error('Please select at least one role');
+      return;
+    }
+
     setLoading(true);
 
     try {
       const payload: any = {
         name: formData.name,
-        role: formData.role,
+        roles: formData.roles,
       };
 
       if (isEmail) {
@@ -41,7 +56,7 @@ export default function RegisterPage() {
 
       if (response.ok) {
         toast.success(data.message);
-        setFormData({ name: '', emailOrPhone: '', role: 'CLIENT' });
+        setFormData({ name: '', emailOrPhone: '', roles: ['CLIENT'] });
       } else {
         toast.error(data.error || 'Registration failed');
       }
@@ -158,64 +173,100 @@ export default function RegisterPage() {
                   color: colors.textPrimary,
                   marginBottom: '12px'
                 }}>
-                  I want to:
+                  I want to: <span style={{ fontSize: '13px', fontWeight: '400', color: colors.textSecondary }}>(Select one or both)</span>
                 </label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, role: 'CLIENT' })}
+                    onClick={() => toggleRole('CLIENT')}
                     style={{
                       padding: '20px 16px',
-                      border: formData.role === 'CLIENT' ? `2px solid ${colors.primary}` : `1px solid ${colors.border}`,
+                      border: formData.roles.includes('CLIENT') ? `2px solid ${colors.primary}` : `1px solid ${colors.border}`,
                       borderRadius: borderRadius.md,
-                      background: formData.role === 'CLIENT' ? colors.primaryLight : colors.white,
+                      background: formData.roles.includes('CLIENT') ? colors.primaryLight : colors.white,
                       cursor: 'pointer',
-                      transition: 'all 0.2s'
+                      transition: 'all 0.2s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '16px',
+                      textAlign: 'left'
                     }}
                     disabled={loading}
                   >
-                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>🔍</div>
-                    <div style={{
-                      fontWeight: '600',
-                      fontSize: '14px',
-                      color: formData.role === 'CLIENT' ? colors.primary : colors.textPrimary
-                    }}>
-                      Find Services
-                    </div>
-                    <div style={{ fontSize: '12px', color: colors.textSecondary, marginTop: '4px' }}>
-                      I need help
+                    <input
+                      type="checkbox"
+                      checked={formData.roles.includes('CLIENT')}
+                      readOnly
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        cursor: 'pointer',
+                        accentColor: colors.primary,
+                      }}
+                    />
+                    <div style={{ fontSize: '32px', flexShrink: 0 }}>🔍</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        fontWeight: '600',
+                        fontSize: '16px',
+                        color: formData.roles.includes('CLIENT') ? colors.primary : colors.textPrimary,
+                        marginBottom: '4px'
+                      }}>
+                        Find Services
+                      </div>
+                      <div style={{ fontSize: '13px', color: colors.textSecondary }}>
+                        I need help with repairs and services
+                      </div>
                     </div>
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, role: 'FIXER' })}
+                    onClick={() => toggleRole('FIXER')}
                     style={{
                       padding: '20px 16px',
-                      border: formData.role === 'FIXER' ? `2px solid ${colors.primary}` : `1px solid ${colors.border}`,
+                      border: formData.roles.includes('FIXER') ? `2px solid ${colors.primary}` : `1px solid ${colors.border}`,
                       borderRadius: borderRadius.md,
-                      background: formData.role === 'FIXER' ? colors.primaryLight : colors.white,
+                      background: formData.roles.includes('FIXER') ? colors.primaryLight : colors.white,
                       cursor: 'pointer',
-                      transition: 'all 0.2s'
+                      transition: 'all 0.2s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '16px',
+                      textAlign: 'left'
                     }}
                     disabled={loading}
                   >
-                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>🔧</div>
-                    <div style={{
-                      fontWeight: '600',
-                      fontSize: '14px',
-                      color: formData.role === 'FIXER' ? colors.primary : colors.textPrimary
-                    }}>
-                      Offer Services
-                    </div>
-                    <div style={{ fontSize: '12px', color: colors.textSecondary, marginTop: '4px' }}>
-                      I'm a provider
+                    <input
+                      type="checkbox"
+                      checked={formData.roles.includes('FIXER')}
+                      readOnly
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        cursor: 'pointer',
+                        accentColor: colors.primary,
+                      }}
+                    />
+                    <div style={{ fontSize: '32px', flexShrink: 0 }}>🔧</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        fontWeight: '600',
+                        fontSize: '16px',
+                        color: formData.roles.includes('FIXER') ? colors.primary : colors.textPrimary,
+                        marginBottom: '4px'
+                      }}>
+                        Offer Services
+                      </div>
+                      <div style={{ fontSize: '13px', color: colors.textSecondary }}>
+                        I'm a service provider looking for clients
+                      </div>
                     </div>
                   </button>
                 </div>
               </div>
 
-              {formData.role === 'FIXER' && (
+              {formData.roles.includes('FIXER') && (
                 <div style={{
                   padding: '12px 16px',
                   backgroundColor: '#FEF5E7',

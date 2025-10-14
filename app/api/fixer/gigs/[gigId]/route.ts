@@ -31,7 +31,7 @@ export async function PUT(
   try {
     const user = await getCurrentUser();
 
-    if (!user || user.role !== 'FIXER') {
+    if (!user || !user.roles?.includes('FIXER')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -140,7 +140,7 @@ export async function PATCH(
   try {
     const user = await getCurrentUser();
 
-    if (!user || user.role !== 'FIXER') {
+    if (!user || !user.roles?.includes('FIXER')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -204,7 +204,7 @@ export async function DELETE(
   try {
     const user = await getCurrentUser();
 
-    if (!user || user.role !== 'FIXER') {
+    if (!user || !user.roles?.includes('FIXER')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

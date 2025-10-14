@@ -14,7 +14,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (user.role !== 'CLIENT') {
+    if (!user.roles?.includes('CLIENT')) {
       return NextResponse.json({ error: 'Only clients can confirm acceptance' }, { status: 403 });
     }
 
@@ -37,6 +37,22 @@ export async function POST(
                 category: true,
               },
             },
+            client: {
+              select: {
+                id: true,
+                email: true,
+                name: true,
+                emailNotifications: true,
+              },
+            },
+          },
+        },
+        fixer: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            emailNotifications: true,
           },
         },
       },
@@ -66,6 +82,7 @@ export async function POST(
     }
 
     // Create order and update quote in transaction
+    let orderId: string = '';
     await prisma.$transaction(async (tx) => {
       // Mark quote as accepted
       await tx.quote.update({
@@ -100,10 +117,12 @@ export async function POST(
         },
       });
 
+      orderId = order.id;
+
       // Create payment record for down payment
       await tx.payment.create({
         data: {
-          orderId: order.id,
+          orderId: orderId,
           amount: quote.downPaymentAmount || 0,
           stripePaymentId: paymentIntentId,
           status: 'HELD_IN_ESCROW',
@@ -124,6 +143,39 @@ export async function POST(
     });
 
     console.log(`[Quote Accepted] Quote ${quoteId} accepted with down payment by ${user.email || user.phone}`);
+
+    // Send email notifications to both parties
+    try {
+      const { sendOrderCreatedEmailToFixer, sendOrderCreatedEmailToClient } = await import('@/lib/email');
+
+      // Notify fixer
+      if (quote.fixer.email && quote.fixer.emailNotifications) {
+        await sendOrderCreatedEmailToFixer(
+          quote.fixer.email,
+          quote.fixer.name || 'Service Provider',
+          quote.request.client.name || 'Client',
+          quote.request.title,
+          quote.totalAmount,
+          orderId,
+          false // isGigOrder
+        );
+      }
+
+      // Notify client
+      if (quote.request.client.email && quote.request.client.emailNotifications) {
+        await sendOrderCreatedEmailToClient(
+          quote.request.client.email,
+          quote.request.client.name || 'Client',
+          quote.fixer.name || 'Service Provider',
+          quote.request.title,
+          quote.totalAmount,
+          orderId
+        );
+      }
+    } catch (error) {
+      console.error('Failed to send order notification emails:', error);
+      // Don't fail the order creation if emails fail
+    }
 
     return NextResponse.json({
       success: true,

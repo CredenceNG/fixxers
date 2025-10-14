@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (user.role !== 'CLIENT') {
+    if (!user.roles?.includes('CLIENT')) {
       return NextResponse.json({ error: 'Only clients can access this profile' }, { status: 403 });
     }
 
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (user.role !== 'CLIENT') {
+    if (!user.roles?.includes('CLIENT')) {
       return NextResponse.json({ error: 'Only clients can complete this profile' }, { status: 403 });
     }
 
@@ -107,7 +107,9 @@ export async function POST(request: NextRequest) {
       email: user.email || undefined,
       phone: user.phone || undefined,
       role: user.role,
+      roles: user.roles || [user.role],
       hasProfile: true,
+      hasClientProfile: true,
     });
 
     // Update the cookie with the new token

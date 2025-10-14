@@ -13,6 +13,7 @@ interface MobileHeaderProps {
     phone: string | null;
     name: string | null;
     role: string;
+    roles: string[];
     status: string;
     profileImage: string | null;
     bio: string | null;
@@ -74,25 +75,62 @@ export default function MobileHeader({ user }: MobileHeaderProps) {
         >
           {user ? (
             <>
-              <Link
-                href={
-                  user.role === 'ADMIN'
-                    ? '/admin/dashboard'
-                    : user.role === 'FIXER'
-                    ? '/fixer/dashboard'
-                    : '/client/dashboard'
-                }
-                style={{
-                  padding: '10px 20px',
-                  color: colors.textPrimary,
-                  fontWeight: '600',
-                  fontSize: '15px',
-                  textDecoration: 'none',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                Dashboard
-              </Link>
+              {user.roles && user.roles.length > 1 ? (
+                // Dual-role user: show both dashboards in a dropdown-style menu
+                <>
+                  {user.roles.includes('FIXER') && (
+                    <Link
+                      href="/fixer/dashboard"
+                      style={{
+                        padding: '10px 20px',
+                        color: colors.textPrimary,
+                        fontWeight: '600',
+                        fontSize: '15px',
+                        textDecoration: 'none',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Fixer Dashboard
+                    </Link>
+                  )}
+                  {user.roles.includes('CLIENT') && (
+                    <Link
+                      href="/client/dashboard"
+                      style={{
+                        padding: '10px 20px',
+                        color: colors.textPrimary,
+                        fontWeight: '600',
+                        fontSize: '15px',
+                        textDecoration: 'none',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Client Dashboard
+                    </Link>
+                  )}
+                </>
+              ) : (
+                // Single-role user: show one dashboard link
+                <Link
+                  href={
+                    user.role === 'ADMIN'
+                      ? '/admin/dashboard'
+                      : user.role === 'FIXER'
+                      ? '/fixer/dashboard'
+                      : '/client/dashboard'
+                  }
+                  style={{
+                    padding: '10px 20px',
+                    color: colors.textPrimary,
+                    fontWeight: '600',
+                    fontSize: '15px',
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Dashboard
+                </Link>
+              )}
               {user.role !== 'ADMIN' && (
                 <Link
                   href="/gigs"

@@ -9,7 +9,7 @@ export async function POST(
   try {
     const user = await getCurrentUser();
 
-    if (!user || user.role !== 'FIXER') {
+    if (!user || !user.roles?.includes('FIXER')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

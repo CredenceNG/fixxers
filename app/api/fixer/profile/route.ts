@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (user.role !== 'FIXER') {
+    if (!user.roles?.includes('FIXER')) {
       return NextResponse.json({ error: 'Only fixers can access this profile' }, { status: 403 });
     }
 
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (user.role !== 'FIXER') {
+    if (!user.roles?.includes('FIXER')) {
       return NextResponse.json({ error: 'Only fixers can complete this profile' }, { status: 403 });
     }
 
@@ -204,7 +204,9 @@ export async function POST(request: NextRequest) {
       email: user.email || undefined,
       phone: user.phone || undefined,
       role: user.role,
+      roles: user.roles || [user.role],
       hasProfile: true,
+      hasFixerProfile: true,
     });
 
     // Update the cookie with the new token

@@ -14,7 +14,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (user.role !== 'CLIENT') {
+    if (!user.roles?.includes('CLIENT')) {
       return NextResponse.json({ error: 'Only clients can accept quotes' }, { status: 403 });
     }
 

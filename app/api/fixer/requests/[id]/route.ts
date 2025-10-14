@@ -13,7 +13,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (user.role !== 'FIXER') {
+    if (!user.roles?.includes('FIXER')) {
       return NextResponse.json({ error: 'Only fixers can view requests' }, { status: 403 });
     }
 
