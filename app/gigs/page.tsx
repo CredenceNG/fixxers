@@ -4,16 +4,17 @@ import Link from 'next/link';
 import { colors, borderRadius } from '@/lib/theme';
 import { getCurrentUser } from '@/lib/auth';
 import Header from '@/components/Header';
+import { GigFilters } from '@/components/GigFilters';
 
 export default async function GigsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; subcategory?: string; q?: string }>;
+  searchParams: Promise<{ category?: string; subcategory?: string; q?: string; minAmount?: string; maxAmount?: string }>;
 }) {
-  const { category, subcategory, q } = await searchParams;
+  const { category, subcategory, q, minAmount, maxAmount } = await searchParams;
   const user = await getCurrentUser();
 
-  // Fetch categories for sidebar
+  // Fetch categories for filters
   const categories = await prisma.serviceCategory.findMany({
     include: {
       subcategories: true,
@@ -26,9 +27,19 @@ export default async function GigsPage({
     status: 'ACTIVE',
   };
 
+  if (category) {
+    whereConditions.subcategory = {
+      categoryId: category,
+    };
+  }
+
   if (subcategory) {
     whereConditions.subcategoryId = subcategory;
   }
+
+  // Price filtering will be done after fetching
+  const minPrice = minAmount ? parseFloat(minAmount) : null;
+  const maxPrice = maxAmount ? parseFloat(maxAmount) : null;
 
   let gigs;
 
@@ -161,6 +172,16 @@ export default async function GigsPage({
     }
   });
 
+  // Filter by price range
+  if (minPrice !== null || maxPrice !== null) {
+    gigs = gigs.filter((gig) => {
+      const price = gig.packages[0]?.price || 0;
+      if (minPrice !== null && price < minPrice) return false;
+      if (maxPrice !== null && price > maxPrice) return false;
+      return true;
+    });
+  }
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: colors.bgSecondary }}>
       <Header />
@@ -183,43 +204,11 @@ export default async function GigsPage({
           {gigs.length} services available
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: '32px' }}>
-          {/* Sidebar */}
-          <div>
-            <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, border: `1px solid ${colors.border}`, padding: '20px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px' }}>
-                Categories
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {categories.map((cat) => (
-                  <div key={cat.id}>
-                    <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
-                      {cat.name}
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginLeft: '12px' }}>
-                      {cat.subcategories.map((sub) => (
-                        <Link
-                          key={sub.id}
-                          href={`/gigs?subcategory=${sub.id}`}
-                          style={{
-                            fontSize: '13px',
-                            color: subcategory === sub.id ? colors.primary : colors.textSecondary,
-                            textDecoration: 'none',
-                            fontWeight: subcategory === sub.id ? '600' : '400',
-                          }}
-                        >
-                          {sub.name}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+        {/* Filters */}
+        <GigFilters categories={categories} />
 
-          {/* Gig Grid */}
-          <div>
+        {/* Gig Grid */}
+        <div>
             {gigs.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '80px 20px' }}>
                 <p style={{ fontSize: '18px', color: colors.textSecondary, marginBottom: '16px' }}>
@@ -346,7 +335,6 @@ export default async function GigsPage({
                 })}
               </div>
             )}
-          </div>
         </div>
       </div>
     </div>
