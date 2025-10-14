@@ -19,8 +19,11 @@ export async function GET(request: NextRequest) {
       where: { clientId: user.id },
     });
 
+    // If profile doesn't exist, return user.name so it can be pre-populated
     if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+      return NextResponse.json({
+        name: user.name || '',
+      });
     }
 
     return NextResponse.json({

@@ -20,8 +20,13 @@ export async function GET(request: NextRequest) {
       where: { fixerId: user.id },
     });
 
+    // If profile doesn't exist, return user.name so it can be pre-populated
     if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+      return NextResponse.json({
+        profile: {
+          name: user.name || '',
+        },
+      });
     }
 
     // Get fixer services with neighborhoods
