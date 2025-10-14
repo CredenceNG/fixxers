@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import UnifiedProfileForm from './UnifiedProfileForm';
+import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
 
 export default async function UnifiedProfilePage() {
   const user = await getCurrentUser();
@@ -23,23 +24,11 @@ export default async function UnifiedProfilePage() {
   const fixerProfile = roles.includes('FIXER')
     ? await prisma.fixerProfile.findUnique({
         where: { fixerId: user.id },
-        include: {
-          neighborhoods: true,
-          services: {
-            include: {
-              subcategory: {
-                include: {
-                  category: true,
-                },
-              },
-            },
-          },
-        },
       })
     : null;
 
   // Fetch neighborhoods for location dropdown
-  const neighborhoods = await prisma.neighbourhood.findMany({
+  const neighborhoods = await prisma.neighborhood.findMany({
     orderBy: [{ state: 'asc' }, { city: 'asc' }, { name: 'asc' }],
   });
 
@@ -70,25 +59,23 @@ export default async function UnifiedProfilePage() {
     // Fixer-specific fields
     yearsOfService: fixerProfile?.yearsOfService || 0,
     qualifications: fixerProfile?.qualifications || [],
-    // Service areas (neighborhoods)
-    serviceNeighborhoods: fixerProfile?.neighborhoods?.map((n) => n.id) || [],
-    // Services
-    services: fixerProfile?.services || [],
   };
 
   return (
-    <UnifiedProfileForm
-      user={{
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        roles,
-      }}
-      existingData={existingData}
-      neighborhoods={neighborhoods}
-      categories={categories}
-      hasClientProfile={!!clientProfile}
-      hasFixerProfile={!!fixerProfile}
-    />
+    <DashboardLayoutWithHeader>
+      <UnifiedProfileForm
+        user={{
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          roles,
+        }}
+        existingData={existingData}
+        neighborhoods={neighborhoods}
+        categories={categories}
+        hasClientProfile={!!clientProfile}
+        hasFixerProfile={!!fixerProfile}
+      />
+    </DashboardLayoutWithHeader>
   );
 }

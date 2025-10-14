@@ -18,7 +18,7 @@ export function middleware(request: NextRequest) {
   const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route) || pathname.startsWith('/api/auth'));
 
   // Routes that don't require profile completion check
-  const profileExemptRoutes = ['/fixer/profile', '/fixer/pending', '/client/profile', '/api/fixer/profile', '/api/client/profile', '/api/categories', '/api/auth/logout'];
+  const profileExemptRoutes = ['/profile', '/fixer/profile', '/fixer/pending', '/client/profile', '/api/profile', '/api/fixer/profile', '/api/client/profile', '/api/categories', '/api/auth/logout'];
 
   // If no token and trying to access protected route
   if (!token && !isPublicRoute) {
@@ -64,14 +64,13 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/', request.url));
       }
 
-      // Check if fixer needs to complete profile
-      if (roles.includes('FIXER') && !payload.hasFixerProfile && !profileExemptRoutes.some(route => pathname.startsWith(route))) {
-        return NextResponse.redirect(new URL('/fixer/profile', request.url));
-      }
+      // Check if user needs to complete profile
+      // Redirect to unified profile form if either profile is incomplete
+      const needsProfile = (roles.includes('FIXER') && !payload.hasFixerProfile) ||
+                           (roles.includes('CLIENT') && !payload.hasClientProfile);
 
-      // Check if client needs to complete profile
-      if (roles.includes('CLIENT') && !payload.hasClientProfile && !profileExemptRoutes.some(route => pathname.startsWith(route))) {
-        return NextResponse.redirect(new URL('/client/profile', request.url));
+      if (needsProfile && !profileExemptRoutes.some(route => pathname.startsWith(route))) {
+        return NextResponse.redirect(new URL('/profile', request.url));
       }
 
       // Redirect to appropriate location if accessing login/register while authenticated

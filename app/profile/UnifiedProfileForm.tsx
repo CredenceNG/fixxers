@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { styles, colors, borderRadius } from '@/lib/theme';
 import { FormGrid } from '@/components/ResponsiveLayout';
-import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
 
 interface Neighborhood {
   id: string;
@@ -171,7 +170,7 @@ export default function UnifiedProfileForm({
   };
 
   return (
-    <DashboardLayoutWithHeader>
+    <>
       {/* Success Modal */}
       {showSuccess && (
         <div
@@ -724,6 +723,6 @@ export default function UnifiedProfileForm({
           </form>
         </div>
       </div>
-    </DashboardLayoutWithHeader>
+    </>
   );
 }
