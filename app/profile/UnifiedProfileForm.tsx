@@ -68,6 +68,10 @@ export default function UnifiedProfileForm({
   const [selectedState, setSelectedState] = useState(existingData.state || '');
   const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState('');
 
+  // Service state (for FIXER role)
+  const [selectedCategories, setSelectedCategories] = useState<{ categoryId: string; subcategoryIds: string[] }[]>([]);
+  const [selectedServiceNeighborhoods, setSelectedServiceNeighborhoods] = useState<string[]>([]);
+
   // Find neighborhood ID from existing data
   useEffect(() => {
     if (existingData.neighbourhood && existingData.city && existingData.state) {
@@ -150,8 +154,8 @@ export default function UnifiedProfileForm({
       // Redirect based on role
       setTimeout(() => {
         if (hasFixerRole && !hasFixerProfile) {
-          // New fixer needs to wait for approval
-          window.location.href = '/fixer/pending';
+          // New fixer - redirect to services setup
+          window.location.href = '/fixer/services';
         } else if (user.roles.length > 1) {
           // Dual-role users go to unified dashboard
           window.location.href = '/dashboard';
