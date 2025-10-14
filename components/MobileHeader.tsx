@@ -76,41 +76,22 @@ export default function MobileHeader({ user }: MobileHeaderProps) {
           {user ? (
             <>
               {user.roles && user.roles.length > 1 ? (
-                // Dual-role user: show both dashboards in a dropdown-style menu
-                <>
-                  {user.roles.includes('FIXER') && (
-                    <Link
-                      href="/fixer/dashboard"
-                      style={{
-                        padding: '10px 20px',
-                        color: colors.textPrimary,
-                        fontWeight: '600',
-                        fontSize: '15px',
-                        textDecoration: 'none',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      Fixer Dashboard
-                    </Link>
-                  )}
-                  {user.roles.includes('CLIENT') && (
-                    <Link
-                      href="/client/dashboard"
-                      style={{
-                        padding: '10px 20px',
-                        color: colors.textPrimary,
-                        fontWeight: '600',
-                        fontSize: '15px',
-                        textDecoration: 'none',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      Client Dashboard
-                    </Link>
-                  )}
-                </>
+                // Dual-role user: show unified dashboard
+                <Link
+                  href="/dashboard"
+                  style={{
+                    padding: '10px 20px',
+                    color: colors.textPrimary,
+                    fontWeight: '600',
+                    fontSize: '15px',
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Dashboard
+                </Link>
               ) : (
-                // Single-role user: show one dashboard link
+                // Single-role user: show role-specific dashboard link
                 <Link
                   href={
                     user.role === 'ADMIN'
@@ -243,7 +224,9 @@ export default function MobileHeader({ user }: MobileHeaderProps) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <Link
                 href={
-                  user.role === 'ADMIN'
+                  user.roles && user.roles.length > 1
+                    ? '/dashboard'
+                    : user.role === 'ADMIN'
                     ? '/admin/dashboard'
                     : user.role === 'FIXER'
                     ? '/fixer/dashboard'

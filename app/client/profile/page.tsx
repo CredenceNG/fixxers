@@ -138,9 +138,13 @@ export default function ClientProfilePage() {
       // Show success modal
       setShowSuccess(true);
 
-      // Redirect after showing success
+      // Redirect based on response - dual-role users go to fixer profile, others to client dashboard
       setTimeout(() => {
-        window.location.href = '/client/dashboard';
+        if (data.redirectTo) {
+          window.location.href = data.redirectTo;
+        } else {
+          window.location.href = '/client/dashboard';
+        }
       }, 2000);
     } catch (err: any) {
       console.error('Profile save error:', err);

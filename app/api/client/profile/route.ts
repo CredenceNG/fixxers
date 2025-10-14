@@ -116,7 +116,11 @@ export async function POST(request: NextRequest) {
     });
 
     // Update the cookie with the new token
-    const response = NextResponse.json({ success: true });
+    const response = NextResponse.json({
+      success: true,
+      // If user has FIXER role, redirect to fixer profile for completion
+      redirectTo: user.roles?.includes('FIXER') ? '/fixer/profile' : undefined
+    });
     response.cookies.set('auth_token', newSessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

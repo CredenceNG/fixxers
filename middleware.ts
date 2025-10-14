@@ -84,7 +84,13 @@ export function middleware(request: NextRequest) {
           return NextResponse.redirect(new URL(redirectParam, request.url));
         }
 
-        // Default redirects based on role
+        // Default redirects based on role(s)
+        // Dual-role users go to unified dashboard
+        if (roles.length > 1) {
+          return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
+
+        // Single-role redirects
         if (role === 'ADMIN') {
           return NextResponse.redirect(new URL('/admin/dashboard', request.url));
         } else if (role === 'FIXER') {
