@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import Link from 'next/link';
-import Image from 'next/image';
 import { colors, borderRadius } from '@/lib/theme';
 import { getCurrentUser } from '@/lib/auth';
 import Header from '@/components/Header';
@@ -35,7 +34,6 @@ export default async function GigsPage({
 
   if (q) {
     // Use raw SQL for full-text search with word stemming
-    // This handles variations like "repair" vs "repairs", "leak" vs "leaked"
     const searchQuery = q.trim();
     const likePattern = `%${searchQuery}%`;
 
@@ -167,9 +165,9 @@ export default async function GigsPage({
     <div style={{ minHeight: '100vh', backgroundColor: colors.bgSecondary }}>
       <Header />
 
-      <div className="max-w-[1400px] mx-auto px-4 md:px-6 py-6 md:py-8">
-        {/* Breadcrumb - Hidden on mobile */}
-        <div className="hidden md:block mb-6 text-sm text-gray-600">
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '32px 24px' }}>
+        {/* Breadcrumb */}
+        <div style={{ marginBottom: '24px', fontSize: '14px', color: colors.textSecondary }}>
           <Link href="/" style={{ color: colors.textSecondary, textDecoration: 'none' }}>
             Home
           </Link>
@@ -178,67 +176,33 @@ export default async function GigsPage({
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl md:text-3xl font-bold mb-2" style={{ color: colors.textPrimary }}>
+        <h1 style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary, marginBottom: '8px' }}>
           {q ? `Search results for "${q}"` : 'Browse Services'}
         </h1>
-        <p className="text-sm md:text-base mb-6 md:mb-8" style={{ color: colors.textSecondary }}>
+        <p style={{ fontSize: '16px', color: colors.textSecondary, marginBottom: '32px' }}>
           {gigs.length} services available
         </p>
 
-        <div className="flex flex-col md:grid md:grid-cols-[250px_1fr] gap-6 md:gap-8">
-          {/* Sidebar - Collapsible on mobile */}
-          <div className="md:block">
-            <details className="md:hidden mb-4" open={false}>
-              <summary className="cursor-pointer py-3 px-4 bg-white rounded-lg border font-semibold text-sm" style={{ borderColor: colors.border, color: colors.textPrimary }}>
-                Filter by Category
-              </summary>
-              <div className="mt-2 p-4 bg-white rounded-lg border" style={{ borderColor: colors.border }}>
-                <div className="flex flex-col gap-2">
-                  {categories.map((cat) => (
-                    <div key={cat.id}>
-                      <div className="text-sm font-semibold mb-2" style={{ color: colors.textPrimary }}>
-                        {cat.name}
-                      </div>
-                      <div className="flex flex-col gap-1 ml-3">
-                        {cat.subcategories.map((sub) => (
-                          <Link
-                            key={sub.id}
-                            href={`/gigs?subcategory=${sub.id}`}
-                            className="text-xs py-1"
-                            style={{
-                              color: subcategory === sub.id ? colors.primary : colors.textSecondary,
-                              textDecoration: 'none',
-                              fontWeight: subcategory === sub.id ? '600' : '400',
-                            }}
-                          >
-                            {sub.name}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </details>
-
-            {/* Desktop sidebar */}
-            <div className="hidden md:block bg-white rounded-lg border p-5" style={{ borderColor: colors.border }}>
-              <h3 className="text-base font-bold mb-4" style={{ color: colors.textPrimary }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: '32px' }}>
+          {/* Sidebar */}
+          <div>
+            <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, border: `1px solid ${colors.border}`, padding: '20px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px' }}>
                 Categories
               </h3>
-              <div className="flex flex-col gap-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {categories.map((cat) => (
                   <div key={cat.id}>
-                    <div className="text-sm font-semibold mb-2" style={{ color: colors.textPrimary }}>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
                       {cat.name}
                     </div>
-                    <div className="flex flex-col gap-1 ml-3">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginLeft: '12px' }}>
                       {cat.subcategories.map((sub) => (
                         <Link
                           key={sub.id}
                           href={`/gigs?subcategory=${sub.id}`}
-                          className="text-xs"
                           style={{
+                            fontSize: '13px',
                             color: subcategory === sub.id ? colors.primary : colors.textSecondary,
                             textDecoration: 'none',
                             fontWeight: subcategory === sub.id ? '600' : '400',
@@ -257,20 +221,19 @@ export default async function GigsPage({
           {/* Gig Grid */}
           <div>
             {gigs.length === 0 ? (
-              <div className="text-center py-20 px-5">
-                <p className="text-lg mb-4" style={{ color: colors.textSecondary }}>
+              <div style={{ textAlign: 'center', padding: '80px 20px' }}>
+                <p style={{ fontSize: '18px', color: colors.textSecondary, marginBottom: '16px' }}>
                   No services found
                 </p>
                 <Link
                   href="/gigs"
-                  className="font-semibold no-underline"
-                  style={{ color: colors.primary }}
+                  style={{ color: colors.primary, fontWeight: '600', textDecoration: 'none' }}
                 >
                   Browse all services
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 md:gap-6">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
                 {gigs.map((gig) => {
                   const startingPrice = gig.packages[0]?.price || 0;
                   const rating = sellerRatings[gig.sellerId];
@@ -279,84 +242,99 @@ export default async function GigsPage({
                     <Link
                       key={gig.id}
                       href={`/gigs/${gig.slug}`}
-                      className="group block no-underline"
-                      style={{ color: 'inherit' }}
+                      style={{ textDecoration: 'none', color: 'inherit' }}
                     >
-                      <div className="bg-white rounded-xl shadow-sm border overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
+                      <div
                         style={{
-                          borderColor: colors.border,
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
+                          backgroundColor: colors.white,
+                          borderRadius: borderRadius.lg,
+                          border: `1px solid ${colors.border}`,
+                          overflow: 'hidden',
+                          cursor: 'pointer',
                         }}
                       >
-                        {/* Image Container */}
-                        <div className="relative w-full h-48 md:h-56 overflow-hidden">
-                          {gig.images[0] ? (
-                            <Image
-                              src={gig.images[0]}
-                              alt={gig.title}
-                              fill
-                              className="object-cover transition-transform duration-300 group-hover:scale-110"
-                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            />
-                          ) : (
-                            <div
-                              className="w-full h-full flex items-center justify-center text-6xl md:text-7xl"
-                              style={{ backgroundColor: colors.bgTertiary }}
-                            >
-                              🛠️
-                            </div>
-                          )}
-                          {/* Overlay gradient for better text readability */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        {/* Image */}
+                        <div
+                          style={{
+                            width: '100%',
+                            height: '180px',
+                            backgroundColor: colors.bgTertiary,
+                            backgroundImage: gig.images[0] ? `url(${gig.images[0]})` : 'none',
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '48px',
+                          }}
+                        >
+                          {!gig.images[0] && '🛠️'}
                         </div>
 
                         {/* Content */}
-                        <div className="p-4 md:p-5">
+                        <div style={{ padding: '16px' }}>
                           {/* Seller Info */}
-                          <div className="flex items-center gap-2 mb-3">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                             <div
-                              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-sm"
                               style={{
-                                backgroundColor: colors.primary + '15',
-                                color: colors.primary,
-                                border: `2px solid ${colors.primary}25`
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '50%',
+                                backgroundColor: colors.bgTertiary,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                color: colors.textSecondary,
                               }}
                             >
                               {gig.seller.name?.charAt(0).toUpperCase() || '?'}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-sm font-semibold truncate" style={{ color: colors.textPrimary }}>
-                                {gig.seller.name || 'Anonymous'}
-                              </div>
-                              {rating && (
-                                <div className="flex items-center gap-1 text-xs">
-                                  <span style={{ color: '#F59E0B' }}>★</span>
-                                  <span className="font-semibold" style={{ color: colors.textPrimary }}>
-                                    {rating.avg.toFixed(1)}
-                                  </span>
-                                  <span style={{ color: colors.textSecondary }}>
-                                    ({rating.count})
-                                  </span>
-                                </div>
-                              )}
+                            <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                              {gig.seller.name || 'Anonymous'}
                             </div>
                           </div>
 
                           {/* Title */}
                           <h3
-                            className="text-base md:text-lg font-bold mb-4 leading-snug line-clamp-2 min-h-[3.5rem]"
-                            style={{ color: colors.textPrimary }}
+                            style={{
+                              fontSize: '16px',
+                              fontWeight: '600',
+                              color: colors.textPrimary,
+                              marginBottom: '12px',
+                              lineHeight: '1.4',
+                              height: '44px',
+                              overflow: 'hidden',
+                            }}
                           >
                             {gig.title}
                           </h3>
 
-                          {/* Price Footer */}
-                          <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: colors.border }}>
-                            <span className="text-xs font-medium uppercase tracking-wide" style={{ color: colors.textSecondary }}>
-                              From
-                            </span>
-                            <div className="flex flex-col items-end">
-                              <span className="text-xl md:text-2xl font-bold" style={{ color: colors.primary }}>
+                          {/* Rating & Orders */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', minHeight: '20px' }}>
+                            {rating ? (
+                              <>
+                                <span style={{ color: '#F59E0B', fontSize: '14px' }}>★</span>
+                                <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                                  {rating.avg.toFixed(1)}
+                                </span>
+                                <span style={{ fontSize: '14px', color: colors.textSecondary }}>
+                                  ({rating.count})
+                                </span>
+                              </>
+                            ) : (
+                              <span style={{ fontSize: '14px', color: colors.textSecondary }}>New service</span>
+                            )}
+                          </div>
+
+                          {/* Price */}
+                          <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <span style={{ fontSize: '12px', color: colors.textSecondary, textTransform: 'uppercase' }}>
+                                Starting at
+                              </span>
+                              <span style={{ fontSize: '18px', fontWeight: '700', color: colors.textPrimary }}>
                                 ₦{startingPrice.toLocaleString()}
                               </span>
                             </div>
