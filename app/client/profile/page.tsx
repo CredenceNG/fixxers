@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { styles, gradients, colors, borderRadius } from '@/lib/theme';
+import { FormGrid } from '@/components/ResponsiveLayout';
 
 interface Neighborhood {
   id: string;
@@ -248,7 +249,7 @@ export default function ClientProfilePage() {
               </label>
 
               {/* Country and State Row */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <FormGrid>
                 <div>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: colors.textSecondary, marginBottom: '6px' }}>
                     Country
@@ -298,7 +299,7 @@ export default function ClientProfilePage() {
                     ))}
                   </select>
                 </div>
-              </div>
+              </FormGrid>
 
               {/* Neighbourhood */}
               <div>
@@ -332,7 +333,7 @@ export default function ClientProfilePage() {
             </div>
 
             {/* Phone Numbers */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+            <FormGrid>
               <div>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
                   Primary Phone <span style={{ color: colors.error }}>*</span>
@@ -360,7 +361,7 @@ export default function ClientProfilePage() {
                   style={{ width: '100%', padding: '12px 16px', fontSize: '15px', border: '2px solid #E4E6EB', borderRadius: '12px', outline: 'none' }}
                 />
               </div>
-            </div>
+            </FormGrid>
 
             {/* Alternate Email */}
             <div style={{ marginBottom: '32px' }}>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { styles, colors } from '@/lib/theme';
+import { TwoColumnLayout, FormGrid, ResponsiveFlex } from '@/components/ResponsiveLayout';
 
 interface ServiceRequest {
   id: string;
@@ -203,7 +204,7 @@ export default function FixerRequestDetailsPage({ params }: { params: Promise<{ 
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        <TwoColumnLayout>
           {/* Request Details */}
           <div style={styles.section}>
             <h2 style={styles.sectionTitle}>Request Information</h2>
@@ -239,7 +240,7 @@ export default function FixerRequestDetailsPage({ params }: { params: Promise<{ 
                 )}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <FormGrid>
                 <div>
                   <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '4px' }}>Urgency</div>
                   <div style={{ fontSize: '15px', color: colors.textPrimary, textTransform: 'capitalize' }}>
@@ -254,7 +255,7 @@ export default function FixerRequestDetailsPage({ params }: { params: Promise<{ 
                     </div>
                   </div>
                 )}
-              </div>
+              </FormGrid>
 
               <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #E4E6EB' }}>
                 <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '4px' }}>Client</div>
@@ -275,7 +276,7 @@ export default function FixerRequestDetailsPage({ params }: { params: Promise<{ 
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '12px' }}>
                     Quote Type <span style={{ color: colors.error }}>*</span>
                   </label>
-                  <div style={{ display: 'flex', gap: '16px' }}>
+                  <ResponsiveFlex gap="16px">
                     <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', flex: 1, padding: '12px', backgroundColor: quoteType === 'DIRECT' ? colors.primary : 'white', color: quoteType === 'DIRECT' ? 'white' : colors.textPrimary, borderRadius: '8px', border: `2px solid ${quoteType === 'DIRECT' ? colors.primary : '#E4E6EB'}` }}>
                       <input
                         type="radio"
@@ -296,7 +297,7 @@ export default function FixerRequestDetailsPage({ params }: { params: Promise<{ 
                       />
                       <span style={{ fontSize: '14px', fontWeight: '500' }}>Inspection Required</span>
                     </label>
-                  </div>
+                  </ResponsiveFlex>
                   {quoteType === 'INSPECTION_REQUIRED' && (
                     <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#FEF3C7', borderRadius: '8px' }}>
                       <p style={{ fontSize: '13px', color: '#92400E', margin: 0 }}>
@@ -507,7 +508,7 @@ export default function FixerRequestDetailsPage({ params }: { params: Promise<{ 
               </form>
             </div>
           </div>
-        </div>
+        </TwoColumnLayout>
       </main>
     </div>
   );
