@@ -276,7 +276,7 @@ export default function FixerRequestDetailsPage({ params }: { params: Promise<{ 
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '12px' }}>
                     Quote Type <span style={{ color: colors.error }}>*</span>
                   </label>
-                  <ResponsiveFlex gap="16px">
+                  <ResponsiveFlex>
                     <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', flex: 1, padding: '12px', backgroundColor: quoteType === 'DIRECT' ? colors.primary : 'white', color: quoteType === 'DIRECT' ? 'white' : colors.textPrimary, borderRadius: '8px', border: `2px solid ${quoteType === 'DIRECT' ? colors.primary : '#E4E6EB'}` }}>
                       <input
                         type="radio"

@@ -1,109 +1,92 @@
-'use client';
-
-import { useResponsive } from '@/lib/useResponsive';
-import { CSSProperties, ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 interface TwoColumnLayoutProps {
   children: ReactNode;
   ratio?: '1:1' | '3:1' | '2:1';
-  mobileGap?: string;
-  desktopGap?: string;
+  className?: string;
 }
 
 /**
  * Two-column layout that automatically stacks to single column on mobile
- * @param ratio - Column ratio (1:1, 3:1, or 2:1)
- * @param mobileGap - Gap between items on mobile (default: 16px)
- * @param desktopGap - Gap between items on desktop (default: 24px)
+ * Uses Tailwind CSS responsive utilities
  */
 export function TwoColumnLayout({
   children,
   ratio = '1:1',
-  mobileGap = '16px',
-  desktopGap = '24px',
+  className = '',
 }: TwoColumnLayoutProps) {
-  const { isMobile } = useResponsive();
-
-  const columnTemplates: Record<typeof ratio, string> = {
-    '1:1': '1fr 1fr',
-    '3:1': '3fr 1fr',
-    '2:1': '2fr 1fr',
+  const ratioClasses = {
+    '1:1': 'md:grid-cols-2',
+    '3:1': 'md:grid-cols-[3fr_1fr]',
+    '2:1': 'md:grid-cols-[2fr_1fr]',
   };
 
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: isMobile ? '1fr' : columnTemplates[ratio],
-      gap: isMobile ? mobileGap : desktopGap
-    }}>
+    <div className={`grid grid-cols-1 ${ratioClasses[ratio]} gap-4 md:gap-6 ${className}`}>
       {children}
     </div>
   );
-}
-
-interface FormGridProps {
-  children: ReactNode;
-  gap?: string;
 }
 
 /**
  * Form field grid (2 columns) that becomes single column on mobile
- * Perfect for Country/State, Primary/Secondary Phone, etc.
- * @param gap - Gap between form fields (default: 16px)
+ * Uses Tailwind CSS responsive utilities
  */
 export function FormGrid({
   children,
-  gap = '16px'
-}: FormGridProps) {
-  const { isMobile } = useResponsive();
-
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-      gap
-    }}>
+    <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${className}`}>
       {children}
     </div>
   );
 }
 
-interface ResponsiveFlexProps {
-  children: ReactNode;
-  gap?: string;
-  mobileDirection?: 'row' | 'column';
-  desktopDirection?: 'row' | 'column';
-  align?: CSSProperties['alignItems'];
-  justify?: CSSProperties['justifyContent'];
-}
-
 /**
  * Responsive flex container that adapts direction based on screen size
- * Default: row on desktop, column on mobile
- * @param gap - Gap between flex items (default: 16px)
- * @param mobileDirection - Flex direction on mobile (default: column)
- * @param desktopDirection - Flex direction on desktop (default: row)
- * @param align - Align items (default: stretch)
- * @param justify - Justify content (default: flex-start)
+ * Uses Tailwind CSS responsive utilities
  */
 export function ResponsiveFlex({
   children,
-  gap = '16px',
   mobileDirection = 'column',
   desktopDirection = 'row',
   align = 'stretch',
-  justify = 'flex-start',
-}: ResponsiveFlexProps) {
-  const { isMobile } = useResponsive();
+  justify = 'start',
+  className = '',
+}: {
+  children: ReactNode;
+  mobileDirection?: 'row' | 'column';
+  desktopDirection?: 'row' | 'column';
+  align?: 'start' | 'center' | 'end' | 'stretch' | 'baseline';
+  justify?: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly';
+  className?: string;
+}) {
+  const mobileFlexDir = mobileDirection === 'row' ? 'flex-row' : 'flex-col';
+  const desktopFlexDir = desktopDirection === 'row' ? 'md:flex-row' : 'md:flex-col';
+
+  const alignClasses = {
+    start: 'items-start',
+    center: 'items-center',
+    end: 'items-end',
+    stretch: 'items-stretch',
+    baseline: 'items-baseline',
+  };
+
+  const justifyClasses = {
+    start: 'justify-start',
+    center: 'justify-center',
+    end: 'justify-end',
+    between: 'justify-between',
+    around: 'justify-around',
+    evenly: 'justify-evenly',
+  };
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: isMobile ? mobileDirection : desktopDirection,
-      gap,
-      alignItems: align,
-      justifyContent: justify,
-    }}>
+    <div className={`flex ${mobileFlexDir} ${desktopFlexDir} gap-4 ${alignClasses[align]} ${justifyClasses[justify]} ${className}`}>
       {children}
     </div>
   );

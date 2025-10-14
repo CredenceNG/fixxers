@@ -6,6 +6,7 @@ import { getCurrentUser } from '@/lib/auth';
 import Header from '@/components/Header';
 import { PackageSelector } from './PackageSelector';
 import { MessageFixerButton } from './MessageFixerButton';
+import { TwoColumnLayout } from '@/components/ResponsiveLayout';
 
 export default async function GigDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -72,9 +73,33 @@ export default async function GigDetailPage({ params }: { params: Promise<{ slug
           <span style={{ color: colors.textPrimary, fontWeight: '600' }}>{gig.subcategory.name}</span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '32px' }}>
-          {/* Left Column - Gig Details */}
-          <div>
+        <div className="flex flex-col-reverse md:grid md:grid-cols-[1fr_400px] gap-6 md:gap-8">
+          {/* Right Column - Pricing (shown first on mobile) */}
+          <div className="md:order-2">
+            <div className="md:sticky md:top-6">
+              <PackageSelector
+                packages={gig.packages}
+                gigSlug={gig.slug}
+                isLoggedIn={!!user}
+                isOwnGig={gig.sellerId === user?.id}
+              />
+
+              {/* Message Fixer Button - Only show for logged-in clients */}
+              {user && user.role === 'CLIENT' && gig.sellerId !== user.id && (
+                <div style={{ marginTop: '16px' }}>
+                  <MessageFixerButton
+                    fixerId={gig.sellerId}
+                    fixerName={gig.seller.name || 'the fixer'}
+                    gigId={gig.id}
+                    gigTitle={gig.title}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Left Column - Gig Details (shown second on mobile) */}
+          <div className="md:order-1">
             {/* Title */}
             <h1 style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px' }}>
               {gig.title}
@@ -245,30 +270,6 @@ export default async function GigDetailPage({ params }: { params: Promise<{ slug
                   )}
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Right Column - Pricing */}
-          <div>
-            <div style={{ position: 'sticky', top: '24px' }}>
-              <PackageSelector
-                packages={gig.packages}
-                gigSlug={gig.slug}
-                isLoggedIn={!!user}
-                isOwnGig={gig.sellerId === user?.id}
-              />
-
-              {/* Message Fixer Button - Only show for logged-in clients */}
-              {user && user.role === 'CLIENT' && gig.sellerId !== user.id && (
-                <div style={{ marginTop: '16px' }}>
-                  <MessageFixerButton
-                    fixerId={gig.sellerId}
-                    fixerName={gig.seller.name || 'the fixer'}
-                    gigId={gig.id}
-                    gigTitle={gig.title}
-                  />
-                </div>
-              )}
             </div>
           </div>
         </div>
