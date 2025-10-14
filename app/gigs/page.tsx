@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { colors, borderRadius } from '@/lib/theme';
 import { getCurrentUser } from '@/lib/auth';
 import Header from '@/components/Header';
@@ -269,7 +270,7 @@ export default async function GigsPage({
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 md:gap-6">
                 {gigs.map((gig) => {
                   const startingPrice = gig.packages[0]?.price || 0;
                   const rating = sellerRatings[gig.sellerId];
@@ -278,80 +279,84 @@ export default async function GigsPage({
                     <Link
                       key={gig.id}
                       href={`/gigs/${gig.slug}`}
-                      className="no-underline block"
+                      className="group block no-underline"
                       style={{ color: 'inherit' }}
                     >
-                      <div
-                        className="bg-white rounded-lg border overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1 cursor-pointer"
-                        style={{ borderColor: colors.border }}
+                      <div className="bg-white rounded-xl shadow-sm border overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
+                        style={{
+                          borderColor: colors.border,
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
+                        }}
                       >
-                        {/* Image */}
-                        <div
-                          className="w-full h-40 md:h-48 bg-gray-100 relative"
-                          style={{
-                            backgroundImage: gig.images[0] ? `url(${gig.images[0]})` : 'none',
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            backgroundColor: colors.bgTertiary,
-                          }}
-                        >
-                          {!gig.images[0] && (
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl md:text-6xl">
+                        {/* Image Container */}
+                        <div className="relative w-full h-48 md:h-56 overflow-hidden">
+                          {gig.images[0] ? (
+                            <Image
+                              src={gig.images[0]}
+                              alt={gig.title}
+                              fill
+                              className="object-cover transition-transform duration-300 group-hover:scale-110"
+                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            />
+                          ) : (
+                            <div
+                              className="w-full h-full flex items-center justify-center text-6xl md:text-7xl"
+                              style={{ backgroundColor: colors.bgTertiary }}
+                            >
                               🛠️
                             </div>
                           )}
+                          {/* Overlay gradient for better text readability */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         </div>
 
                         {/* Content */}
-                        <div className="p-3 md:p-4">
+                        <div className="p-4 md:p-5">
                           {/* Seller Info */}
                           <div className="flex items-center gap-2 mb-3">
                             <div
-                              className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm font-semibold"
+                              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-sm"
                               style={{
-                                backgroundColor: colors.bgTertiary,
-                                color: colors.textSecondary,
+                                backgroundColor: colors.primary + '15',
+                                color: colors.primary,
+                                border: `2px solid ${colors.primary}25`
                               }}
                             >
                               {gig.seller.name?.charAt(0).toUpperCase() || '?'}
                             </div>
-                            <div className="text-xs md:text-sm font-semibold truncate" style={{ color: colors.textPrimary }}>
-                              {gig.seller.name || 'Anonymous'}
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-semibold truncate" style={{ color: colors.textPrimary }}>
+                                {gig.seller.name || 'Anonymous'}
+                              </div>
+                              {rating && (
+                                <div className="flex items-center gap-1 text-xs">
+                                  <span style={{ color: '#F59E0B' }}>★</span>
+                                  <span className="font-semibold" style={{ color: colors.textPrimary }}>
+                                    {rating.avg.toFixed(1)}
+                                  </span>
+                                  <span style={{ color: colors.textSecondary }}>
+                                    ({rating.count})
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           </div>
 
                           {/* Title */}
                           <h3
-                            className="text-sm md:text-base font-semibold mb-3 leading-snug line-clamp-2"
+                            className="text-base md:text-lg font-bold mb-4 leading-snug line-clamp-2 min-h-[3.5rem]"
                             style={{ color: colors.textPrimary }}
                           >
                             {gig.title}
                           </h3>
 
-                          {/* Rating & Orders */}
-                          <div className="flex items-center gap-2 mb-3 text-xs md:text-sm">
-                            {rating ? (
-                              <>
-                                <span className="text-yellow-500">★</span>
-                                <span className="font-semibold" style={{ color: colors.textPrimary }}>
-                                  {rating.avg.toFixed(1)}
-                                </span>
-                                <span style={{ color: colors.textSecondary }}>
-                                  ({rating.count})
-                                </span>
-                              </>
-                            ) : (
-                              <span style={{ color: colors.textSecondary }}>No reviews yet</span>
-                            )}
-                          </div>
-
-                          {/* Price */}
-                          <div className="border-t pt-3" style={{ borderColor: colors.border }}>
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs uppercase" style={{ color: colors.textSecondary }}>
-                                Starting at
-                              </span>
-                              <span className="text-base md:text-lg font-bold" style={{ color: colors.textPrimary }}>
+                          {/* Price Footer */}
+                          <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: colors.border }}>
+                            <span className="text-xs font-medium uppercase tracking-wide" style={{ color: colors.textSecondary }}>
+                              From
+                            </span>
+                            <div className="flex flex-col items-end">
+                              <span className="text-xl md:text-2xl font-bold" style={{ color: colors.primary }}>
                                 ₦{startingPrice.toLocaleString()}
                               </span>
                             </div>
