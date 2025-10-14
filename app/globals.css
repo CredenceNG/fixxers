@@ -50,6 +50,45 @@ img {
   }
 }
 
+/* Mobile-responsive utility classes */
+@media (max-width: 768px) {
+  /* Containers and padding */
+  .profile-container {
+    padding: 20px 16px !important;
+  }
+
+  .profile-card {
+    padding: 24px 16px !important;
+    border-radius: 16px !important;
+  }
+
+  /* Header buttons - stack vertically on mobile */
+  .header-buttons {
+    width: 100%;
+    flex-direction: column !important;
+  }
+
+  .header-buttons button {
+    width: 100% !important;
+  }
+
+  /* Profile header - stack vertically */
+  .profile-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  /* Form grids - single column on mobile */
+  [style*="display: grid"][style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Stats grids */
+  [style*="gridTemplateColumns"][style*="repeat"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -65,6 +104,26 @@ img {
 
   .animation-delay-4000 {
     animation-delay: 4s;
+  }
+
+  /* Responsive utilities */
+  .mobile-stack {
+    display: flex;
+    flex-direction: row;
+  }
+
+  @media (max-width: 768px) {
+    .mobile-stack {
+      flex-direction: column;
+    }
+
+    .mobile-full-width {
+      width: 100% !important;
+    }
+
+    .mobile-hide {
+      display: none !important;
+    }
   }
 }
 
