@@ -8,7 +8,13 @@ import { PurseBalanceInline } from '@/components/PurseBalanceInline';
 import { colors, borderRadius } from '@/lib/theme';
 
 interface PageProps {
-  searchParams: Promise<{ requestPage?: string; quotePage?: string }>;
+  searchParams: Promise<{
+    requestPage?: string;
+    quotePage?: string;
+    search?: string;
+    category?: string;
+    neighborhood?: string;
+  }>;
 }
 
 export default async function FixerDashboard({ searchParams }: PageProps) {
@@ -24,10 +30,13 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
     redirect('/auth/login');
   }
 
-  // Get pagination params
+  // Get pagination and filter params
   const resolvedParams = await searchParams;
   const requestPage = Number(resolvedParams.requestPage) || 1;
   const quotePage = Number(resolvedParams.quotePage) || 1;
+  const searchQuery = resolvedParams.search || '';
+  const categoryFilter = resolvedParams.category || '';
+  const neighborhoodFilter = resolvedParams.neighborhood || '';
   const requestsPerPage = 5;
   const quotesPerPage = 5;
 
@@ -60,8 +69,30 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
     },
   });
 
-  // Fetch available service requests with pagination (only APPROVED requests)
-  const requestsWhere = { status: 'APPROVED' as const };
+  // Build where clause for service requests with filters
+  const requestsWhere: any = { status: 'APPROVED' };
+
+  // Add search filter
+  if (searchQuery) {
+    requestsWhere.OR = [
+      { title: { contains: searchQuery, mode: 'insensitive' } },
+      { description: { contains: searchQuery, mode: 'insensitive' } },
+    ];
+  }
+
+  // Add category filter
+  if (categoryFilter) {
+    requestsWhere.subcategory = {
+      categoryId: categoryFilter,
+    };
+  }
+
+  // Add neighborhood filter
+  if (neighborhoodFilter) {
+    requestsWhere.neighborhoodId = neighborhoodFilter;
+  }
+
+  // Fetch available service requests with pagination and filters (only APPROVED requests)
   const totalRequests = isApproved
     ? await prisma.serviceRequest.count({ where: requestsWhere })
     : 0;
@@ -91,6 +122,14 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
   // Get fixer's service neighborhood IDs and category IDs for checking if they can quote
   const fixerNeighborhoodIds = services.flatMap((s) => s.neighborhoods.map((n) => n.id));
   const fixerCategoryIds = services.map((s) => s.subcategory.categoryId);
+
+  // Fetch all categories and neighborhoods for filters
+  const categories = await prisma.serviceCategory.findMany({
+    orderBy: { name: 'asc' },
+  });
+  const neighborhoods = await prisma.neighborhood.findMany({
+    orderBy: { name: 'asc' },
+  });
 
   // Fetch inspection quotes awaiting final submission
   const inspectionQuotes = await prisma.quote.findMany({
@@ -394,8 +433,130 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
       )}
 
       {/* Available Service Requests */}
-      {isApproved && availableRequests.length > 0 && (
+      {isApproved && (
         <DashboardCard title="Available Service Requests" style={{ marginBottom: '32px' }}>
+          {/* Search and Filter Form */}
+          <form method="GET" action="/fixer/dashboard" style={{ marginBottom: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+              {/* Search Input */}
+              <input
+                type="text"
+                name="search"
+                placeholder="Search requests..."
+                defaultValue={searchQuery}
+                style={{
+                  padding: '10px 14px',
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: borderRadius.md,
+                  fontSize: '14px',
+                  outline: 'none',
+                }}
+              />
+
+              {/* Category Filter */}
+              <select
+                name="category"
+                defaultValue={categoryFilter}
+                style={{
+                  padding: '10px 14px',
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: borderRadius.md,
+                  fontSize: '14px',
+                  outline: 'none',
+                  backgroundColor: colors.white,
+                }}
+              >
+                <option value="">All Categories</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Neighborhood Filter */}
+              <select
+                name="neighborhood"
+                defaultValue={neighborhoodFilter}
+                style={{
+                  padding: '10px 14px',
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: borderRadius.md,
+                  fontSize: '14px',
+                  outline: 'none',
+                  backgroundColor: colors.white,
+                }}
+              >
+                <option value="">All Neighborhoods</option>
+                {neighborhoods.map((neighborhood) => (
+                  <option key={neighborhood.id} value={neighborhood.id}>
+                    {neighborhood.name}, {neighborhood.city}
+                  </option>
+                ))}
+              </select>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: colors.primary,
+                  color: colors.white,
+                  border: 'none',
+                  borderRadius: borderRadius.md,
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                }}
+              >
+                Apply Filters
+              </button>
+            </div>
+
+            {/* Clear Filters Link */}
+            {(searchQuery || categoryFilter || neighborhoodFilter) && (
+              <Link
+                href="/fixer/dashboard"
+                style={{
+                  fontSize: '14px',
+                  color: colors.textSecondary,
+                  textDecoration: 'none',
+                  display: 'inline-block',
+                }}
+              >
+                Clear all filters
+              </Link>
+            )}
+
+            {/* Preserve quote page parameter */}
+            {quotePage > 1 && <input type="hidden" name="quotePage" value={quotePage} />}
+          </form>
+
+          {availableRequests.length === 0 ? (
+            <div style={{
+              padding: '40px 20px',
+              textAlign: 'center',
+              color: colors.textSecondary,
+            }}>
+              <p style={{ fontSize: '16px', marginBottom: '8px' }}>
+                {searchQuery || categoryFilter || neighborhoodFilter
+                  ? 'No service requests match your filters.'
+                  : 'No available service requests at the moment.'}
+              </p>
+              {(searchQuery || categoryFilter || neighborhoodFilter) && (
+                <Link
+                  href="/fixer/dashboard"
+                  style={{
+                    color: colors.primary,
+                    textDecoration: 'none',
+                    fontSize: '14px',
+                  }}
+                >
+                  Clear filters to see all requests
+                </Link>
+              )}
+            </div>
+          ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
@@ -459,7 +620,7 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
               borderTop: `1px solid ${colors.border}`,
             }}>
               <Link
-                href={`/fixer/dashboard?requestPage=${requestPage - 1}${quotePage > 1 ? `&quotePage=${quotePage}` : ''}`}
+                href={`/fixer/dashboard?requestPage=${requestPage - 1}${quotePage > 1 ? `&quotePage=${quotePage}` : ''}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}${categoryFilter ? `&category=${categoryFilter}` : ''}${neighborhoodFilter ? `&neighborhood=${neighborhoodFilter}` : ''}`}
                 style={{
                   padding: '8px 16px',
                   borderRadius: borderRadius.md,
@@ -479,7 +640,7 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
               </span>
 
               <Link
-                href={`/fixer/dashboard?requestPage=${requestPage + 1}${quotePage > 1 ? `&quotePage=${quotePage}` : ''}`}
+                href={`/fixer/dashboard?requestPage=${requestPage + 1}${quotePage > 1 ? `&quotePage=${quotePage}` : ''}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}${categoryFilter ? `&category=${categoryFilter}` : ''}${neighborhoodFilter ? `&neighborhood=${neighborhoodFilter}` : ''}`}
                 style={{
                   padding: '8px 16px',
                   borderRadius: borderRadius.md,
@@ -494,6 +655,7 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
                 Next →
               </Link>
             </div>
+          )}
           )}
         </DashboardCard>
       )}
