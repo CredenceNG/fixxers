@@ -47,6 +47,7 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
   const isApproved = user.status === 'ACTIVE';
   const isRejected = user.status === 'REJECTED';
   const isPending = user.status === 'PENDING';
+  const isReReview = isPending && !!user.fixerProfile?.approvedAt;
 
   return (
     <DashboardLayoutWithHeader
@@ -88,12 +89,17 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
             <div>
               <p style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '4px' }}>Application Status</p>
               <p style={{ fontSize: '20px', fontWeight: '700', color: isApproved ? colors.success : isRejected ? colors.error : colors.warning }}>
-                {user.status}
+                {isReReview ? 'PENDING RE-REVIEW' : user.status}
               </p>
+              {isReReview && (
+                <p style={{ fontSize: '13px', color: colors.textSecondary, marginTop: '4px' }}>
+                  Fixer has updated their profile after approval
+                </p>
+              )}
             </div>
             {user.fixerProfile?.pendingChanges && (
               <span style={{ padding: '8px 16px', backgroundColor: '#FEF5E7', color: '#95620D', borderRadius: borderRadius.lg, fontSize: '14px', fontWeight: '600' }}>
-                Pending Review
+                {isReReview ? 'Re-Review Required' : 'Pending Review'}
               </span>
             )}
           </div>

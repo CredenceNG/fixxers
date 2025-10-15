@@ -110,6 +110,14 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // If fixer was previously approved, reset status to PENDING for re-review
+    if (!isNewApplication) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { status: 'PENDING' },
+      });
+    }
+
     // Delete existing fixer services
     await prisma.fixerService.deleteMany({
       where: { fixerId: user.id },

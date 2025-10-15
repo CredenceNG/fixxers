@@ -262,6 +262,7 @@ export function FixerActionButtons({
   }
 
   const showApprovalActions = status === 'PENDING' || hasPendingChanges;
+  const isReReview = status === 'PENDING' && wasApproved;
 
   // Show message for rejected fixers
   if (status === 'REJECTED') {
@@ -357,6 +358,13 @@ export function FixerActionButtons({
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {isReReview && (
+            <div style={{ padding: '12px', backgroundColor: '#E8F4FD', borderRadius: borderRadius.md, marginBottom: '4px', border: '1px solid #2196F3' }}>
+              <p style={{ fontSize: '13px', color: '#1565C0', fontWeight: '600', margin: 0 }}>
+                ℹ️ This is a re-review. Fixer was previously approved.
+              </p>
+            </div>
+          )}
           <button
             onClick={handleApprove}
             disabled={loading}
@@ -372,7 +380,7 @@ export function FixerActionButtons({
               cursor: loading ? 'not-allowed' : 'pointer',
             }}
           >
-            {loading ? 'Processing...' : 'Approve Fixer'}
+            {loading ? 'Processing...' : isReReview ? 'Re-Approve Fixer' : 'Approve Fixer'}
           </button>
 
           <button

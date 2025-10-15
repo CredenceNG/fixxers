@@ -109,6 +109,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid neighborhood selected' }, { status: 400 });
     }
 
+    // Check if fixer was previously approved
+    const existingProfile = await prisma.fixerProfile.findUnique({
+      where: { fixerId: user.id },
+    });
+
+    const wasApproved = !!existingProfile?.approvedAt;
+
     // Create or update fixer profile
     await prisma.fixerProfile.upsert({
       where: { fixerId: user.id },
@@ -136,6 +143,14 @@ export async function POST(request: NextRequest) {
         pendingChanges: true,
       },
     });
+
+    // If fixer was previously approved, reset status to PENDING for re-review
+    if (wasApproved) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { status: 'PENDING' },
+      });
+    }
 
     // Delete existing fixer services
     await prisma.fixerService.deleteMany({
@@ -165,11 +180,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Check if this is a new application or an update
-    const existingProfile = await prisma.fixerProfile.findUnique({
-      where: { fixerId: user.id },
-    });
-
     // Get service categories for notification
     const services = await prisma.fixerService.findMany({
       where: { fixerId: user.id },
@@ -188,7 +198,7 @@ export async function POST(request: NextRequest) {
 
     // Notify admins
     try {
-      if (!existingProfile?.approvedAt) {
+      if (!wasApproved) {
         // New application
         await notifyAdminNewFixerApplication(
           user.id,

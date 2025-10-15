@@ -15,6 +15,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Only fixers can submit quotes' }, { status: 403 });
     }
 
+    if (user.status !== 'ACTIVE') {
+      return NextResponse.json({ error: 'Your account must be approved to submit quotes' }, { status: 403 });
+    }
+
     const body = await request.json();
     const {
       requestId,
