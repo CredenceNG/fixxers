@@ -7,7 +7,11 @@ import { DashboardCard, DashboardButton, DashboardStat } from '@/components/Dash
 import { PurseBalanceInline } from '@/components/PurseBalanceInline';
 import { colors, borderRadius } from '@/lib/theme';
 
-export default async function FixerDashboard() {
+interface PageProps {
+  searchParams: Promise<{ requestPage?: string; quotePage?: string }>;
+}
+
+export default async function FixerDashboard({ searchParams }: PageProps) {
   const user = await getCurrentUser();
 
   if (!user) {
@@ -19,6 +23,13 @@ export default async function FixerDashboard() {
   if (!roles.includes('FIXER')) {
     redirect('/auth/login');
   }
+
+  // Get pagination params
+  const resolvedParams = await searchParams;
+  const requestPage = Number(resolvedParams.requestPage) || 1;
+  const quotePage = Number(resolvedParams.quotePage) || 1;
+  const requestsPerPage = 5;
+  const quotesPerPage = 5;
 
   // Check if user has multiple roles (dual-role)
   const hasCLIENTRole = roles.includes('CLIENT');
@@ -49,12 +60,16 @@ export default async function FixerDashboard() {
     },
   });
 
-  // Fetch all available service requests (only APPROVED requests)
+  // Fetch available service requests with pagination (only APPROVED requests)
+  const requestsWhere = { status: 'APPROVED' as const };
+  const totalRequests = isApproved
+    ? await prisma.serviceRequest.count({ where: requestsWhere })
+    : 0;
+  const totalRequestPages = Math.ceil(totalRequests / requestsPerPage);
+
   const availableRequests = isApproved
     ? await prisma.serviceRequest.findMany({
-        where: {
-          status: 'APPROVED',
-        },
+        where: requestsWhere,
         include: {
           client: true,
           subcategory: {
@@ -68,7 +83,8 @@ export default async function FixerDashboard() {
           },
         },
         orderBy: { createdAt: 'desc' },
-        take: 20,
+        skip: (requestPage - 1) * requestsPerPage,
+        take: requestsPerPage,
       })
     : [];
 
@@ -100,9 +116,13 @@ export default async function FixerDashboard() {
     orderBy: { updatedAt: 'desc' },
   });
 
-  // Fetch fixer's quotes
+  // Fetch fixer's quotes with pagination
+  const quotesWhere = { fixerId: user.id };
+  const totalQuotes = await prisma.quote.count({ where: quotesWhere });
+  const totalQuotePages = Math.ceil(totalQuotes / quotesPerPage);
+
   const quotes = await prisma.quote.findMany({
-    where: { fixerId: user.id },
+    where: quotesWhere,
     include: {
       request: {
         include: {
@@ -116,6 +136,8 @@ export default async function FixerDashboard() {
       },
     },
     orderBy: { createdAt: 'desc' },
+    skip: (quotePage - 1) * quotesPerPage,
+    take: quotesPerPage,
   });
 
   // Fetch active orders
@@ -424,6 +446,55 @@ export default async function FixerDashboard() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {totalRequestPages > 1 && (
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '12px',
+              marginTop: '24px',
+              paddingTop: '20px',
+              borderTop: `1px solid ${colors.border}`,
+            }}>
+              <Link
+                href={`/fixer/dashboard?requestPage=${requestPage - 1}${quotePage > 1 ? `&quotePage=${quotePage}` : ''}`}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: borderRadius.md,
+                  backgroundColor: requestPage > 1 ? colors.bgSecondary : colors.bgTertiary,
+                  color: requestPage > 1 ? colors.textPrimary : colors.textTertiary,
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  pointerEvents: requestPage > 1 ? 'auto' : 'none',
+                }}
+              >
+                ← Previous
+              </Link>
+
+              <span style={{ fontSize: '14px', color: colors.textSecondary }}>
+                Page {requestPage} of {totalRequestPages}
+              </span>
+
+              <Link
+                href={`/fixer/dashboard?requestPage=${requestPage + 1}${quotePage > 1 ? `&quotePage=${quotePage}` : ''}`}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: borderRadius.md,
+                  backgroundColor: requestPage < totalRequestPages ? colors.bgSecondary : colors.bgTertiary,
+                  color: requestPage < totalRequestPages ? colors.textPrimary : colors.textTertiary,
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  pointerEvents: requestPage < totalRequestPages ? 'auto' : 'none',
+                }}
+              >
+                Next →
+              </Link>
+            </div>
+          )}
         </DashboardCard>
       )}
 
@@ -469,6 +540,55 @@ export default async function FixerDashboard() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {totalQuotePages > 1 && (
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '12px',
+              marginTop: '24px',
+              paddingTop: '20px',
+              borderTop: `1px solid ${colors.border}`,
+            }}>
+              <Link
+                href={`/fixer/dashboard?quotePage=${quotePage - 1}${requestPage > 1 ? `&requestPage=${requestPage}` : ''}`}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: borderRadius.md,
+                  backgroundColor: quotePage > 1 ? colors.bgSecondary : colors.bgTertiary,
+                  color: quotePage > 1 ? colors.textPrimary : colors.textTertiary,
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  pointerEvents: quotePage > 1 ? 'auto' : 'none',
+                }}
+              >
+                ← Previous
+              </Link>
+
+              <span style={{ fontSize: '14px', color: colors.textSecondary }}>
+                Page {quotePage} of {totalQuotePages}
+              </span>
+
+              <Link
+                href={`/fixer/dashboard?quotePage=${quotePage + 1}${requestPage > 1 ? `&requestPage=${requestPage}` : ''}`}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: borderRadius.md,
+                  backgroundColor: quotePage < totalQuotePages ? colors.bgSecondary : colors.bgTertiary,
+                  color: quotePage < totalQuotePages ? colors.textPrimary : colors.textTertiary,
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  pointerEvents: quotePage < totalQuotePages ? 'auto' : 'none',
+                }}
+              >
+                Next →
+              </Link>
+            </div>
+          )}
         </DashboardCard>
       )}
 
