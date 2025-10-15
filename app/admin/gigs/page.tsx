@@ -73,12 +73,13 @@ export default async function AdminGigsPage({
   const getStatusBadge = (status: string) => {
     const styles: Record<string, any> = {
       ACTIVE: { bg: colors.primaryLight, color: colors.primaryDark },
-      PENDING: { bg: '#FEF5E7', color: '#95620D' },
+      PENDING_REVIEW: { bg: '#FEF5E7', color: '#95620D' },
       REJECTED: { bg: colors.errorLight, color: colors.error },
       PAUSED: { bg: colors.gray100, color: colors.gray700 },
+      DRAFT: { bg: colors.gray100, color: colors.gray600 },
     };
 
-    const style = styles[status] || styles.PENDING;
+    const style = styles[status] || styles.PENDING_REVIEW;
     return (
       <span
         style={{
@@ -118,19 +119,19 @@ export default async function AdminGigsPage({
           All
         </Link>
         <Link
-          href="/admin/gigs?status=PENDING"
+          href="/admin/gigs?status=PENDING_REVIEW"
           style={{
             padding: '8px 16px',
             borderRadius: borderRadius.md,
             textDecoration: 'none',
             fontSize: '14px',
             fontWeight: '600',
-            ...(statusFilter === 'PENDING'
+            ...(statusFilter === 'PENDING_REVIEW'
               ? { backgroundColor: colors.primary, color: colors.white }
               : { backgroundColor: colors.bgSecondary, color: colors.textSecondary })
           }}
         >
-          Pending
+          Pending Review
         </Link>
         <Link
           href="/admin/gigs?status=ACTIVE"
