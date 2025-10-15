@@ -117,13 +117,13 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
           <DashboardCard>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '24px' }}>
               <div>
-                <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: colors.text, marginBottom: '8px' }}>
+                <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: colors.textPrimary, marginBottom: '8px' }}>
                   Order Status
                 </h2>
                 <div style={{
                   display: 'inline-block',
                   padding: '6px 12px',
-                  borderRadius: borderRadius.medium,
+                  borderRadius: borderRadius.md,
                   backgroundColor: statusColors[order.status] || colors.textSecondary,
                   color: 'white',
                   fontSize: '14px',
@@ -133,29 +133,29 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                 </div>
               </div>
               {order.status === 'COMPLETED' && order.payment?.status === 'HELD_IN_ESCROW' && (
-                <SettleOrderButton orderId={order.id} />
+                <SettleOrderButton orderId={order.id} sellerName={order.fixer.name || 'Service Provider'} />
               )}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
               <div>
                 <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Order ID</div>
-                <div style={{ fontSize: '14px', color: colors.text, fontFamily: 'monospace' }}>{order.id}</div>
+                <div style={{ fontSize: '14px', color: colors.textPrimary, fontFamily: 'monospace' }}>{order.id}</div>
               </div>
               <div>
                 <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Created</div>
-                <div style={{ fontSize: '14px', color: colors.text }}>{formatDate(order.createdAt)}</div>
+                <div style={{ fontSize: '14px', color: colors.textPrimary }}>{formatDate(order.createdAt)}</div>
               </div>
               {order.startedAt && (
                 <div>
                   <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Started</div>
-                  <div style={{ fontSize: '14px', color: colors.text }}>{formatDate(order.startedAt)}</div>
+                  <div style={{ fontSize: '14px', color: colors.textPrimary }}>{formatDate(order.startedAt)}</div>
                 </div>
               )}
               {order.completedAt && (
                 <div>
                   <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Completed</div>
-                  <div style={{ fontSize: '14px', color: colors.text }}>{formatDate(order.completedAt)}</div>
+                  <div style={{ fontSize: '14px', color: colors.textPrimary }}>{formatDate(order.completedAt)}</div>
                 </div>
               )}
             </div>
@@ -163,12 +163,12 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
 
           {/* Service Details */}
           <DashboardCard>
-            <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: colors.text, marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: colors.textPrimary, marginBottom: '16px' }}>
               Service Details
             </h2>
             {order.gig ? (
               <div>
-                <div style={{ fontSize: '16px', fontWeight: '600', color: colors.text, marginBottom: '8px' }}>
+                <div style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
                   {order.gig.title}
                 </div>
                 <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '8px' }}>
@@ -182,7 +182,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               </div>
             ) : order.request ? (
               <div>
-                <div style={{ fontSize: '16px', fontWeight: '600', color: colors.text, marginBottom: '8px' }}>
+                <div style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
                   {order.request.title}
                 </div>
                 <div style={{ fontSize: '14px', color: colors.textSecondary }}>
@@ -196,20 +196,20 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
 
           {/* Financial Details */}
           <DashboardCard>
-            <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: colors.text, marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: colors.textPrimary, marginBottom: '16px' }}>
               Financial Breakdown
             </h2>
             <div style={{ display: 'grid', gap: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '12px', borderBottom: `1px solid ${colors.border}` }}>
                 <span style={{ fontSize: '14px', color: colors.textSecondary }}>Total Amount</span>
-                <span style={{ fontSize: '16px', fontWeight: '600', color: colors.text }}>{formatAmount(Number(order.totalAmount))}</span>
+                <span style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary }}>{formatAmount(Number(order.totalAmount))}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '14px', color: colors.textSecondary }}>Platform Fee (20%)</span>
-                <span style={{ fontSize: '14px', color: colors.text }}>{formatAmount(Number(order.platformFee))}</span>
+                <span style={{ fontSize: '14px', color: colors.textPrimary }}>{formatAmount(Number(order.platformFee))}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '12px', borderTop: `1px solid ${colors.border}` }}>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: colors.text }}>Fixer Payout</span>
+                <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>Fixer Payout</span>
                 <span style={{ fontSize: '16px', fontWeight: '600', color: colors.success }}>{formatAmount(Number(order.fixerAmount))}</span>
               </div>
             </div>
@@ -219,21 +219,21 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px' }}>
             {/* Client Details */}
             <DashboardCard>
-              <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: colors.text, marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: colors.textPrimary, marginBottom: '16px' }}>
                 Client
               </h2>
               <div style={{ display: 'grid', gap: '8px' }}>
                 <div>
                   <div style={{ fontSize: '12px', color: colors.textSecondary }}>Name</div>
-                  <div style={{ fontSize: '14px', color: colors.text, fontWeight: '500' }}>{order.client.name || 'N/A'}</div>
+                  <div style={{ fontSize: '14px', color: colors.textPrimary, fontWeight: '500' }}>{order.client.name || 'N/A'}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: '12px', color: colors.textSecondary }}>Email</div>
-                  <div style={{ fontSize: '14px', color: colors.text }}>{order.client.email || 'N/A'}</div>
+                  <div style={{ fontSize: '14px', color: colors.textPrimary }}>{order.client.email || 'N/A'}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: '12px', color: colors.textSecondary }}>Phone</div>
-                  <div style={{ fontSize: '14px', color: colors.text }}>{order.client.phone || 'N/A'}</div>
+                  <div style={{ fontSize: '14px', color: colors.textPrimary }}>{order.client.phone || 'N/A'}</div>
                 </div>
                 <Link
                   href={`/admin/users/${order.client.id}`}
@@ -251,21 +251,21 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
 
             {/* Fixer Details */}
             <DashboardCard>
-              <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: colors.text, marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: colors.textPrimary, marginBottom: '16px' }}>
                 Service Provider
               </h2>
               <div style={{ display: 'grid', gap: '8px' }}>
                 <div>
                   <div style={{ fontSize: '12px', color: colors.textSecondary }}>Name</div>
-                  <div style={{ fontSize: '14px', color: colors.text, fontWeight: '500' }}>{order.fixer.name || 'N/A'}</div>
+                  <div style={{ fontSize: '14px', color: colors.textPrimary, fontWeight: '500' }}>{order.fixer.name || 'N/A'}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: '12px', color: colors.textSecondary }}>Email</div>
-                  <div style={{ fontSize: '14px', color: colors.text }}>{order.fixer.email || 'N/A'}</div>
+                  <div style={{ fontSize: '14px', color: colors.textPrimary }}>{order.fixer.email || 'N/A'}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: '12px', color: colors.textSecondary }}>Phone</div>
-                  <div style={{ fontSize: '14px', color: colors.text }}>{order.fixer.phone || 'N/A'}</div>
+                  <div style={{ fontSize: '14px', color: colors.textPrimary }}>{order.fixer.phone || 'N/A'}</div>
                 </div>
                 <Link
                   href={`/admin/users/${order.fixer.id}`}
@@ -285,7 +285,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
           {/* Payment Details */}
           {order.payment && (
             <DashboardCard>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: colors.text, marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: colors.textPrimary, marginBottom: '16px' }}>
                 Payment Information
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
@@ -294,7 +294,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                   <div style={{
                     display: 'inline-block',
                     padding: '4px 8px',
-                    borderRadius: borderRadius.small,
+                    borderRadius: borderRadius.sm,
                     backgroundColor: order.payment.status === 'RELEASED' ? colors.success : colors.info,
                     color: 'white',
                     fontSize: '12px',
@@ -305,16 +305,16 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                 </div>
                 <div>
                   <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Payment ID</div>
-                  <div style={{ fontSize: '14px', color: colors.text, fontFamily: 'monospace' }}>{order.payment.stripePaymentId}</div>
+                  <div style={{ fontSize: '14px', color: colors.textPrimary, fontFamily: 'monospace' }}>{order.payment.stripePaymentId}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Paid At</div>
-                  <div style={{ fontSize: '14px', color: colors.text }}>{formatDate(order.payment.paidAt)}</div>
+                  <div style={{ fontSize: '14px', color: colors.textPrimary }}>{formatDate(order.payment.paidAt)}</div>
                 </div>
                 {order.payment.releasedAt && (
                   <div>
                     <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Released At</div>
-                    <div style={{ fontSize: '14px', color: colors.text }}>{formatDate(order.payment.releasedAt)}</div>
+                    <div style={{ fontSize: '14px', color: colors.textPrimary }}>{formatDate(order.payment.releasedAt)}</div>
                   </div>
                 )}
               </div>

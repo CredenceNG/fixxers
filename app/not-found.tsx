@@ -10,7 +10,7 @@ export default function NotFound() {
       alignItems: 'center',
       justifyContent: 'center',
       padding: '20px',
-      backgroundColor: colors.background,
+      backgroundColor: colors.gray50,
     }}>
       <div style={{
         textAlign: 'center',
@@ -30,7 +30,7 @@ export default function NotFound() {
         <h1 style={{
           fontSize: '32px',
           fontWeight: 'bold',
-          color: colors.text,
+          color: colors.textPrimary,
           marginBottom: '16px',
         }}>
           Page Not Found
