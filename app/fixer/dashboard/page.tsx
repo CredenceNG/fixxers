@@ -607,6 +607,7 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
               </tbody>
             </table>
           </div>
+          )}
 
           {/* Pagination Controls */}
           {totalRequestPages > 1 && (
@@ -655,7 +656,6 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
                 Next →
               </Link>
             </div>
-          )}
           )}
         </DashboardCard>
       )}
