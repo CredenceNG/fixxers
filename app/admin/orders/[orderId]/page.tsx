@@ -94,7 +94,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
   };
 
   return (
-    <DashboardLayoutWithHeader user={user}>
+    <DashboardLayoutWithHeader title="Order Details">
       <div style={{ padding: '32px' }}>
         {/* Header */}
         <div style={{ marginBottom: '24px' }}>
@@ -110,9 +110,6 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
           >
             ← Back to Settlements
           </Link>
-          <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: colors.text }}>
-            Order Details
-          </h1>
         </div>
 
         <div style={{ display: 'grid', gap: '24px' }}>
