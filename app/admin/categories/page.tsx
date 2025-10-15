@@ -12,9 +12,8 @@ interface PageProps {
 
 export default async function AdminCategoriesPage({ searchParams }: PageProps) {
   const user = await getCurrentUser();
-  const roles = user?.roles || [];
 
-  if (!user || !roles.includes('ADMIN')) {
+  if (!user || !user.roles?.includes('ADMIN')) {
     redirect('/auth/login');
   }
 
