@@ -9,8 +9,9 @@ import GigActions from '@/components/GigActions';
 
 export default async function MyGigsPage() {
   const user = await getCurrentUser();
+  const roles = user?.roles || [];
 
-  if (!user || user.role !== 'FIXER') {
+  if (!user || !roles.includes('FIXER')) {
     redirect('/auth/login');
   }
 

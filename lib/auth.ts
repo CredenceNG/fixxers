@@ -107,7 +107,6 @@ export async function getCurrentUser() {
       email: true,
       phone: true,
       name: true,
-      role: true,
       roles: true,
       status: true,
       profileImage: true,
@@ -119,18 +118,13 @@ export async function getCurrentUser() {
   return user;
 }
 
-// Check if user has required role (supports both single role and roles array)
-export function hasRole(user: { role?: string; roles?: string[] } | null, allowedRoles: string[]): boolean {
+// Check if user has required role (uses roles array)
+export function hasRole(user: { roles?: string[] } | null, allowedRoles: string[]): boolean {
   if (!user) return false;
 
-  // Check roles array first (new system)
+  // Check roles array
   if (user.roles && user.roles.length > 0) {
     return user.roles.some(role => allowedRoles.includes(role));
-  }
-
-  // Fallback to single role (backward compatibility)
-  if (user.role) {
-    return allowedRoles.includes(user.role);
   }
 
   return false;

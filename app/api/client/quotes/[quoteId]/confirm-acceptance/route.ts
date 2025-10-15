@@ -137,7 +137,7 @@ export async function POST(
           type: 'QUOTE_ACCEPTED',
           title: 'Quote Accepted with Down Payment!',
           message: `Client has accepted your quote and paid ₦${quote.downPaymentAmount?.toLocaleString()} down payment for "${quote.request.title}". You can now start the work.`,
-          link: `/fixer/requests/${quote.requestId}`,
+          link: `/fixer/orders/${order.id}/view`,
         },
       });
     });

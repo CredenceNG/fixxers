@@ -15,7 +15,7 @@ async function main() {
     create: {
       email: 'admin@fixxers.com',
       name: 'Admin User',
-      role: UserRole.ADMIN,
+      roles: [UserRole.ADMIN],
       status: UserStatus.ACTIVE,
     },
   });
@@ -154,7 +154,7 @@ async function main() {
       create: {
         email: `c${i}@f.com`,
         name: `Client ${i}`,
-        role: UserRole.CLIENT,
+        roles: [UserRole.CLIENT],
         status: UserStatus.ACTIVE,
         phone: `+234${8000000000 + i}`,
         emailNotifications: true,
@@ -192,7 +192,7 @@ async function main() {
       create: {
         email: `f${i}@f.com`,
         name: `Fixer ${i}`,
-        role: UserRole.FIXER,
+        roles: [UserRole.FIXER],
         status: UserStatus.ACTIVE,
         phone: `+234${9000000000 + i}`,
         bio: `Experienced professional with ${i + 3} years in the industry. Dedicated to quality work and customer satisfaction.`,

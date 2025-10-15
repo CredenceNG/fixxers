@@ -10,14 +10,15 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const roles = user.roles || [];
+
     // Admin gets platform purse balance
-    if (user.role === 'ADMIN') {
+    if (roles.includes('ADMIN')) {
       const platformPurse = await getPlatformPurse();
       const balance = await getPurseBalance(platformPurse.id);
 
       return NextResponse.json({
         purseId: platformPurse.id,
-        role: 'ADMIN',
         ...balance,
       });
     }
@@ -28,7 +29,6 @@ export async function GET() {
 
     return NextResponse.json({
       purseId: userPurse.id,
-      role: user.role,
       ...balance,
     });
   } catch (error) {

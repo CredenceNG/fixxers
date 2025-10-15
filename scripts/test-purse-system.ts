@@ -70,10 +70,10 @@ async function testPurseSystem() {
     // 3. Get or create test users
     console.log('\n3️⃣  Setting up test users...');
     const testClient = await prisma.user.findFirst({
-      where: { role: 'CLIENT' },
+      where: { roles: { has: 'CLIENT' } },
     });
     const testFixer = await prisma.user.findFirst({
-      where: { role: 'FIXER' },
+      where: { roles: { has: 'FIXER' } },
     });
 
     if (!testClient || !testFixer) {

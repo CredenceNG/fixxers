@@ -12,8 +12,9 @@ interface PageProps {
 
 export default async function ClientsPage({ searchParams }: PageProps) {
   const user = await getCurrentUser();
+  const roles = user?.roles || [];
 
-  if (!user || user.role !== 'ADMIN') {
+  if (!user || !roles.includes('ADMIN')) {
     redirect('/auth/login');
   }
 
@@ -26,12 +27,12 @@ export default async function ClientsPage({ searchParams }: PageProps) {
   const skip = (currentPage - 1) * perPage;
 
   // Fetch total count for pagination
-  const totalCount = await prisma.user.count({ where: { role: 'CLIENT' } });
+  const totalCount = await prisma.user.count({ where: { roles: { has: 'CLIENT' } } });
   const totalPages = Math.ceil(totalCount / perPage);
 
   // Fetch paginated clients with counts
   const clients = await prisma.user.findMany({
-    where: { role: 'CLIENT' },
+    where: { roles: { has: 'CLIENT' } },
     skip,
     take: perPage,
     include: {
@@ -48,9 +49,9 @@ export default async function ClientsPage({ searchParams }: PageProps) {
 
   // Calculate stats
   const totalClients = totalCount;
-  const activeClients = await prisma.user.count({ where: { role: 'CLIENT', status: 'ACTIVE' } });
-  const pendingClients = await prisma.user.count({ where: { role: 'CLIENT', status: 'PENDING' } });
-  const suspendedClients = await prisma.user.count({ where: { role: 'CLIENT', status: 'SUSPENDED' } });
+  const activeClients = await prisma.user.count({ where: { roles: { has: 'CLIENT' }, status: 'ACTIVE' } });
+  const pendingClients = await prisma.user.count({ where: { roles: { has: 'CLIENT' }, status: 'PENDING' } });
+  const suspendedClients = await prisma.user.count({ where: { roles: { has: 'CLIENT' }, status: 'SUSPENDED' } });
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {

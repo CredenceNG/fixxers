@@ -12,8 +12,9 @@ interface PageProps {
 
 export default async function FixersPage({ searchParams }: PageProps) {
   const user = await getCurrentUser();
+  const roles = user?.roles || [];
 
-  if (!user || user.role !== 'ADMIN') {
+  if (!user || !roles.includes('ADMIN')) {
     redirect('/auth/login');
   }
 
@@ -26,12 +27,12 @@ export default async function FixersPage({ searchParams }: PageProps) {
   const skip = (currentPage - 1) * perPage;
 
   // Fetch total count for pagination
-  const totalCount = await prisma.user.count({ where: { role: 'FIXER' } });
+  const totalCount = await prisma.user.count({ where: { roles: { has: 'FIXER' } } });
   const totalPages = Math.ceil(totalCount / perPage);
 
   // Fetch paginated fixers with counts
   const fixers = await prisma.user.findMany({
-    where: { role: 'FIXER' },
+    where: { roles: { has: 'FIXER' } },
     skip,
     take: perPage,
     include: {
@@ -58,9 +59,9 @@ export default async function FixersPage({ searchParams }: PageProps) {
 
   // Calculate stats
   const totalFixers = totalCount;
-  const activeFixers = await prisma.user.count({ where: { role: 'FIXER', status: 'ACTIVE' } });
-  const pendingFixers = await prisma.user.count({ where: { role: 'FIXER', status: 'PENDING' } });
-  const suspendedFixers = await prisma.user.count({ where: { role: 'FIXER', status: 'SUSPENDED' } });
+  const activeFixers = await prisma.user.count({ where: { roles: { has: 'FIXER' }, status: 'ACTIVE' } });
+  const pendingFixers = await prisma.user.count({ where: { roles: { has: 'FIXER' }, status: 'PENDING' } });
+  const suspendedFixers = await prisma.user.count({ where: { roles: { has: 'FIXER' }, status: 'SUSPENDED' } });
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {

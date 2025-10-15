@@ -6,18 +6,31 @@ import { sendFixerApprovalEmail, sendFixerRejectionEmail } from '@/lib/email';
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser();
+    const roles = user?.roles || [];
 
-    if (!user || user.role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/auth/login', request.url));
+    if (!user || !roles.includes('ADMIN')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Parse form data
-    const formData = await request.formData();
-    const fixerId = formData.get('fixerId') as string;
-    const approved = formData.get('approved') === 'true';
+    // Check content type and parse accordingly
+    const contentType = request.headers.get('content-type');
+    let fixerId: string;
+    let approved: boolean;
+
+    if (contentType?.includes('application/json')) {
+      // Parse JSON data
+      const body = await request.json();
+      fixerId = body.fixerId;
+      approved = body.approved;
+    } else {
+      // Parse form data
+      const formData = await request.formData();
+      fixerId = formData.get('fixerId') as string;
+      approved = formData.get('approved') === 'true';
+    }
 
     if (!fixerId) {
-      return NextResponse.redirect(new URL('/admin/dashboard?error=invalid_request', request.url));
+      return NextResponse.json({ error: 'Fixer ID is required' }, { status: 400 });
     }
 
     // Fetch fixer details for email
@@ -26,8 +39,8 @@ export async function POST(request: NextRequest) {
       select: { email: true, name: true },
     });
 
-    if (!fixer || !fixer.email) {
-      return NextResponse.redirect(new URL('/admin/dashboard?error=fixer_not_found', request.url));
+    if (!fixer) {
+      return NextResponse.json({ error: 'Fixer not found' }, { status: 404 });
     }
 
     if (approved) {
@@ -47,9 +60,16 @@ export async function POST(request: NextRequest) {
       });
 
       // Send approval notification email
-      await sendFixerApprovalEmail(fixer.email, fixer.name || 'Fixer');
+      if (fixer.email) {
+        await sendFixerApprovalEmail(fixer.email, fixer.name || 'Fixer');
+      }
 
-      return NextResponse.redirect(new URL(`/admin/users/${fixerId}?success=approved`, request.url));
+      // Return JSON response for AJAX or redirect for form submission
+      if (contentType?.includes('application/json')) {
+        return NextResponse.json({ success: true, message: 'Fixer approved successfully' });
+      } else {
+        return NextResponse.redirect(new URL(`/admin/users/${fixerId}?success=approved`, request.url));
+      }
     } else {
       // Reject the fixer
       await prisma.user.update({
@@ -66,14 +86,22 @@ export async function POST(request: NextRequest) {
       });
 
       // Send rejection notification email
-      await sendFixerRejectionEmail(fixer.email, fixer.name || 'Fixer', 'Your profile needs additional information or updates.');
+      if (fixer.email) {
+        await sendFixerRejectionEmail(fixer.email, fixer.name || 'Fixer', 'Your profile needs additional information or updates.');
+      }
 
-      return NextResponse.redirect(new URL(`/admin/users/${fixerId}?success=rejected`, request.url));
+      // Return JSON response for AJAX or redirect for form submission
+      if (contentType?.includes('application/json')) {
+        return NextResponse.json({ success: true, message: 'Fixer rejected successfully' });
+      } else {
+        return NextResponse.redirect(new URL(`/admin/users/${fixerId}?success=rejected`, request.url));
+      }
     }
   } catch (error) {
     console.error('Fixer approval error:', error);
-    return NextResponse.redirect(
-      new URL('/admin/dashboard?error=processing_failed', request.url)
+    return NextResponse.json(
+      { error: 'Failed to process fixer approval' },
+      { status: 500 }
     );
   }
 }

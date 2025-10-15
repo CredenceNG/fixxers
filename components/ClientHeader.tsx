@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 
 interface User {
   id: string;
-  role: 'CLIENT' | 'FIXER' | 'ADMIN';
+  roles: string[];
   name?: string;
   email?: string;
   phone?: string;
@@ -71,9 +71,9 @@ export default function ClientHeader() {
             <>
               <Link
                 href={
-                  user.role === 'ADMIN'
+                  user.roles?.includes('ADMIN')
                     ? '/admin/dashboard'
-                    : user.role === 'FIXER'
+                    : user.roles?.includes('FIXER')
                     ? '/fixer/dashboard'
                     : '/client/dashboard'
                 }

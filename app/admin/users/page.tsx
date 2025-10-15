@@ -5,15 +5,17 @@ import Link from 'next/link';
 import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
 import { DashboardCard, DashboardButton } from '@/components/DashboardLayout';
 import { colors, borderRadius } from '@/lib/theme';
+import { SearchForm } from './SearchForm';
 
 interface PageProps {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; search?: string; status?: string; role?: string }>;
 }
 
 export default async function UsersPage({ searchParams }: PageProps) {
   const user = await getCurrentUser();
+  const roles = user?.roles || [];
 
-  if (!user || user.role !== 'ADMIN') {
+  if (!user || !roles.includes('ADMIN')) {
     redirect('/auth/login');
   }
 
@@ -24,13 +26,67 @@ export default async function UsersPage({ searchParams }: PageProps) {
   const currentPage = parseInt(params.page || '1', 10);
   const perPage = 5;
   const skip = (currentPage - 1) * perPage;
+  const searchQuery = params.search || '';
+  const statusFilter = params.status || '';
+  const roleFilter = params.role || '';
+
+  // Build search filter
+  const searchFilter = searchQuery
+    ? {
+        OR: [
+          { name: { contains: searchQuery, mode: 'insensitive' as const } },
+          { email: { contains: searchQuery, mode: 'insensitive' as const } },
+          { phone: { contains: searchQuery, mode: 'insensitive' as const } },
+          {
+            fixerServices: {
+              some: {
+                subcategory: {
+                  OR: [
+                    { name: { contains: searchQuery, mode: 'insensitive' as const } },
+                    { category: { name: { contains: searchQuery, mode: 'insensitive' as const } } },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      }
+    : {};
+
+  // Build status filter
+  const statusWhereFilter = statusFilter ? { status: statusFilter as any } : {};
+
+  // Build role filter
+  let roleWhereFilter = {};
+  if (roleFilter === 'CLIENT') {
+    roleWhereFilter = { roles: { has: 'CLIENT' } };
+  } else if (roleFilter === 'FIXER') {
+    roleWhereFilter = { roles: { has: 'FIXER' } };
+  } else if (roleFilter === 'ADMIN') {
+    roleWhereFilter = { roles: { has: 'ADMIN' } };
+  } else if (roleFilter === 'BOTH') {
+    roleWhereFilter = {
+      AND: [
+        { roles: { has: 'CLIENT' } },
+        { roles: { has: 'FIXER' } },
+      ],
+    };
+  }
+
+  // Combine filters
+  const whereFilter = {
+    ...searchFilter,
+    ...statusWhereFilter,
+    ...roleWhereFilter,
+  };
 
   // Fetch total count for pagination
-  const totalCount = await prisma.user.count();
+  const totalCount = await prisma.user.count({ where: whereFilter });
   const totalPages = Math.ceil(totalCount / perPage);
 
   // Fetch paginated users with counts
   const users = await prisma.user.findMany({
+    where: whereFilter,
     skip,
     take: perPage,
     include: {
@@ -53,9 +109,9 @@ export default async function UsersPage({ searchParams }: PageProps) {
 
   // Calculate stats (from total counts, not paginated results)
   const totalUsers = totalCount;
-  const totalClients = await prisma.user.count({ where: { role: 'CLIENT' } });
-  const totalFixers = await prisma.user.count({ where: { role: 'FIXER' } });
-  const totalAdmins = await prisma.user.count({ where: { role: 'ADMIN' } });
+  const totalClients = await prisma.user.count({ where: { roles: { has: 'CLIENT' } } });
+  const totalFixers = await prisma.user.count({ where: { roles: { has: 'FIXER' } } });
+  const totalAdmins = await prisma.user.count({ where: { roles: { has: 'ADMIN' } } });
   const activeUsers = await prisma.user.count({ where: { status: 'ACTIVE' } });
   const pendingUsers = await prisma.user.count({ where: { status: 'PENDING' } });
   const suspendedUsers = await prisma.user.count({ where: { status: 'SUSPENDED' } });
@@ -100,6 +156,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
       subtitle="View and manage all platform users"
       actions={
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <SearchForm />
           <DashboardButton variant="outline" href="/admin/dashboard">
             Back to Dashboard
           </DashboardButton>
@@ -163,6 +220,180 @@ export default async function UsersPage({ searchParams }: PageProps) {
         </DashboardCard>
       </div>
 
+      {/* Role Filter Buttons */}
+      <div style={{ marginBottom: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textSecondary, marginRight: '8px' }}>
+          Role:
+        </span>
+        <Link
+          href={`/admin/users?${statusFilter ? `status=${statusFilter}&` : ''}${searchQuery ? `search=${encodeURIComponent(searchQuery)}&` : ''}page=1`}
+          style={{
+            padding: '8px 16px',
+            fontSize: '13px',
+            fontWeight: '600',
+            color: !roleFilter ? colors.white : colors.textPrimary,
+            backgroundColor: !roleFilter ? colors.primary : colors.white,
+            border: `2px solid ${!roleFilter ? colors.primary : colors.border}`,
+            borderRadius: borderRadius.md,
+            textDecoration: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          All Roles
+        </Link>
+        <Link
+          href={`/admin/users?role=CLIENT${statusFilter ? `&status=${statusFilter}` : ''}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}&page=1`}
+          style={{
+            padding: '8px 16px',
+            fontSize: '13px',
+            fontWeight: '600',
+            color: roleFilter === 'CLIENT' ? colors.white : colors.textPrimary,
+            backgroundColor: roleFilter === 'CLIENT' ? colors.primary : colors.white,
+            border: `2px solid ${roleFilter === 'CLIENT' ? colors.primary : colors.border}`,
+            borderRadius: borderRadius.md,
+            textDecoration: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          Client
+        </Link>
+        <Link
+          href={`/admin/users?role=FIXER${statusFilter ? `&status=${statusFilter}` : ''}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}&page=1`}
+          style={{
+            padding: '8px 16px',
+            fontSize: '13px',
+            fontWeight: '600',
+            color: roleFilter === 'FIXER' ? colors.white : colors.textPrimary,
+            backgroundColor: roleFilter === 'FIXER' ? colors.primary : colors.white,
+            border: `2px solid ${roleFilter === 'FIXER' ? colors.primary : colors.border}`,
+            borderRadius: borderRadius.md,
+            textDecoration: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          Fixer
+        </Link>
+        <Link
+          href={`/admin/users?role=ADMIN${statusFilter ? `&status=${statusFilter}` : ''}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}&page=1`}
+          style={{
+            padding: '8px 16px',
+            fontSize: '13px',
+            fontWeight: '600',
+            color: roleFilter === 'ADMIN' ? colors.white : colors.textPrimary,
+            backgroundColor: roleFilter === 'ADMIN' ? colors.error : colors.white,
+            border: `2px solid ${roleFilter === 'ADMIN' ? colors.error : colors.border}`,
+            borderRadius: borderRadius.md,
+            textDecoration: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          Admin
+        </Link>
+        <Link
+          href={`/admin/users?role=BOTH${statusFilter ? `&status=${statusFilter}` : ''}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}&page=1`}
+          style={{
+            padding: '8px 16px',
+            fontSize: '13px',
+            fontWeight: '600',
+            color: roleFilter === 'BOTH' ? colors.white : colors.textPrimary,
+            backgroundColor: roleFilter === 'BOTH' ? colors.primary : colors.white,
+            border: `2px solid ${roleFilter === 'BOTH' ? colors.primary : colors.border}`,
+            borderRadius: borderRadius.md,
+            textDecoration: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          Both (Client + Fixer)
+        </Link>
+      </div>
+
+      {/* Status Filter Buttons */}
+      <div style={{ marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textSecondary, marginRight: '8px' }}>
+          Status:
+        </span>
+        <Link
+          href={`/admin/users?${roleFilter ? `role=${roleFilter}&` : ''}${searchQuery ? `search=${encodeURIComponent(searchQuery)}&` : ''}page=1`}
+          style={{
+            padding: '10px 20px',
+            fontSize: '14px',
+            fontWeight: '600',
+            color: !statusFilter ? colors.white : colors.textPrimary,
+            backgroundColor: !statusFilter ? colors.primary : colors.white,
+            border: `2px solid ${!statusFilter ? colors.primary : colors.border}`,
+            borderRadius: borderRadius.md,
+            textDecoration: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          All Status
+        </Link>
+        <Link
+          href={`/admin/users?status=ACTIVE${roleFilter ? `&role=${roleFilter}` : ''}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}&page=1`}
+          style={{
+            padding: '10px 20px',
+            fontSize: '14px',
+            fontWeight: '600',
+            color: statusFilter === 'ACTIVE' ? colors.white : colors.textPrimary,
+            backgroundColor: statusFilter === 'ACTIVE' ? colors.success : colors.white,
+            border: `2px solid ${statusFilter === 'ACTIVE' ? colors.success : colors.border}`,
+            borderRadius: borderRadius.md,
+            textDecoration: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          Active
+        </Link>
+        <Link
+          href={`/admin/users?status=PENDING${roleFilter ? `&role=${roleFilter}` : ''}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}&page=1`}
+          style={{
+            padding: '10px 20px',
+            fontSize: '14px',
+            fontWeight: '600',
+            color: statusFilter === 'PENDING' ? colors.white : colors.textPrimary,
+            backgroundColor: statusFilter === 'PENDING' ? colors.warningDark : colors.white,
+            border: `2px solid ${statusFilter === 'PENDING' ? colors.warningDark : colors.border}`,
+            borderRadius: borderRadius.md,
+            textDecoration: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          Pending
+        </Link>
+        <Link
+          href={`/admin/users?status=REJECTED${roleFilter ? `&role=${roleFilter}` : ''}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}&page=1`}
+          style={{
+            padding: '10px 20px',
+            fontSize: '14px',
+            fontWeight: '600',
+            color: statusFilter === 'REJECTED' ? colors.white : colors.textPrimary,
+            backgroundColor: statusFilter === 'REJECTED' ? colors.error : colors.white,
+            border: `2px solid ${statusFilter === 'REJECTED' ? colors.error : colors.border}`,
+            borderRadius: borderRadius.md,
+            textDecoration: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          Rejected
+        </Link>
+        <Link
+          href={`/admin/users?status=SUSPENDED${roleFilter ? `&role=${roleFilter}` : ''}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}&page=1`}
+          style={{
+            padding: '10px 20px',
+            fontSize: '14px',
+            fontWeight: '600',
+            color: statusFilter === 'SUSPENDED' ? colors.white : colors.textPrimary,
+            backgroundColor: statusFilter === 'SUSPENDED' ? colors.error : colors.white,
+            border: `2px solid ${statusFilter === 'SUSPENDED' ? colors.error : colors.border}`,
+            borderRadius: borderRadius.md,
+            textDecoration: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          Suspended
+        </Link>
+      </div>
+
       {/* Users Table */}
       <DashboardCard padding="0">
         <div style={{ overflowX: 'auto' }}>
@@ -204,7 +435,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
                         <div style={{ fontWeight: '500', color: colors.textPrimary, fontSize: '14px' }}>
                           {u.name || 'N/A'}
                         </div>
-                        {u.role === 'FIXER' && u.fixerProfile && (
+                        {u.roles?.includes('FIXER') && u.fixerProfile && (
                           <div style={{ fontSize: '12px', color: colors.textSecondary, marginTop: '2px' }}>
                             {u.fixerProfile.yearsOfService} years experience
                           </div>
@@ -227,10 +458,10 @@ export default async function UsersPage({ searchParams }: PageProps) {
                         fontSize: '12px',
                         borderRadius: '6px',
                         fontWeight: '600',
-                        ...getRoleBadgeColor(u.role),
+                        ...getRoleBadgeColor(u.roles?.[0] || 'CLIENT'),
                       }}
                     >
-                      {u.role}
+                      {u.roles?.join(', ') || 'N/A'}
                     </span>
                   </td>
                   <td style={{ padding: '16px 20px' }}>
@@ -247,16 +478,16 @@ export default async function UsersPage({ searchParams }: PageProps) {
                     </span>
                   </td>
                   <td style={{ padding: '16px 20px', fontSize: '13px', color: colors.textSecondary }}>
-                    {u.role === 'FIXER' && (
+                    {u.roles?.includes('FIXER') && (
                       <div>
                         <div>{u._count.gigs} gigs</div>
                         <div>{u._count.fixerOrders} orders</div>
                       </div>
                     )}
-                    {u.role === 'CLIENT' && (
+                    {u.roles?.includes('CLIENT') && !u.roles?.includes('FIXER') && (
                       <div>{u._count.clientOrders} orders</div>
                     )}
-                    {u.role === 'ADMIN' && (
+                    {u.roles?.includes('ADMIN') && !u.roles?.includes('FIXER') && !u.roles?.includes('CLIENT') && (
                       <div style={{ color: colors.textSecondary }}>Admin</div>
                     )}
                   </td>
@@ -293,7 +524,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
       {totalPages > 1 && (
         <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px' }}>
           <Link
-            href={`/admin/users?page=${currentPage - 1}`}
+            href={`/admin/users?page=${currentPage - 1}${roleFilter ? `&role=${roleFilter}` : ''}${statusFilter ? `&status=${statusFilter}` : ''}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}`}
             style={{
               padding: '10px 16px',
               borderRadius: '8px',
@@ -314,7 +545,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <Link
                 key={page}
-                href={`/admin/users?page=${page}`}
+                href={`/admin/users?page=${page}${roleFilter ? `&role=${roleFilter}` : ''}${statusFilter ? `&status=${statusFilter}` : ''}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}`}
                 style={{
                   padding: '10px 14px',
                   borderRadius: '8px',
@@ -334,7 +565,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
           </div>
 
           <Link
-            href={`/admin/users?page=${currentPage + 1}`}
+            href={`/admin/users?page=${currentPage + 1}${roleFilter ? `&role=${roleFilter}` : ''}${statusFilter ? `&status=${statusFilter}` : ''}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}`}
             style={{
               padding: '10px 16px',
               borderRadius: '8px',

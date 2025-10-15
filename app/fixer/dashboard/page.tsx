@@ -10,9 +10,18 @@ import { colors, borderRadius } from '@/lib/theme';
 export default async function FixerDashboard() {
   const user = await getCurrentUser();
 
-  if (!user || user.role !== 'FIXER') {
+  if (!user) {
     redirect('/auth/login');
   }
+
+  // Check if user has FIXER role
+  const roles = user.roles || [];
+  if (!roles.includes('FIXER')) {
+    redirect('/auth/login');
+  }
+
+  // Check if user has multiple roles (dual-role)
+  const hasCLIENTRole = roles.includes('CLIENT');
 
   // Check if fixer has completed profile
   const fixerProfile = await prisma.fixerProfile.findUnique({
@@ -140,11 +149,11 @@ export default async function FixerDashboard() {
     orderBy: { createdAt: 'desc' },
   });
 
-  // Fetch completed orders
+  // Fetch completed orders (including paid and settled)
   const completedOrders = await prisma.order.findMany({
     where: {
       fixerId: user.id,
-      status: 'COMPLETED',
+      status: { in: ['COMPLETED', 'PAID', 'SETTLED'] },
     },
     include: {
       client: true,
@@ -167,6 +176,7 @@ export default async function FixerDashboard() {
         },
       },
       review: true,
+      payment: true,
     },
     orderBy: { completedAt: 'desc' },
     take: 5,
@@ -198,6 +208,11 @@ export default async function FixerDashboard() {
       actions={
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
           <PurseBalanceInline />
+          {hasCLIENTRole && (
+            <DashboardButton variant="outline" href="/client/dashboard">
+              👤 Switch to Client Mode
+            </DashboardButton>
+          )}
           <DashboardButton variant="outline" href="/fixer/gigs">
             📋 My Service Offers
           </DashboardButton>
@@ -357,64 +372,58 @@ export default async function FixerDashboard() {
       )}
 
       {/* Available Service Requests */}
-      {isApproved && (
+      {isApproved && availableRequests.length > 0 && (
         <DashboardCard title="Available Service Requests" style={{ marginBottom: '32px' }}>
-          {availableRequests.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '48px 24px' }}>
-              <p style={{ color: colors.textSecondary }}>No new service requests available at the moment</p>
-            </div>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Request</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Client</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Location</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Posted</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {availableRequests.map((request) => {
-                    const hasQuoted = request.quotes.length > 0;
-                    const hasNeighborhood = fixerNeighborhoodIds.includes(request.neighborhoodId);
-                    const hasCategory = fixerCategoryIds.includes(request.subcategory.categoryId);
-                    const canQuote = hasNeighborhood && hasCategory;
-                    return (
-                      <tr key={request.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
-                        <td style={{ padding: '16px' }}>
-                          <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>{request.title}</div>
-                          <div style={{ fontSize: '13px', color: colors.textSecondary }}>{request.subcategory.name}</div>
-                        </td>
-                        <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>
-                          {request.client.name || request.client.email || request.client.phone}
-                        </td>
-                        <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>{request.neighborhood.name}</td>
-                        <td style={{ padding: '16px', fontSize: '14px', color: colors.textSecondary }}>
-                          {new Date(request.createdAt).toLocaleDateString()}
-                        </td>
-                        <td style={{ padding: '16px' }}>
-                          {hasQuoted ? (
-                            <span style={{ color: colors.success, fontWeight: '600', fontSize: '14px' }}>Quoted</span>
-                          ) : canQuote ? (
-                            <Link
-                              href={`/fixer/requests/${request.id}`}
-                              style={{ color: colors.primary, fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}
-                            >
-                              View & Quote
-                            </Link>
-                          ) : (
-                            <span style={{ color: colors.textTertiary, fontSize: '14px' }}>View Only</span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Request</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Client</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Location</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Posted</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {availableRequests.map((request) => {
+                  const hasQuoted = request.quotes.length > 0;
+                  const hasNeighborhood = fixerNeighborhoodIds.includes(request.neighborhoodId);
+                  const hasCategory = fixerCategoryIds.includes(request.subcategory.categoryId);
+                  const canQuote = hasNeighborhood && hasCategory;
+                  return (
+                    <tr key={request.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                      <td style={{ padding: '16px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>{request.title}</div>
+                        <div style={{ fontSize: '13px', color: colors.textSecondary }}>{request.subcategory.name}</div>
+                      </td>
+                      <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>
+                        {request.client.name || request.client.email || request.client.phone}
+                      </td>
+                      <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>{request.neighborhood.name}</td>
+                      <td style={{ padding: '16px', fontSize: '14px', color: colors.textSecondary }}>
+                        {new Date(request.createdAt).toLocaleDateString()}
+                      </td>
+                      <td style={{ padding: '16px' }}>
+                        {hasQuoted ? (
+                          <span style={{ color: colors.success, fontWeight: '600', fontSize: '14px' }}>Quoted</span>
+                        ) : canQuote ? (
+                          <Link
+                            href={`/fixer/requests/${request.id}`}
+                            style={{ color: colors.primary, fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}
+                          >
+                            View & Quote
+                          </Link>
+                        ) : (
+                          <span style={{ color: colors.textTertiary, fontSize: '14px' }}>View Only</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </DashboardCard>
       )}
 

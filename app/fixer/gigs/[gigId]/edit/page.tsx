@@ -9,8 +9,9 @@ import { EditGigForm } from './EditGigForm';
 
 export default async function EditGigPage({ params }: { params: Promise<{ gigId: string }> }) {
   const user = await getCurrentUser();
+  const roles = user?.roles || [];
 
-  if (!user || user.role !== 'FIXER') {
+  if (!user || !roles.includes('FIXER')) {
     redirect('/auth/login');
   }
 

@@ -44,15 +44,12 @@ export async function POST(request: NextRequest) {
         ? [validated.role]
         : ['CLIENT' as const];
 
-    const primaryRole = roles[0] as 'CLIENT' | 'FIXER';
-
     // Create new user with PENDING status
     const user = await prisma.user.create({
       data: {
         email: validated.email,
         phone: validated.phone,
         name: validated.name,
-        role: primaryRole,
         roles: roles,
       },
     });

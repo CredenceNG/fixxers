@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const roles = user.roles && user.roles.length > 0 ? user.roles : [user.role];
+    const roles = user.roles || [];
 
     // Fetch profiles based on user roles
     const clientProfile = roles.includes('CLIENT')
@@ -151,30 +151,32 @@ export async function POST(request: NextRequest) {
 
     // Save FixerProfile if user has FIXER role
     if (roles.includes('FIXER')) {
-      // Additional validation for fixers
-      if (!yearsOfService || !qualifications || qualifications.length === 0) {
-        return NextResponse.json(
-          { error: 'Years of service and qualifications are required for service providers' },
-          { status: 400 }
-        );
-      }
-
-      await prisma.fixerProfile.upsert({
+      // Check if profile already exists
+      const existingProfile = await prisma.fixerProfile.findUnique({
         where: { fixerId: user.id },
-        update: {
-          ...sharedFields,
-          yearsOfService: parseInt(yearsOfService),
-          qualifications,
-          pendingChanges: true, // Mark for admin review
-        },
-        create: {
-          fixerId: user.id,
-          ...sharedFields,
-          yearsOfService: parseInt(yearsOfService),
-          qualifications,
-          pendingChanges: true,
-        },
       });
+
+      if (existingProfile) {
+        // Update existing profile (only basic info, keep yearsOfService and qualifications)
+        await prisma.fixerProfile.update({
+          where: { fixerId: user.id },
+          data: {
+            ...sharedFields,
+            pendingChanges: true, // Mark for admin review
+          },
+        });
+      } else {
+        // Create new profile with minimal fields (will be completed in Step 2)
+        await prisma.fixerProfile.create({
+          data: {
+            fixerId: user.id,
+            ...sharedFields,
+            yearsOfService: 0, // Default, will be set in Step 2
+            qualifications: [], // Default, will be set in Step 2
+            pendingChanges: false, // Not ready for review until Step 2 is complete
+          },
+        });
+      }
       hasFixerProfile = true;
     }
 
@@ -183,8 +185,8 @@ export async function POST(request: NextRequest) {
       userId: user.id,
       email: user.email || undefined,
       phone: user.phone || undefined,
-      role: user.role,
-      roles: user.roles || [user.role],
+      role: roles[0] || 'CLIENT',
+      roles,
       hasProfile: hasFixerProfile || hasClientProfile,
       hasFixerProfile,
       hasClientProfile,

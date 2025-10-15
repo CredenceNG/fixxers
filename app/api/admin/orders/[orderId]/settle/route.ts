@@ -8,8 +8,9 @@ export async function POST(
 ) {
   try {
     const user = await getCurrentUser();
+    const roles = user?.roles || [];
 
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || !roles.includes('ADMIN')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -28,12 +29,38 @@ export async function POST(
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    // Verify order is PAID
-    if (order.status !== 'PAID') {
+    // Verify order is PAID or already SETTLED (for idempotency)
+    if (order.status !== 'PAID' && order.status !== 'SETTLED') {
       return NextResponse.json(
-        { error: 'Order must be in PAID status to settle' },
+        { error: 'Order must be in PAID or SETTLED status' },
         { status: 400 }
       );
+    }
+
+    // If already settled, just ensure balance is updated
+    if (order.status === 'SETTLED') {
+      await prisma.purse.upsert({
+        where: {
+          userId: order.fixerId,
+        },
+        create: {
+          userId: order.fixerId,
+          availableBalance: order.fixerAmount,
+          pendingBalance: 0,
+          commissionBalance: 0,
+          totalRevenue: order.fixerAmount,
+        },
+        update: {
+          availableBalance: { increment: order.fixerAmount },
+          totalRevenue: { increment: order.fixerAmount },
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Balance updated for already settled order',
+        sellerAmount: order.fixerAmount,
+      });
     }
 
     if (!order.payment) {
@@ -43,25 +70,55 @@ export async function POST(
       );
     }
 
-    // Update payment status to RELEASED
-    await prisma.payment.update({
-      where: { id: order.payment.id },
-      data: {
-        status: 'RELEASED',
-        releasedAt: new Date(),
-      },
-    });
+    const paymentId = order.payment.id;
 
-    // Update order status to SETTLED
-    await prisma.order.update({
-      where: { id: orderId },
-      data: {
-        status: 'SETTLED',
-      },
-    });
+    await prisma.$transaction(async (tx) => {
+      // Update payment status to RELEASED
+      await tx.payment.update({
+        where: { id: paymentId },
+        data: {
+          status: 'RELEASED',
+          releasedAt: new Date(),
+        },
+      });
 
-    // TODO: Update seller's wallet/balance
-    // TODO: Send notification to seller about payment settlement
+      // Update order status to SETTLED
+      await tx.order.update({
+        where: { id: orderId },
+        data: {
+          status: 'SETTLED',
+        },
+      });
+
+      // Update fixer's purse balance
+      await tx.purse.upsert({
+        where: {
+          userId: order.fixerId,
+        },
+        create: {
+          userId: order.fixerId,
+          availableBalance: order.fixerAmount,
+          pendingBalance: 0,
+          commissionBalance: 0,
+          totalRevenue: order.fixerAmount,
+        },
+        update: {
+          availableBalance: { increment: order.fixerAmount },
+          totalRevenue: { increment: order.fixerAmount },
+        },
+      });
+
+      // Send notification to fixer about payment settlement
+      await tx.notification.create({
+        data: {
+          userId: order.fixerId,
+          type: 'PAYMENT_RECEIVED',
+          title: 'Payment Settled',
+          message: `Your payment of ₦${order.fixerAmount.toLocaleString()} has been settled and added to your purse.`,
+          link: '/fixer/purse',
+        },
+      });
+    });
 
     return NextResponse.json({
       success: true,

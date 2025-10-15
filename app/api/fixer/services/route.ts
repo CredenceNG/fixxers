@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, generateSessionToken } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { notifyAdminNewFixerApplication, notifyAdminFixerProfileUpdate } from '@/lib/notifications';
 
 export async function GET(request: NextRequest) {
   try {
@@ -58,64 +59,145 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const {
-      subcategoryId,
+      services,
       neighborhoodIds,
-      description,
-      basePrice,
-      priceUnit,
     } = body;
 
     // Validation
-    if (!subcategoryId || !neighborhoodIds || neighborhoodIds.length === 0) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    if (!services || services.length === 0) {
+      return NextResponse.json({ error: 'Please select at least one service' }, { status: 400 });
     }
 
-    // Check if service already exists
-    const existingService = await prisma.fixerService.findUnique({
-      where: {
-        fixerId_subcategoryId: {
-          fixerId: user.id,
-          subcategoryId,
-        },
-      },
+    if (!neighborhoodIds || neighborhoodIds.length === 0) {
+      return NextResponse.json({ error: 'Please select at least one service area' }, { status: 400 });
+    }
+
+    // Validate each service has required per-service data
+    for (const service of services) {
+      if (!service.categoryId || !service.subcategoryId) {
+        return NextResponse.json({ error: 'Each service must have category and subcategory' }, { status: 400 });
+      }
+      if (!service.yearsExperience || service.yearsExperience <= 0) {
+        return NextResponse.json({ error: 'Each service must have years of experience' }, { status: 400 });
+      }
+      if (!service.description || service.description.trim() === '') {
+        return NextResponse.json({ error: 'Each service must have a description' }, { status: 400 });
+      }
+      if (!service.qualifications || service.qualifications.length === 0) {
+        return NextResponse.json({ error: 'Each service must have at least one qualification' }, { status: 400 });
+      }
+    }
+
+    // Get the fixer profile
+    const fixerProfile = await prisma.fixerProfile.findUnique({
+      where: { fixerId: user.id },
     });
 
-    if (existingService) {
+    if (!fixerProfile) {
       return NextResponse.json(
-        { error: 'You already offer this service. Please edit the existing one.' },
+        { error: 'Fixer profile not found. Please complete Step 1 first.' },
         { status: 400 }
       );
     }
 
-    // Create fixer service
-    const service = await prisma.fixerService.create({
+    const isNewApplication = !fixerProfile.approvedAt;
+
+    // Mark profile for admin review
+    await prisma.fixerProfile.update({
+      where: { fixerId: user.id },
       data: {
-        fixerId: user.id,
-        subcategoryId,
-        description: description || null,
-        basePrice: basePrice ? parseFloat(basePrice) : null,
-        priceUnit: priceUnit || null,
-        neighborhoods: {
-          connect: neighborhoodIds.map((id: string) => ({ id })),
-        },
-      },
-      include: {
-        subcategory: {
-          include: {
-            category: true,
-          },
-        },
-        neighborhoods: true,
+        pendingChanges: true, // Mark for admin review
       },
     });
 
-    console.log(`[Fixer Service] Added by ${user.email || user.phone}: ${service.subcategory.name}`);
+    // Delete existing fixer services
+    await prisma.fixerService.deleteMany({
+      where: { fixerId: user.id },
+    });
 
-    return NextResponse.json(service);
+    // Create FixerService entries for each selected service
+    const serviceCategories = new Set<string>();
+
+    for (const service of services) {
+      const fixerService = await prisma.fixerService.create({
+        data: {
+          fixerId: user.id,
+          subcategoryId: service.subcategoryId,
+          description: service.description,
+          yearsExperience: service.yearsExperience,
+          qualifications: service.qualifications,
+          referencePhone: service.referencePhone || null,
+          isActive: true,
+        },
+      });
+
+      // Connect neighborhoods to this service
+      await prisma.fixerService.update({
+        where: { id: fixerService.id },
+        data: {
+          neighborhoods: {
+            connect: neighborhoodIds.map((id: string) => ({ id })),
+          },
+        },
+      });
+
+      // Collect category names for notification
+      serviceCategories.add(service.categoryName);
+    }
+
+    // Notify admins
+    try {
+      if (isNewApplication) {
+        // New application
+        await notifyAdminNewFixerApplication(
+          user.id,
+          user.name || user.email || user.phone || 'Unknown',
+          Array.from(serviceCategories)
+        );
+      } else {
+        // Profile update
+        await notifyAdminFixerProfileUpdate(
+          user.id,
+          user.name || user.email || user.phone || 'Unknown'
+        );
+      }
+    } catch (error) {
+      console.error('Failed to notify admins about fixer profile:', error);
+    }
+
+    // Generate new session token with hasProfile: true
+    const roles = user.roles || [];
+    const newSessionToken = generateSessionToken({
+      userId: user.id,
+      email: user.email || undefined,
+      phone: user.phone || undefined,
+      role: roles[0] || 'FIXER',
+      roles,
+      hasProfile: true,
+      hasFixerProfile: true,
+    });
+
+    // Update the cookie with the new token
+    const response = NextResponse.json({
+      success: true,
+      message: 'Services saved successfully'
+    });
+
+    response.cookies.set('auth_token', newSessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: '/',
+    });
+
+    console.log(`[Fixer Services] Setup complete for ${user.email || user.phone}: ${services.length} services added`);
+
+    return response;
   } catch (error) {
     console.error('Fixer service creation error:', error);
     return NextResponse.json(
-      { error: 'Failed to add service. Please try again.' },
+      { error: 'Failed to save services. Please try again.' },
       { status: 500 }
     );
   }

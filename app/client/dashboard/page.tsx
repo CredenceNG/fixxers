@@ -11,9 +11,18 @@ import { CancelButton } from './CancelButton';
 export default async function ClientDashboard() {
   const user = await getCurrentUser();
 
-  if (!user || user.role !== 'CLIENT') {
+  if (!user) {
     redirect('/auth/login');
   }
+
+  // Check if user has CLIENT role
+  const roles = user.roles || [];
+  if (!roles.includes('CLIENT')) {
+    redirect('/auth/login');
+  }
+
+  // Check if user has multiple roles (dual-role)
+  const hasFIXERRole = roles.includes('FIXER');
 
   // Fetch client's service requests with quotes
   const requests = await prisma.serviceRequest.findMany({
@@ -128,6 +137,11 @@ export default async function ClientDashboard() {
       actions={
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
           <PurseBalanceInline />
+          {hasFIXERRole && (
+            <DashboardButton variant="outline" href="/fixer/dashboard">
+              🔧 Switch to Fixer Mode
+            </DashboardButton>
+          )}
           <DashboardButton variant="outline" href="/client/profile">
             Edit Profile
           </DashboardButton>

@@ -7,7 +7,7 @@ async function main() {
 
   // Get fixers
   const fixers = await prisma.user.findMany({
-    where: { role: 'FIXER', status: 'ACTIVE' },
+    where: { roles: { has: 'FIXER' }, status: 'ACTIVE' },
     include: {
       fixerProfile: true,
     },

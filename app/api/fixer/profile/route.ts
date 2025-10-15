@@ -204,12 +204,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate new session token with hasProfile: true
+    const roles = user.roles || [];
     const newSessionToken = generateSessionToken({
       userId: user.id,
       email: user.email || undefined,
       phone: user.phone || undefined,
-      role: user.role,
-      roles: user.roles || [user.role],
+      role: roles[0] || 'FIXER',
+      roles,
       hasProfile: true,
       hasFixerProfile: true,
     });

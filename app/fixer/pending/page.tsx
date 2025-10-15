@@ -5,8 +5,9 @@ import { colors, borderRadius, typography } from '@/lib/theme';
 
 export default async function FixerPendingPage() {
   const user = await getCurrentUser();
+  const roles = user?.roles || [];
 
-  if (!user || user.role !== 'FIXER') {
+  if (!user || !roles.includes('FIXER')) {
     redirect('/auth/login');
   }
 

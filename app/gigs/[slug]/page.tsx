@@ -85,7 +85,7 @@ export default async function GigDetailPage({ params }: { params: Promise<{ slug
               />
 
               {/* Message Fixer Button - Only show for logged-in clients */}
-              {user && user.role === 'CLIENT' && gig.sellerId !== user.id && (
+              {user && user.roles?.includes('CLIENT') && gig.sellerId !== user.id && (
                 <div style={{ marginTop: '16px' }}>
                   <MessageFixerButton
                     fixerId={gig.sellerId}

@@ -9,7 +9,7 @@ import { SettleOrderButton } from './SettleOrderButton';
 export default async function SettlementsPage() {
   const user = await getCurrentUser();
 
-  if (!user || user.role !== 'ADMIN') {
+  if (!user || !user.roles?.includes('ADMIN')) {
     redirect('/auth/login');
   }
 

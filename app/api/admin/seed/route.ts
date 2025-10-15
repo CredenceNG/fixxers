@@ -9,9 +9,10 @@ import { prisma } from '@/lib/prisma';
 export async function POST() {
   try {
     const user = await getCurrentUser();
+    const roles = user?.roles || [];
 
     // Only allow admin users
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || !roles.includes('ADMIN')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

@@ -10,14 +10,17 @@ import { colors, borderRadius } from '@/lib/theme';
 export default async function AdminDashboard() {
   const user = await getCurrentUser();
 
-  if (!user || user.role !== 'ADMIN') {
+  // Check if user has ADMIN role
+  const roles = user?.roles || [];
+
+  if (!user || !roles.includes('ADMIN')) {
     redirect('/auth/login');
   }
 
   // Fetch pending fixer approvals (new applications or profile changes)
   const pendingFixers = await prisma.user.findMany({
     where: {
-      role: 'FIXER',
+      roles: { has: 'FIXER' },
       OR: [
         { status: 'PENDING' }, // New applications
         {
@@ -102,9 +105,20 @@ export default async function AdminDashboard() {
     take: 5,
   });
 
-  // Fetch recent clients
-  const recentClients = await prisma.user.findMany({
-    where: { role: 'CLIENT' },
+  // Fetch recent gigs/service offers
+  const recentGigs = await prisma.gig.findMany({
+    include: {
+      seller: true,
+      subcategory: {
+        include: {
+          category: true,
+        },
+      },
+      packages: {
+        orderBy: { price: 'asc' },
+        take: 1,
+      },
+    },
     orderBy: { createdAt: 'desc' },
     take: 5,
   });
@@ -133,9 +147,9 @@ export default async function AdminDashboard() {
 
   // Calculate platform statistics
   const totalUsers = await prisma.user.count();
-  const totalClients = await prisma.user.count({ where: { role: 'CLIENT' } });
-  const totalFixers = await prisma.user.count({ where: { role: 'FIXER' } });
-  const activeFixers = await prisma.user.count({ where: { role: 'FIXER', status: 'ACTIVE' } });
+  const totalClients = await prisma.user.count({ where: { roles: { has: 'CLIENT' } } });
+  const totalFixers = await prisma.user.count({ where: { roles: { has: 'FIXER' } } });
+  const activeFixers = await prisma.user.count({ where: { roles: { has: 'FIXER' }, status: 'ACTIVE' } });
 
   const totalRequests = await prisma.serviceRequest.count();
   const totalOrders = await prisma.order.count();
@@ -194,19 +208,27 @@ export default async function AdminDashboard() {
           <div style={{ marginBottom: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {stats.pendingFixers > 0 && (
               <DashboardCard style={{ borderLeft: `4px solid ${colors.warningDark}`, padding: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <div style={{ flexShrink: 0 }}>
-                    <svg style={{ height: '24px', width: '24px', color: colors.warningDark }} viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div style={{ marginLeft: '16px' }}>
-                    <p style={{ fontSize: '15px', color: colors.textPrimary }}>
-                      <Link href="#pending-fixers" style={{ fontWeight: '600', textDecoration: 'none', color: colors.primary }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{ flexShrink: 0 }}>
+                      <svg style={{ height: '24px', width: '24px', color: colors.warningDark }} viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div style={{ marginLeft: '16px' }}>
+                      <p style={{ fontSize: '15px', color: colors.textPrimary, fontWeight: '600' }}>
                         {stats.pendingFixers} fixer{stats.pendingFixers !== 1 ? 's' : ''} awaiting approval
-                      </Link>
-                    </p>
+                      </p>
+                      <p style={{ fontSize: '13px', color: colors.textSecondary, marginTop: '4px' }}>
+                        Review applications and approve or reject
+                      </p>
+                    </div>
                   </div>
+                  <Link href="/admin/users?status=PENDING&role=FIXER">
+                    <DashboardButton variant="outline">
+                      Review Fixers
+                    </DashboardButton>
+                  </Link>
                 </div>
               </DashboardCard>
             )}
@@ -489,6 +511,7 @@ export default async function AdminDashboard() {
                   <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Role</th>
                   <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</th>
                   <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Joined</th>
+                  <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -498,7 +521,7 @@ export default async function AdminDashboard() {
                       {user.name || 'N/A'}
                     </td>
                     <td style={{ padding: '16px 24px', fontSize: '15px', color: colors.textSecondary }}>{user.email || user.phone}</td>
-                    <td style={{ padding: '16px 24px', fontSize: '15px', color: colors.textPrimary }}>{user.role}</td>
+                    <td style={{ padding: '16px 24px', fontSize: '15px', color: colors.textPrimary }}>{user.roles?.join(', ') || 'N/A'}</td>
                     <td style={{ padding: '16px 24px', fontSize: '15px' }}>
                       <span
                         style={{
@@ -522,6 +545,14 @@ export default async function AdminDashboard() {
                     <td style={{ padding: '16px 24px', fontSize: '15px', color: colors.textSecondary }}>
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
+                    <td style={{ padding: '16px 24px', fontSize: '15px' }}>
+                      <Link
+                        href={`/admin/users/${user.id}`}
+                        style={{ color: colors.primary, fontWeight: '600', textDecoration: 'none' }}
+                      >
+                        View
+                      </Link>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -529,11 +560,11 @@ export default async function AdminDashboard() {
           </DashboardCard>
         </div>
 
-        {/* Recent Clients */}
+        {/* Recent Service Offers/Gigs */}
         <div style={{ marginBottom: '32px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary }}>Recent Clients</h2>
-            <Link href="/admin/clients" style={{ color: colors.primary, fontWeight: '600', fontSize: '14px', textDecoration: 'none' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary }}>Recent Service Offers</h2>
+            <Link href="/admin/gigs" style={{ color: colors.primary, fontWeight: '600', fontSize: '14px', textDecoration: 'none' }}>
               View All
             </Link>
           </div>
@@ -541,19 +572,30 @@ export default async function AdminDashboard() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
-                  <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Name</th>
-                  <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Contact</th>
+                  <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Title</th>
+                  <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Seller</th>
+                  <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category</th>
+                  <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Price</th>
                   <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</th>
-                  <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Joined</th>
+                  <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Created</th>
+                  <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {recentClients.map((client) => (
-                  <tr key={client.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                {recentGigs.map((gig) => (
+                  <tr key={gig.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
                     <td style={{ padding: '16px 24px', fontSize: '15px', color: colors.textPrimary }}>
-                      {client.name || 'N/A'}
+                      {gig.title}
                     </td>
-                    <td style={{ padding: '16px 24px', fontSize: '15px', color: colors.textSecondary }}>{client.email || client.phone}</td>
+                    <td style={{ padding: '16px 24px', fontSize: '15px', color: colors.textSecondary }}>
+                      {gig.seller.name || gig.seller.email || gig.seller.phone}
+                    </td>
+                    <td style={{ padding: '16px 24px', fontSize: '15px', color: colors.textSecondary }}>
+                      {gig.subcategory.category.name}
+                    </td>
+                    <td style={{ padding: '16px 24px', fontSize: '15px', color: colors.textPrimary, fontWeight: '600' }}>
+                      ₦{gig.packages[0]?.price?.toLocaleString() || 'N/A'}
+                    </td>
                     <td style={{ padding: '16px 24px', fontSize: '15px' }}>
                       <span
                         style={{
@@ -561,21 +603,29 @@ export default async function AdminDashboard() {
                           fontSize: '12px',
                           borderRadius: borderRadius.md,
                           fontWeight: '600',
-                          ...(client.status === 'ACTIVE'
+                          ...(gig.status === 'ACTIVE'
                             ? { backgroundColor: colors.primaryLight, color: colors.primaryDark }
-                            : client.status === 'PENDING'
+                            : gig.status === 'PENDING_REVIEW'
                             ? { backgroundColor: '#FEF5E7', color: '#95620D' }
-                            : client.status === 'SUSPENDED'
+                            : gig.status === 'REJECTED'
                             ? { backgroundColor: '#FDEDEC', color: '#922B21' }
                             : { backgroundColor: colors.gray100, color: colors.gray700 }
                           )
                         }}
                       >
-                        {client.status}
+                        {gig.status}
                       </span>
                     </td>
                     <td style={{ padding: '16px 24px', fontSize: '15px', color: colors.textSecondary }}>
-                      {new Date(client.createdAt).toLocaleDateString()}
+                      {new Date(gig.createdAt).toLocaleDateString()}
+                    </td>
+                    <td style={{ padding: '16px 24px', fontSize: '15px' }}>
+                      <Link
+                        href={`/admin/gigs/${gig.id}`}
+                        style={{ color: colors.primary, fontWeight: '600', textDecoration: 'none' }}
+                      >
+                        View
+                      </Link>
                     </td>
                   </tr>
                 ))}
@@ -602,6 +652,7 @@ export default async function AdminDashboard() {
                   <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Quotes</th>
                   <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</th>
                   <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Created</th>
+                  <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -637,6 +688,14 @@ export default async function AdminDashboard() {
                     </td>
                     <td style={{ padding: '16px 24px', fontSize: '15px', color: colors.textSecondary }}>
                       {new Date(request.createdAt).toLocaleDateString()}
+                    </td>
+                    <td style={{ padding: '16px 24px', fontSize: '15px' }}>
+                      <Link
+                        href={`/admin/requests/${request.id}`}
+                        style={{ color: colors.primary, fontWeight: '600', textDecoration: 'none' }}
+                      >
+                        View
+                      </Link>
                     </td>
                   </tr>
                 ))}

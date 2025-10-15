@@ -11,8 +11,20 @@ function LoginContent() {
   const [loading, setLoading] = useState(false);
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
+  const message = searchParams.get('message');
 
   const isEmail = emailOrPhone.includes('@');
+
+  // Show error message from URL params on mount
+  useEffect(() => {
+    if (message === 'already_used') {
+      toast.error('This login link has already been used. Please request a new one.');
+    } else if (message === 'expired') {
+      toast.error('This login link has expired. Please request a new one.');
+    } else if (message === 'invalid') {
+      toast.error('Invalid login link. Please request a new one.');
+    }
+  }, [message]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

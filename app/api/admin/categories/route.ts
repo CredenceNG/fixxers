@@ -5,8 +5,9 @@ import { prisma } from '@/lib/prisma';
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser();
+    const roles = user?.roles || [];
 
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || !roles.includes('ADMIN')) {
       return NextResponse.redirect(new URL('/auth/login', request.url));
     }
 

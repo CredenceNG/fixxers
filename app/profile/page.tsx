@@ -12,7 +12,7 @@ export default async function UnifiedProfilePage() {
   }
 
   // Get user roles
-  const roles = user.roles && user.roles.length > 0 ? user.roles : [user.role];
+  const roles = user.roles || [];
 
   // Fetch existing profiles if they exist
   const clientProfile = roles.includes('CLIENT')

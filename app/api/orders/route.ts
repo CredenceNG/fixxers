@@ -122,6 +122,14 @@ export async function POST(request: NextRequest) {
       data: { ordersCount: { increment: 1 } },
     });
 
+    // Create in-app notification for fixer
+    try {
+      const { notifyGigOrder } = await import('@/lib/notifications');
+      await notifyGigOrder(gig.sellerId, gig.title, order.id, selectedPackage.price);
+    } catch (error) {
+      console.error('Failed to create in-app notification:', error);
+    }
+
     // Send notifications to both parties
     try {
       const { sendOrderCreatedEmailToFixer, sendOrderCreatedEmailToClient } = await import('@/lib/email');

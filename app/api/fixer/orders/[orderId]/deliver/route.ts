@@ -54,7 +54,7 @@ export async function POST(
       );
     }
 
-    // Update order with delivery
+    // Update order with delivery and get full order details for notification
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: {
@@ -64,7 +64,55 @@ export async function POST(
         deliveredAt: new Date(),
         completedAt: new Date(),
       },
+      include: {
+        client: true,
+        fixer: true,
+        gig: true,
+      },
     });
+
+    // Send in-app notification to client
+    try {
+      const { notifyJobCompleted } = await import('@/lib/notifications');
+      await notifyJobCompleted(
+        updatedOrder.clientId,
+        updatedOrder.id,
+        updatedOrder.fixer.name || updatedOrder.fixer.email || 'Service Provider'
+      );
+    } catch (error) {
+      console.error('Failed to send job completed notification:', error);
+    }
+
+    // Send email notification if client has email notifications enabled
+    if (updatedOrder.client.email && updatedOrder.client.emailNotifications) {
+      try {
+        const { sendEmail } = await import('@/lib/email');
+        await sendEmail({
+          to: updatedOrder.client.email,
+          subject: 'Your Order is Complete - Please Review',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #10b981;">Work Completed! 🎉</h2>
+              <p>Dear ${updatedOrder.client.name || 'Valued Client'},</p>
+              <p><strong>${updatedOrder.fixer.name || 'Your service provider'}</strong> has completed work on your order for <strong>"${updatedOrder.gig?.title || 'your service'}"</strong>.</p>
+              <div style="background-color: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 0; font-weight: 600; color: #374151;">Delivery Note:</p>
+                <p style="margin: 8px 0 0 0; color: #6b7280; white-space: pre-wrap;">${deliveryNote}</p>
+              </div>
+              <p>Please review the work and process payment if you're satisfied.</p>
+              <div style="margin: 30px 0; text-align: center;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3010'}/client/orders/${updatedOrder.id}" style="display: inline-block; padding: 12px 30px; background-color: #10b981; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                  Review & Pay
+                </a>
+              </div>
+              <p style="margin-top: 30px;">Best regards,<br><strong>The Fixxers Team</strong></p>
+            </div>
+          `,
+        });
+      } catch (error) {
+        console.error('Failed to send job completed email:', error);
+      }
+    }
 
     return NextResponse.json({
       success: true,

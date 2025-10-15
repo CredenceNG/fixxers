@@ -13,8 +13,9 @@ export default async function AdminRequestsPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const user = await getCurrentUser();
+  const roles = user?.roles || [];
 
-  if (!user || user.role !== 'ADMIN') {
+  if (!user || !roles.includes('ADMIN')) {
     redirect('/auth/login');
   }
 
@@ -209,12 +210,22 @@ export default async function AdminRequestsPage({
                       {formatDate(request.createdAt)}
                     </td>
                     <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <ApproveRejectButtons
-                        requestId={request.id}
-                        status={request.status}
-                        clientName={request.client.name || 'Client'}
-                        adminApproved={request.adminApproved}
-                      />
+                      <Link
+                        href={`/admin/requests/${request.id}`}
+                        style={{
+                          padding: '8px 16px',
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          color: colors.primary,
+                          backgroundColor: colors.primaryLight,
+                          border: `1px solid ${colors.primary}`,
+                          borderRadius: borderRadius.md,
+                          textDecoration: 'none',
+                          display: 'inline-block',
+                        }}
+                      >
+                        View Details
+                      </Link>
                     </td>
                   </tr>
                 ))}

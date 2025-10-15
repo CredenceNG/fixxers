@@ -45,11 +45,55 @@ export async function POST(
       );
     }
 
-    // Update order status
+    // Update order status and get full order details for notification
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: { status: 'IN_PROGRESS', startedAt: new Date() },
+      include: {
+        client: true,
+        fixer: true,
+        gig: true,
+      },
     });
+
+    // Send in-app notification to client
+    try {
+      const { notifyJobStarted } = await import('@/lib/notifications');
+      await notifyJobStarted(
+        updatedOrder.clientId,
+        updatedOrder.id,
+        updatedOrder.fixer.name || updatedOrder.fixer.email || 'Service Provider'
+      );
+    } catch (error) {
+      console.error('Failed to send job started notification:', error);
+    }
+
+    // Send email notification if client has email notifications enabled
+    if (updatedOrder.client.email && updatedOrder.client.emailNotifications) {
+      try {
+        const { sendEmail } = await import('@/lib/email');
+        await sendEmail({
+          to: updatedOrder.client.email,
+          subject: 'Work Started on Your Order',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #2563eb;">Work Started!</h2>
+              <p>Dear ${updatedOrder.client.name || 'Valued Client'},</p>
+              <p><strong>${updatedOrder.fixer.name || 'Your service provider'}</strong> has started working on your order for <strong>"${updatedOrder.gig?.title || 'your service'}"</strong>.</p>
+              <div style="margin: 30px 0; text-align: center;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3010'}/client/orders/${updatedOrder.id}" style="display: inline-block; padding: 12px 30px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                  View Order Details
+                </a>
+              </div>
+              <p>You'll receive another notification when the work is completed.</p>
+              <p style="margin-top: 30px;">Best regards,<br><strong>The Fixxers Team</strong></p>
+            </div>
+          `,
+        });
+      } catch (error) {
+        console.error('Failed to send job started email:', error);
+      }
+    }
 
     return NextResponse.json({
       success: true,

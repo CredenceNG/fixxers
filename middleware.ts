@@ -90,15 +90,15 @@ export function middleware(request: NextRequest) {
         }
 
         // Single-role redirects
-        if (role === 'ADMIN') {
+        if (roles.includes('ADMIN')) {
           return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-        } else if (role === 'FIXER') {
+        } else if (roles.includes('FIXER')) {
           // Check if profile is completed before redirecting to dashboard
           if (!payload.hasProfile) {
             return NextResponse.redirect(new URL('/fixer/profile', request.url));
           }
           return NextResponse.redirect(new URL('/fixer/dashboard', request.url));
-        } else if (role === 'CLIENT') {
+        } else if (roles.includes('CLIENT')) {
           // Clients can access homepage, so redirect there instead of dashboard
           return NextResponse.redirect(new URL('/', request.url));
         }

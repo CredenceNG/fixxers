@@ -13,8 +13,9 @@ import { RequestRevisionButton } from './RequestRevisionButton';
 
 export default async function ClientOrderDetailPage({ params }: { params: Promise<{ orderId: string }> }) {
   const user = await getCurrentUser();
+  const roles = user?.roles || [];
 
-  if (!user || user.role !== 'CLIENT') {
+  if (!user || !roles.includes('CLIENT')) {
     redirect('/auth/login');
   }
 

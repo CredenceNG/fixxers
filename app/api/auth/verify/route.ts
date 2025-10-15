@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
     const hasClientProfile = !!user.clientProfile;
 
     // Determine primary role and overall profile status
-    const roles = user.roles && user.roles.length > 0 ? user.roles : [user.role];
+    const roles = user.roles || [];
     const hasProfile = roles.some(role =>
       (role === 'FIXER' && hasFixerProfile) ||
       (role === 'CLIENT' && hasClientProfile) ||
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
       userId: user.id,
       email: user.email || undefined,
       phone: user.phone || undefined,
-      role: user.role,
+      role: roles[0] || 'CLIENT',
       roles,
       hasProfile,
       hasFixerProfile,
@@ -92,25 +92,25 @@ export async function GET(request: NextRequest) {
 
     // Redirect based on role
     let redirectUrl = '/';
-    if (user.role === 'ADMIN') {
+    if (roles.includes('ADMIN')) {
       redirectUrl = '/admin/dashboard';
-    } else if (user.roles?.includes('FIXER')) {
+    } else if (roles.includes('FIXER')) {
       // Check if profile is completed first
-      if (!hasProfile) {
-        redirectUrl = '/fixer/profile';
+      if (!hasFixerProfile) {
+        redirectUrl = '/profile';
       } else {
         redirectUrl = user.status === 'PENDING' ? '/fixer/pending' : '/fixer/dashboard';
       }
-    } else if (user.roles?.includes('CLIENT')) {
+    } else if (roles.includes('CLIENT')) {
       // Check if profile is completed first
-      if (!hasProfile) {
-        redirectUrl = '/client/profile';
+      if (!hasClientProfile) {
+        redirectUrl = '/profile';
       } else {
         redirectUrl = '/client/dashboard';
       }
     }
 
-    console.log(`[Auth Verify] User: ${user.email || user.phone}, Role: ${user.role}, Status: ${user.status}, Redirecting to: ${redirectUrl}`);
+    console.log(`[Auth Verify] User: ${user.email || user.phone}, Roles: ${roles.join(', ')}, Status: ${user.status}, Redirecting to: ${redirectUrl}`);
 
     // Return HTML with meta refresh and cookie setting
     const html = `

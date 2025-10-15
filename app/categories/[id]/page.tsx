@@ -258,7 +258,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
                         )}
                       </div>
                     </div>
-                    {user?.role === 'FIXER' && (
+                    {user?.roles?.includes('FIXER') && (
                       <Link
                         href={`/fixer/requests/${request.id}`}
                         style={{

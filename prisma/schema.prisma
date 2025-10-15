@@ -99,7 +99,6 @@ model User {
   email             String?         @unique
   phone             String?         @unique
   name              String?
-  role              UserRole        @default(CLIENT)
   roles             UserRole[]      @default([CLIENT])
   status            UserStatus      @default(PENDING)
   profileImage      String?
@@ -136,7 +135,6 @@ model User {
 
   @@index([email])
   @@index([phone])
-  @@index([role])
   @@index([status])
 }
 
@@ -255,6 +253,9 @@ model FixerService {
   description     String?
   basePrice       Float?
   priceUnit       String?             // e.g., "per hour", "per job", "per sq ft"
+  yearsExperience Int?                // Years of experience for this specific service
+  qualifications  String[]            // Array of qualifications (Licensed, Trained, Certified, Insured)
+  referencePhone  String?             // Previous customer reference phone number
   isActive        Boolean             @default(true)
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt

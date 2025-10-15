@@ -111,8 +111,8 @@ export async function sendMagicLinkEmail(email: string, token: string, isRegistr
 
 // Generic email sending function
 export async function sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
-  // In development, just log to console
-  if (process.env.NODE_ENV === 'development') {
+  // In development, log to console unless FORCE_SEND_EMAILS is set
+  if (process.env.NODE_ENV === 'development' && process.env.FORCE_SEND_EMAILS !== 'true') {
     console.log('\n' + '='.repeat(80));
     console.log('📧 EMAIL (Development Mode)');
     console.log('='.repeat(80));

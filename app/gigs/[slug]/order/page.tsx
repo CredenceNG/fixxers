@@ -20,7 +20,8 @@ export default async function OrderPage({
     redirect(`/auth/login?redirect=/gigs/${slug}/order?package=${packageParam || 'standard'}`);
   }
 
-  if (user.role !== 'CLIENT') {
+  const roles = user.roles || [];
+  if (!roles.includes('CLIENT')) {
     redirect('/');
   }
 

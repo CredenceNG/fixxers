@@ -231,7 +231,7 @@ async function notifyAllAdmins(type: NotificationType, title: string, message: s
   try {
     // Get all admin users
     const admins = await prisma.user.findMany({
-      where: { role: 'ADMIN' },
+      where: { roles: { has: 'ADMIN' } },
       select: { id: true },
     });
 

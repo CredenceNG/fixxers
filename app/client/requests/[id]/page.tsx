@@ -13,8 +13,9 @@ import { AcceptDeliveryButton } from '@/app/client/orders/[orderId]/AcceptDelive
 
 export default async function RequestDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
+  const roles = user?.roles || [];
 
-  if (!user || user.role !== 'CLIENT') {
+  if (!user || !roles.includes('CLIENT')) {
     redirect('/auth/login');
   }
 

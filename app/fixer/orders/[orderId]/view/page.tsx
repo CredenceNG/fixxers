@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { styles, colors } from '@/lib/theme';
 import { RequestMessages } from '@/app/client/requests/RequestMessages';
-import ClientHeader from '@/components/ClientHeader';
+import MobileHeader from '@/components/MobileHeader';
 
 interface Order {
   id: string;
@@ -67,12 +67,19 @@ export default function FixerOrderViewPage({ params }: { params: Promise<{ order
   const [error, setError] = useState('');
   const [order, setOrder] = useState<Order | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [completing, setCompleting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [showCompletionForm, setShowCompletionForm] = useState(false);
   const [completionMessage, setCompletionMessage] = useState('');
 
   useEffect(() => {
+    // Fetch current user
+    fetch('/api/auth/me')
+      .then(res => res.json())
+      .then(data => setCurrentUser(data.user))
+      .catch(err => console.error('Failed to fetch user:', err));
+
     params.then(({ orderId: id }) => {
       setOrderId(id);
       fetchOrder(id);
@@ -86,6 +93,13 @@ export default function FixerOrderViewPage({ params }: { params: Promise<{ order
         throw new Error('Failed to load order');
       }
       const data = await response.json();
+
+      // Redirect gig orders to the main order page (without /view)
+      if (data.gigId) {
+        window.location.href = `/fixer/orders/${id}`;
+        return;
+      }
+
       setOrder(data);
       setCurrentUserId(data.fixerId);
     } catch (err) {
@@ -132,7 +146,7 @@ export default function FixerOrderViewPage({ params }: { params: Promise<{ order
   if (loading) {
     return (
       <>
-        <ClientHeader />
+        <MobileHeader user={currentUser} />
         <div style={styles.pageContainer}>
           <div style={{ padding: '48px', textAlign: 'center' }}>
             <p style={{ fontSize: '16px', color: colors.textSecondary }}>Loading order details...</p>
@@ -145,7 +159,7 @@ export default function FixerOrderViewPage({ params }: { params: Promise<{ order
   if (!order) {
     return (
       <>
-        <ClientHeader />
+        <MobileHeader user={currentUser} />
         <div style={styles.pageContainer}>
           <div style={{ padding: '48px', textAlign: 'center' }}>
             <p style={{ fontSize: '16px', color: colors.error }}>{error || 'Order not found'}</p>
@@ -184,14 +198,14 @@ export default function FixerOrderViewPage({ params }: { params: Promise<{ order
 
   return (
     <>
-      <ClientHeader />
+      <MobileHeader user={currentUser} />
       <div style={styles.pageContainer}>
         {/* Page Header */}
         <header style={styles.header}>
           <div style={styles.headerContainer}>
             <div>
               <h1 style={styles.headerTitle}>Order Details</h1>
-              <p style={styles.headerSubtitle}>{order.request.title}</p>
+              <p style={styles.headerSubtitle}>{order.request?.title || (order as any).gig?.title || 'Order'}</p>
             </div>
             <div style={styles.buttonGroup}>
               <Link href="/fixer/dashboard" style={styles.buttonSecondary}>

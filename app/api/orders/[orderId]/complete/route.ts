@@ -141,7 +141,7 @@ export async function POST(
 
       // Notify admin - new payment to review
       const adminUsers = await tx.user.findMany({
-        where: { role: 'ADMIN' },
+        where: { roles: { has: 'ADMIN' } },
       });
 
       for (const admin of adminUsers) {
@@ -151,7 +151,7 @@ export async function POST(
             type: 'GENERAL',
             title: 'New Payment to Review',
             message: `${paymentType.charAt(0).toUpperCase() + paymentType.slice(1)} of ₦${amountPaid.toLocaleString()} received for order "${serviceTitle}". Please review and approve settlement.`,
-            link: `/admin/orders/${order.id}`,
+            link: `/admin/settlements`,
           },
         });
       }

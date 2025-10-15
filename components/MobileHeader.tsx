@@ -12,7 +12,6 @@ interface MobileHeaderProps {
     email: string | null;
     phone: string | null;
     name: string | null;
-    role: string;
     roles: string[];
     status: string;
     profileImage: string | null;
@@ -94,9 +93,9 @@ export default function MobileHeader({ user }: MobileHeaderProps) {
                 // Single-role user: show role-specific dashboard link
                 <Link
                   href={
-                    user.role === 'ADMIN'
+                    user.roles?.includes('ADMIN')
                       ? '/admin/dashboard'
-                      : user.role === 'FIXER'
+                      : user.roles?.includes('FIXER')
                       ? '/fixer/dashboard'
                       : '/client/dashboard'
                   }
@@ -112,7 +111,7 @@ export default function MobileHeader({ user }: MobileHeaderProps) {
                   Dashboard
                 </Link>
               )}
-              {user.role !== 'ADMIN' && (
+              {!user.roles?.includes('ADMIN') && (
                 <Link
                   href="/gigs"
                   style={{
@@ -226,9 +225,9 @@ export default function MobileHeader({ user }: MobileHeaderProps) {
                 href={
                   user.roles && user.roles.length > 1
                     ? '/dashboard'
-                    : user.role === 'ADMIN'
+                    : user.roles?.includes('ADMIN')
                     ? '/admin/dashboard'
-                    : user.role === 'FIXER'
+                    : user.roles?.includes('FIXER')
                     ? '/fixer/dashboard'
                     : '/client/dashboard'
                 }
@@ -245,7 +244,7 @@ export default function MobileHeader({ user }: MobileHeaderProps) {
               >
                 Dashboard
               </Link>
-              {user.role !== 'ADMIN' && (
+              {!user.roles?.includes('ADMIN') && (
                 <Link
                   href="/gigs"
                   style={{

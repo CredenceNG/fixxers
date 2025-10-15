@@ -25,7 +25,7 @@ export default async function ConversationPage({ params }: PageProps) {
       id: true,
       name: true,
       email: true,
-      role: true,
+      roles: true,
     },
   });
 
@@ -90,7 +90,7 @@ export default async function ConversationPage({ params }: PageProps) {
   return (
     <DashboardLayoutWithHeader
       title={`Conversation with ${otherUser.name || otherUser.email}`}
-      subtitle={`${otherUser.role}`}
+      subtitle={`${otherUser.roles?.[0] || 'User'}`}
       actions={
         <DashboardButton variant="outline" href="/messages">
           ← Back to Messages

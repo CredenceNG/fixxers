@@ -12,7 +12,8 @@ export default async function Home() {
   const user = await getCurrentUser();
 
   // Only redirect ADMIN to dashboard, allow clients and fixers to browse
-  if (user?.role === 'ADMIN') {
+  const roles = user?.roles || [];
+  if (roles.includes('ADMIN')) {
     redirect('/admin/dashboard');
   }
 

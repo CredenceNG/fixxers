@@ -109,7 +109,7 @@ export async function POST(
       const fixerAmount = quote.totalAmount - platformFee;
 
       // Create order
-      await tx.order.create({
+      const order = await tx.order.create({
         data: {
           requestId: quote.requestId,
           clientId: user.id,
@@ -132,7 +132,7 @@ export async function POST(
           type: 'QUOTE_ACCEPTED',
           title: 'Quote Accepted!',
           message: `Client has accepted your quote of ₦${quote.totalAmount.toLocaleString()} for "${quote.request.title}". You can now start the work.`,
-          link: `/fixer/requests/${quote.requestId}`,
+          link: `/fixer/orders/${order.id}/view`,
         },
       });
     });

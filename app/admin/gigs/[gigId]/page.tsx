@@ -10,7 +10,7 @@ import { GigApprovalActions } from './GigApprovalActions';
 export default async function AdminGigReviewPage({ params }: { params: Promise<{ gigId: string }> }) {
   const user = await getCurrentUser();
 
-  if (!user || user.role !== 'ADMIN') {
+  if (!user || !user.roles?.includes('ADMIN')) {
     redirect('/auth/login');
   }
 
@@ -85,7 +85,7 @@ export default async function AdminGigReviewPage({ params }: { params: Promise<{
                   : 'This service offer is in draft mode'}
               </p>
             </div>
-            <GigApprovalActions gigId={gig.id} currentStatus={gig.status} />
+            <GigApprovalActions gigId={gig.id} currentStatus={gig.status} sellerEmail={gig.seller.email || undefined} sellerName={gig.seller.name || undefined} />
           </div>
         </DashboardCard>
 

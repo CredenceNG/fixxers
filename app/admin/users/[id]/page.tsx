@@ -5,6 +5,7 @@ import Link from 'next/link';
 import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
 import { DashboardCard, DashboardButton } from '@/components/DashboardLayout';
 import { colors, borderRadius } from '@/lib/theme';
+import { FixerActionButtons } from './FixerActionButtons';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -13,8 +14,9 @@ interface PageProps {
 
 export default async function AdminUserReviewPage({ params, searchParams }: PageProps) {
   const currentUser = await getCurrentUser();
+  const roles = currentUser?.roles || [];
 
-  if (!currentUser || currentUser.role !== 'ADMIN') {
+  if (!currentUser || !roles.includes('ADMIN')) {
     redirect('/auth/login');
   }
 
@@ -243,45 +245,14 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
                 Actions
               </h2>
 
-              {(user.status === 'PENDING' || user.fixerProfile?.pendingChanges) && (
-                <>
-                  <form action="/api/admin/approve-fixer" method="POST">
-                    <input type="hidden" name="fixerId" value={user.id} />
-                    <input type="hidden" name="approved" value="true" />
-                    <DashboardButton
-                      variant="primary"
-                      type="submit"
-                      style={{
-                        width: '100%',
-                        marginBottom: '12px',
-                        backgroundColor: colors.success,
-                      }}
-                    >
-                      Approve Fixer
-                    </DashboardButton>
-                  </form>
-
-                  <form action="/api/admin/approve-fixer" method="POST">
-                    <input type="hidden" name="fixerId" value={user.id} />
-                    <input type="hidden" name="approved" value="false" />
-                    <DashboardButton
-                      variant="danger"
-                      type="submit"
-                      style={{ width: '100%' }}
-                    >
-                      Reject Application
-                    </DashboardButton>
-                  </form>
-                </>
-              )}
-
-              {user.status !== 'PENDING' && !user.fixerProfile?.pendingChanges && (
-                <div style={{ padding: '16px', backgroundColor: colors.gray100, borderRadius: borderRadius.lg, textAlign: 'center' }}>
-                  <p style={{ fontSize: '14px', color: colors.textSecondary }}>
-                    {isApproved ? 'This fixer has been approved' : isRejected ? 'This fixer has been rejected' : 'No pending changes'}
-                  </p>
-                </div>
-              )}
+              <FixerActionButtons
+                fixerId={user.id}
+                fixerName={user.name || 'Fixer'}
+                fixerEmail={user.email}
+                status={user.status}
+                hasPendingChanges={user.fixerProfile?.pendingChanges || false}
+                wasApproved={!!user.fixerProfile?.approvedAt}
+              />
 
               <div style={{ marginTop: '24px', padding: '16px', backgroundColor: colors.gray100, borderRadius: borderRadius.lg }}>
                 <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px' }}>Application Date</p>

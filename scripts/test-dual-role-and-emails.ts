@@ -82,7 +82,6 @@ async function testDatabaseSchema() {
       data: {
         email: 'dualrole-test@example.com',
         name: 'Dual Role Test User',
-        role: 'CLIENT',
         roles: ['CLIENT', 'FIXER'],
         status: 'ACTIVE',
         emailNotifications: true,
@@ -172,7 +171,6 @@ async function testSettingsAPI() {
       data: {
         email: 'settings-test@example.com',
         name: 'Settings Test User',
-        role: 'CLIENT',
         roles: ['CLIENT'],
         status: 'ACTIVE',
         emailNotifications: true,
@@ -231,16 +229,16 @@ async function testHelperFunctions() {
       testsFailed++;
     }
 
-    // Test backward compatibility with single role
+    // Test with single role in roles array
     const singleRoleUser = {
-      role: 'CLIENT',
+      roles: ['CLIENT'],
     };
 
     if (hasRole(singleRoleUser, ['CLIENT'])) {
-      testPass('hasRole() backward compatible with single role field');
+      testPass('hasRole() works with single role in roles array');
       testsPassed++;
     } else {
-      testFail('hasRole() not backward compatible with single role');
+      testFail('hasRole() failed with single role in roles array');
       testsFailed++;
     }
 

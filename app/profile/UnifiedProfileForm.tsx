@@ -59,8 +59,6 @@ export default function UnifiedProfileForm({
     secondaryPhone: existingData.secondaryPhone || '',
     alternateEmail: existingData.alternateEmail || '',
     streetAddress: existingData.streetAddress || '',
-    yearsOfService: existingData.yearsOfService || 0,
-    qualifications: existingData.qualifications || [],
   });
 
   // Location state
@@ -106,13 +104,6 @@ export default function UnifiedProfileForm({
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleQualificationToggle = (qual: string) => {
-    const qualifications = formData.qualifications.includes(qual)
-      ? formData.qualifications.filter((q) => q !== qual)
-      : [...formData.qualifications, qual];
-    setFormData({ ...formData, qualifications });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -121,13 +112,6 @@ export default function UnifiedProfileForm({
     // Validation
     if (!formData.name || !formData.primaryPhone || !selectedNeighborhoodId) {
       setError('Please fill in all required fields (Name, Primary Phone, Location)');
-      setLoading(false);
-      return;
-    }
-
-    // Additional validation for fixers
-    if (hasFixerRole && (!formData.yearsOfService || formData.qualifications.length === 0)) {
-      setError('Please provide Years of Service and at least one Qualification');
       setLoading(false);
       return;
     }
@@ -153,16 +137,14 @@ export default function UnifiedProfileForm({
 
       // Redirect based on role
       setTimeout(() => {
-        if (hasFixerRole && !hasFixerProfile) {
-          // New fixer - redirect to services setup
+        if (hasFixerRole) {
+          // All fixers go to services setup to complete Step 2
           window.location.href = '/fixer/services';
         } else if (user.roles.length > 1) {
           // Dual-role users go to unified dashboard
           window.location.href = '/dashboard';
         } else if (hasClientRole) {
           window.location.href = '/client/dashboard';
-        } else if (hasFixerRole) {
-          window.location.href = '/fixer/dashboard';
         }
       }, 2000);
     } catch (err: any) {
@@ -594,120 +576,6 @@ export default function UnifiedProfileForm({
                 />
               </div>
             </div>
-
-            {/* SERVICE PROVIDER DETAILS SECTION (FIXER only) */}
-            {hasFixerRole && (
-              <div style={{ marginBottom: '40px' }}>
-                <h2
-                  style={{
-                    fontSize: '18px',
-                    fontWeight: '700',
-                    color: colors.textPrimary,
-                    marginBottom: '8px',
-                    paddingBottom: '12px',
-                    borderBottom: `2px solid ${colors.border}`,
-                  }}
-                >
-                  Service Provider Details
-                </h2>
-                <p style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '20px' }}>
-                  Required for offering services. Your application will be reviewed by our admin team.
-                </p>
-
-                {/* Years of Service */}
-                <div style={{ marginBottom: '24px' }}>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: colors.textPrimary,
-                      marginBottom: '8px',
-                    }}
-                  >
-                    Years of Service Experience <span style={{ color: colors.error }}>*</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="yearsOfService"
-                    value={formData.yearsOfService}
-                    onChange={handleInputChange}
-                    required={hasFixerRole}
-                    min="0"
-                    placeholder="e.g., 5"
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      fontSize: '15px',
-                      border: '2px solid #E4E6EB',
-                      borderRadius: '12px',
-                      outline: 'none',
-                    }}
-                  />
-                </div>
-
-                {/* Qualifications */}
-                <div style={{ marginBottom: '24px' }}>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: colors.textPrimary,
-                      marginBottom: '8px',
-                    }}
-                  >
-                    Qualifications <span style={{ color: colors.error }}>*</span>
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-                    {['Certified', 'Licensed', 'Insured', 'Trained', 'Experienced'].map((qual) => (
-                      <label
-                        key={qual}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          padding: '10px 16px',
-                          border: `2px solid ${
-                            formData.qualifications.includes(qual) ? colors.primary : '#E4E6EB'
-                          }`,
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          backgroundColor: formData.qualifications.includes(qual)
-                            ? `${colors.primary}10`
-                            : 'white',
-                          transition: 'all 0.2s',
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={formData.qualifications.includes(qual)}
-                          onChange={() => handleQualificationToggle(qual)}
-                          style={{ marginRight: '8px', cursor: 'pointer' }}
-                        />
-                        <span style={{ fontSize: '14px', fontWeight: '500', color: colors.textPrimary }}>
-                          {qual}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    backgroundColor: '#FEF3C7',
-                    border: '1px solid #F59E0B',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    marginTop: '20px',
-                  }}
-                >
-                  <p style={{ fontSize: '14px', color: '#92400E', margin: 0 }}>
-                    <strong>Note:</strong> You'll need to complete your service categories and service areas
-                    after your profile is saved. This will be available in your dashboard.
-                  </p>
-                </div>
-              </div>
-            )}
 
             {/* Submit Button */}
             <button

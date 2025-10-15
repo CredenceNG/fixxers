@@ -8,8 +8,9 @@ import { colors, borderRadius } from '@/lib/theme';
 
 export default async function FixerOrdersPage() {
   const user = await getCurrentUser();
+  const roles = user?.roles || [];
 
-  if (!user || user.role !== 'FIXER') {
+  if (!user || !roles.includes('FIXER')) {
     redirect('/auth/login');
   }
 

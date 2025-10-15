@@ -14,8 +14,9 @@ export default async function OrderDetailPage({
   params: Promise<{ orderId: string }>;
 }) {
   const user = await getCurrentUser();
+  const roles = user?.roles || [];
 
-  if (!user || user.role !== 'FIXER') {
+  if (!user || !roles.includes('FIXER')) {
     redirect('/auth/login');
   }
 
