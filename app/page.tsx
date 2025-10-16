@@ -116,15 +116,128 @@ export default async function Home() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: colors.white }}>
+      <style jsx>{`
+        .hero-section {
+          background-color: ${colors.bgSecondary};
+          padding: 80px 24px 100px;
+        }
+
+        @media (max-width: 768px) {
+          .hero-section {
+            padding: 40px 16px 60px;
+          }
+        }
+
+        .hero-title {
+          font-size: 56px;
+          margin-bottom: 24px;
+          color: ${colors.textPrimary};
+          font-weight: 700;
+          line-height: 1.2;
+        }
+
+        @media (max-width: 768px) {
+          .hero-title {
+            font-size: 32px;
+            margin-bottom: 16px;
+          }
+        }
+
+        .hero-subtitle {
+          font-size: 24px;
+          color: ${colors.textSecondary};
+          margin-bottom: 48px;
+        }
+
+        @media (max-width: 768px) {
+          .hero-subtitle {
+            font-size: 18px;
+            margin-bottom: 32px;
+          }
+        }
+
+        .section-title {
+          font-size: 32px;
+          font-weight: 700;
+          color: ${colors.textPrimary};
+        }
+
+        @media (max-width: 768px) {
+          .section-title {
+            font-size: 24px;
+          }
+        }
+
+        .section-title-large {
+          font-size: 36px;
+          font-weight: 700;
+          color: ${colors.textPrimary};
+          margin-bottom: 12px;
+        }
+
+        @media (max-width: 768px) {
+          .section-title-large {
+            font-size: 28px;
+          }
+        }
+
+        .section-padding {
+          padding: 80px 24px;
+        }
+
+        @media (max-width: 768px) {
+          .section-padding {
+            padding: 40px 16px;
+          }
+        }
+
+        .cta-title {
+          font-size: 40px;
+          font-weight: 700;
+          margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+          .cta-title {
+            font-size: 28px;
+          }
+        }
+
+        .cta-subtitle {
+          font-size: 20px;
+          margin-bottom: 32px;
+          opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+          .cta-subtitle {
+            font-size: 16px;
+          }
+        }
+
+        .cta-buttons {
+          display: flex;
+          gap: 16px;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+          .cta-buttons {
+            flex-direction: column;
+          }
+        }
+      `}</style>
+
       <Header />
 
       {/* Hero Section */}
-      <div style={{ backgroundColor: colors.bgSecondary, padding: '80px 24px 100px' }}>
+      <div className="hero-section">
         <div style={{ maxWidth: '1100px', margin: '0 auto', textAlign: 'center' }}>
-          <h1 style={{ ...typography.h1, fontSize: '56px', marginBottom: '24px', color: colors.textPrimary }}>
+          <h1 className="hero-title">
             Find the perfect <span style={{ color: colors.primary }}>service provider</span>
           </h1>
-          <p style={{ fontSize: '24px', color: colors.textSecondary, marginBottom: '48px' }}>
+          <p className="hero-subtitle">
             Connect with trusted local professionals for all your home service needs
           </p>
 
@@ -134,9 +247,9 @@ export default async function Home() {
 
       {/* Featured Services Section */}
       {featuredGigs.length > 0 && (
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '80px 24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-            <h2 style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }} className="section-padding">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', flexWrap: 'wrap', gap: '16px' }}>
+            <h2 className="section-title">
               Featured Services
             </h2>
             <Link
@@ -258,10 +371,10 @@ export default async function Home() {
       )}
 
       {/* Popular Services */}
-      <div style={{ padding: '80px 24px', backgroundColor: colors.white }}>
+      <div className="section-padding" style={{ backgroundColor: colors.white }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '36px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px' }}>
+            <h2 className="section-title-large">
               Explore Popular Services
             </h2>
             <p style={{ fontSize: '18px', color: colors.textSecondary }}>
@@ -291,8 +404,8 @@ export default async function Home() {
       </div>
 
       {/* How It Works */}
-      <div style={{ padding: '80px 24px', maxWidth: '1400px', margin: '0 auto' }}>
-        <h2 style={{ ...typography.h2, marginBottom: '60px', textAlign: 'center', color: colors.textPrimary }}>
+      <div className="section-padding" style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <h2 className="section-title-large" style={{ marginBottom: '60px', textAlign: 'center' }}>
           How it works
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px' }}>
@@ -317,7 +430,7 @@ export default async function Home() {
       </div>
 
       {/* Stats Section */}
-      <div style={{ backgroundColor: colors.bgSecondary, padding: '80px 24px' }}>
+      <div className="section-padding" style={{ backgroundColor: colors.bgSecondary }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '40px', textAlign: 'center' }}>
             <div>
@@ -337,16 +450,16 @@ export default async function Home() {
       </div>
 
       {/* CTA Section */}
-      <div style={{ backgroundColor: colors.primary, padding: '80px 24px', color: colors.white }}>
+      <div className="section-padding" style={{ backgroundColor: colors.primary, color: colors.white }}>
         <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '40px', fontWeight: '700', marginBottom: '20px' }}>
+          <h2 className="cta-title">
             Ready to get started?
           </h2>
-          <p style={{ fontSize: '20px', marginBottom: '32px', opacity: 0.9 }}>
+          <p className="cta-subtitle">
             Join thousands of satisfied customers who found the perfect service provider
           </p>
           {!user && (
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div className="cta-buttons">
               <Link
                 href="/auth/register?role=client"
                 style={{
@@ -357,6 +470,8 @@ export default async function Home() {
                   fontWeight: '600',
                   fontSize: '18px',
                   textDecoration: 'none',
+                  display: 'block',
+                  textAlign: 'center',
                 }}
               >
                 I need a service
@@ -372,6 +487,8 @@ export default async function Home() {
                   fontWeight: '600',
                   fontSize: '18px',
                   textDecoration: 'none',
+                  display: 'block',
+                  textAlign: 'center',
                 }}
               >
                 I'm a service provider
