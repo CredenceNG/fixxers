@@ -7,6 +7,7 @@ import { SearchBar } from '@/components/SearchBar';
 import Header from '@/components/Header';
 import { CategoryCard } from '@/components/CategoryCard';
 import { ViewAllCategoriesButton } from '@/components/ViewAllCategoriesButton';
+import styles from './home.module.css';
 
 export default async function Home() {
   const user = await getCurrentUser();
@@ -116,128 +117,15 @@ export default async function Home() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: colors.white }}>
-      <style jsx>{`
-        .hero-section {
-          background-color: ${colors.bgSecondary};
-          padding: 80px 24px 100px;
-        }
-
-        @media (max-width: 768px) {
-          .hero-section {
-            padding: 40px 16px 60px;
-          }
-        }
-
-        .hero-title {
-          font-size: 56px;
-          margin-bottom: 24px;
-          color: ${colors.textPrimary};
-          font-weight: 700;
-          line-height: 1.2;
-        }
-
-        @media (max-width: 768px) {
-          .hero-title {
-            font-size: 32px;
-            margin-bottom: 16px;
-          }
-        }
-
-        .hero-subtitle {
-          font-size: 24px;
-          color: ${colors.textSecondary};
-          margin-bottom: 48px;
-        }
-
-        @media (max-width: 768px) {
-          .hero-subtitle {
-            font-size: 18px;
-            margin-bottom: 32px;
-          }
-        }
-
-        .section-title {
-          font-size: 32px;
-          font-weight: 700;
-          color: ${colors.textPrimary};
-        }
-
-        @media (max-width: 768px) {
-          .section-title {
-            font-size: 24px;
-          }
-        }
-
-        .section-title-large {
-          font-size: 36px;
-          font-weight: 700;
-          color: ${colors.textPrimary};
-          margin-bottom: 12px;
-        }
-
-        @media (max-width: 768px) {
-          .section-title-large {
-            font-size: 28px;
-          }
-        }
-
-        .section-padding {
-          padding: 80px 24px;
-        }
-
-        @media (max-width: 768px) {
-          .section-padding {
-            padding: 40px 16px;
-          }
-        }
-
-        .cta-title {
-          font-size: 40px;
-          font-weight: 700;
-          margin-bottom: 20px;
-        }
-
-        @media (max-width: 768px) {
-          .cta-title {
-            font-size: 28px;
-          }
-        }
-
-        .cta-subtitle {
-          font-size: 20px;
-          margin-bottom: 32px;
-          opacity: 0.9;
-        }
-
-        @media (max-width: 768px) {
-          .cta-subtitle {
-            font-size: 16px;
-          }
-        }
-
-        .cta-buttons {
-          display: flex;
-          gap: 16px;
-          justify-content: center;
-          flex-wrap: wrap;
-        }
-
-        @media (max-width: 768px) {
-          .cta-buttons {
-            flex-direction: column;
-          }
-        }
-      `}</style>
-
       <Header />
 
       {/* Hero Section */}
-      <div className="hero-section">
+      <div className={styles.heroSection} style={{ backgroundColor: colors.bgSecondary }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', textAlign: 'center' }}>
-          <h1 className="hero-title">
+          <h1 className={styles.heroTitle} style={{ color: colors.textPrimary }}>
             Find the perfect <span style={{ color: colors.primary }}>service provider</span>
           </h1>
-          <p className="hero-subtitle">
+          <p className={styles.heroSubtitle} style={{ color: colors.textSecondary }}>
             Connect with trusted local professionals for all your home service needs
           </p>
 
@@ -247,9 +135,9 @@ export default async function Home() {
 
       {/* Featured Services Section */}
       {featuredGigs.length > 0 && (
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }} className="section-padding">
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }} className={styles.sectionPadding}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', flexWrap: 'wrap', gap: '16px' }}>
-            <h2 className="section-title">
+            <h2 className={styles.sectionTitle} style={{ color: colors.textPrimary }}>
               Featured Services
             </h2>
             <Link
@@ -371,10 +259,10 @@ export default async function Home() {
       )}
 
       {/* Popular Services */}
-      <div className="section-padding" style={{ backgroundColor: colors.white }}>
+      <div className={styles.sectionPadding} style={{ backgroundColor: colors.white }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-            <h2 className="section-title-large">
+            <h2 className={styles.sectionTitleLarge} style={{ color: colors.textPrimary }}>
               Explore Popular Services
             </h2>
             <p style={{ fontSize: '18px', color: colors.textSecondary }}>
@@ -404,8 +292,8 @@ export default async function Home() {
       </div>
 
       {/* How It Works */}
-      <div className="section-padding" style={{ maxWidth: '1400px', margin: '0 auto' }}>
-        <h2 className="section-title-large" style={{ marginBottom: '60px', textAlign: 'center' }}>
+      <div className={styles.sectionPadding} style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <h2 className={styles.sectionTitleLarge} style={{ marginBottom: '60px', textAlign: 'center', color: colors.textPrimary }}>
           How it works
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px' }}>
@@ -430,7 +318,7 @@ export default async function Home() {
       </div>
 
       {/* Stats Section */}
-      <div className="section-padding" style={{ backgroundColor: colors.bgSecondary }}>
+      <div className={styles.sectionPadding} style={{ backgroundColor: colors.bgSecondary }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '40px', textAlign: 'center' }}>
             <div>
@@ -450,16 +338,16 @@ export default async function Home() {
       </div>
 
       {/* CTA Section */}
-      <div className="section-padding" style={{ backgroundColor: colors.primary, color: colors.white }}>
+      <div className={styles.sectionPadding} style={{ backgroundColor: colors.primary, color: colors.white }}>
         <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-          <h2 className="cta-title">
+          <h2 className={styles.ctaTitle}>
             Ready to get started?
           </h2>
-          <p className="cta-subtitle">
+          <p className={styles.ctaSubtitle}>
             Join thousands of satisfied customers who found the perfect service provider
           </p>
           {!user && (
-            <div className="cta-buttons">
+            <div className={styles.ctaButtons}>
               <Link
                 href="/auth/register?role=client"
                 style={{

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { colors, borderRadius } from '@/lib/theme';
+import styles from './SearchBar.module.css';
 
 export function SearchBar() {
   const [query, setQuery] = useState('');
@@ -19,48 +20,7 @@ export function SearchBar() {
 
   return (
     <form onSubmit={handleSearch}>
-      <style jsx>{`
-        .search-container {
-          max-width: 900px;
-          margin: 0 auto;
-          background-color: ${colors.white};
-          border-radius: ${borderRadius.lg};
-          padding: 8px;
-          display: flex;
-          gap: 8px;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-          border: 1px solid ${colors.border};
-        }
-
-        @media (max-width: 768px) {
-          .search-container {
-            flex-direction: column;
-            gap: 12px;
-            padding: 12px;
-          }
-        }
-
-        .search-button {
-          padding: 16px 48px;
-          background-color: ${colors.primary};
-          color: ${colors.white};
-          border: none;
-          border-radius: ${borderRadius.md};
-          font-size: 18px;
-          font-weight: 600;
-          cursor: pointer;
-          white-space: nowrap;
-        }
-
-        @media (max-width: 768px) {
-          .search-button {
-            width: 100%;
-            padding: 14px 24px;
-          }
-        }
-      `}</style>
-
-      <div className="search-container">
+      <div className={styles.searchContainer}>
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px', padding: '0 16px' }}>
           <span style={{ fontSize: '20px', color: colors.textSecondary }}>🔍</span>
           <input
@@ -79,7 +39,7 @@ export function SearchBar() {
             }}
           />
         </div>
-        <button type="submit" className="search-button">
+        <button type="submit" className={styles.searchButton} style={{ backgroundColor: colors.primary }}>
           Search
         </button>
       </div>

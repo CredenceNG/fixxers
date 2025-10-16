@@ -1,0 +1,106 @@
+.heroSection {
+  background-color: var(--bg-secondary);
+  padding: 80px 24px 100px;
+}
+
+@media (max-width: 768px) {
+  .heroSection {
+    padding: 40px 16px 60px;
+  }
+}
+
+.heroTitle {
+  font-size: 56px;
+  margin-bottom: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 32px;
+    margin-bottom: 16px;
+  }
+}
+
+.heroSubtitle {
+  font-size: 24px;
+  margin-bottom: 48px;
+}
+
+@media (max-width: 768px) {
+  .heroSubtitle {
+    font-size: 18px;
+    margin-bottom: 32px;
+  }
+}
+
+.sectionTitle {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 24px;
+  }
+}
+
+.sectionTitleLarge {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 768px) {
+  .sectionTitleLarge {
+    font-size: 28px;
+  }
+}
+
+.sectionPadding {
+  padding: 80px 24px;
+}
+
+@media (max-width: 768px) {
+  .sectionPadding {
+    padding: 40px 16px;
+  }
+}
+
+.ctaTitle {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .ctaTitle {
+    font-size: 28px;
+  }
+}
+
+.ctaSubtitle {
+  font-size: 20px;
+  margin-bottom: 32px;
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .ctaSubtitle {
+    font-size: 16px;
+  }
+}
+
+.ctaButtons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .ctaButtons {
+    flex-direction: column;
+  }
+}
