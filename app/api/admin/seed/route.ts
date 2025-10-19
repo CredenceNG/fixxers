@@ -34,18 +34,25 @@ export async function POST() {
 
     let neighborhoodsCreated = 0;
     for (const nData of neighborhoodsData) {
-      const existing = await prisma.neighborhood.findUnique({
+      const existing = await prisma.neighborhood.findFirst({
         where: {
-          name_city_state: {
-            name: nData.name,
-            city: nData.city,
-            state: nData.state,
-          },
+          name: nData.name,
+          legacyCity: nData.city,
+          legacyState: nData.state,
         },
       });
 
       if (!existing) {
-        await prisma.neighborhood.create({ data: nData });
+        await prisma.neighborhood.create({
+          data: {
+            name: nData.name,
+            legacyCity: nData.city,
+            legacyState: nData.state,
+            legacyCountry: nData.country,
+            latitude: nData.latitude,
+            longitude: nData.longitude,
+          }
+        });
         neighborhoodsCreated++;
       }
     }

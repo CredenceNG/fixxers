@@ -6,6 +6,10 @@ export async function GET(request: NextRequest) {
   try {
     const user = await getCurrentUser();
 
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const agent = await prisma.agent.findUnique({
       where: { userId: user.id },
       include: {
