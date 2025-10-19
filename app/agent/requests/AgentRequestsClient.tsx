@@ -200,7 +200,7 @@ export default function AgentRequestsClient() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: `1px solid ${colors.border}` }}>
                   <div style={{ fontSize: '14px', color: colors.textSecondary }}>
                     <div style={{ marginBottom: '4px' }}>
-                      <strong>Location:</strong> {request.neighborhood.name}, {request.neighborhood.city.name}
+                      <strong>Location:</strong> {request.neighborhood.name}, {request.neighborhood.legacyCity}
                     </div>
                     <div>
                       <strong>Posted:</strong> {new Date(request.createdAt).toLocaleDateString('en-US', {

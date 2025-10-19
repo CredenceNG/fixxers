@@ -231,7 +231,7 @@ export default function FixerRequestDetailsPage({ params }: { params: Promise<{ 
               <div style={{ marginBottom: '16px' }}>
                 <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '4px' }}>Location</div>
                 <div style={{ fontSize: '15px', color: colors.textPrimary }}>
-                  {request.neighborhood.name}, {request.neighborhood.city}, {request.neighborhood.state}
+                  {request.neighborhood.name}, {request.neighborhood.legacyCity}, {request.neighborhood.legacyState}
                 </div>
                 {request.address && (
                   <div style={{ fontSize: '14px', color: colors.textSecondary, marginTop: '4px' }}>
