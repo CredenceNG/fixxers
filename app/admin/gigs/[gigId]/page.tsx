@@ -2,19 +2,44 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
-import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
-import { DashboardCard, DashboardButton } from '@/components/DashboardLayout';
+import AdminDashboardWrapper from '@/components/layouts/AdminDashboardWrapper';
 import { colors, borderRadius } from '@/lib/theme';
 import { GigApprovalActions } from './GigApprovalActions';
 
 export default async function AdminGigReviewPage({ params }: { params: Promise<{ gigId: string }> }) {
   const user = await getCurrentUser();
+  const roles = user?.roles || [];
 
-  if (!user || !user.roles?.includes('ADMIN')) {
+  if (!user || !roles.includes('ADMIN')) {
     redirect('/auth/login');
   }
 
   const { gigId } = await params;
+
+  // Fetch pending counts for AdminDashboardWrapper
+  const prismaAny = prisma as any;
+
+  const [pendingBadgeRequests, pendingAgentApplications, pendingReports] = await Promise.all([
+    prismaAny.badgeRequest?.count({
+      where: {
+        status: {
+          in: ['PENDING', 'PAYMENT_RECEIVED', 'UNDER_REVIEW'],
+        },
+      },
+    }) ?? 0,
+    prismaAny.agent?.count({
+      where: {
+        status: 'PENDING',
+      },
+    }) ?? 0,
+    prismaAny.reviewReport?.count({
+      where: {
+        status: {
+          in: ['PENDING', 'REVIEWING'],
+        },
+      },
+    }) ?? 0,
+  ]);
 
   const gig = await prisma.gig.findUnique({
     where: { id: gigId },
@@ -51,23 +76,51 @@ export default async function AdminGigReviewPage({ params }: { params: Promise<{
       : colors.error;
 
   return (
-    <DashboardLayoutWithHeader
-      title="Review Service Offer"
-      subtitle={`Review and approve service offer from ${gig.seller.name || gig.seller.email}`}
-      actions={
-        <Link href="/admin/dashboard">
-          <DashboardButton variant="outline">← Back to Dashboard</DashboardButton>
-        </Link>
-      }
+    <AdminDashboardWrapper
+      userName={user.name || undefined}
+      userAvatar={user.profileImage || undefined}
+      pendingBadgeRequests={pendingBadgeRequests}
+      pendingAgentApplications={pendingAgentApplications}
+      pendingReports={pendingReports}
     >
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      {/* Page Header */}
+      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary, marginBottom: '8px' }}>
+            Review Service Offer
+          </h1>
+          <p style={{ fontSize: '14px', color: colors.textSecondary }}>
+            Review and approve service offer from {gig.seller.name || gig.seller.email}
+          </p>
+        </div>
+        <Link
+          href="/admin/gigs"
+          style={{
+            padding: '10px 20px',
+            backgroundColor: colors.white,
+            color: colors.textPrimary,
+            border: `1px solid ${colors.border}`,
+            borderRadius: borderRadius.md,
+            fontSize: '14px',
+            fontWeight: '600',
+            textDecoration: 'none',
+            display: 'inline-block',
+          }}
+        >
+          ← Back to Gigs
+        </Link>
+      </div>
+
+      <div style={{ maxWidth: '1200px' }}>
         {/* Status Banner */}
-        <DashboardCard
+        <div
           style={{
             marginBottom: '24px',
-            backgroundColor:
-              gig.status === 'PENDING_REVIEW' ? '#FEF5E7' : colors.bgSecondary,
+            backgroundColor: gig.status === 'PENDING_REVIEW' ? '#FEF5E7' : colors.bgSecondary,
             borderLeft: `4px solid ${statusColor}`,
+            borderRadius: borderRadius.lg,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            padding: '20px',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -87,13 +140,24 @@ export default async function AdminGigReviewPage({ params }: { params: Promise<{
             </div>
             <GigApprovalActions gigId={gig.id} currentStatus={gig.status} sellerEmail={gig.seller.email || undefined} sellerName={gig.seller.name || undefined} />
           </div>
-        </DashboardCard>
+        </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
           {/* Main Content */}
           <div>
             {/* Basic Information */}
-            <DashboardCard title="Service Offer Details" style={{ marginBottom: '24px' }}>
+            <div
+              style={{
+                backgroundColor: 'white',
+                borderRadius: borderRadius.lg,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                padding: '20px',
+                marginBottom: '24px',
+              }}
+            >
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.textPrimary, marginBottom: '20px', paddingBottom: '16px', borderBottom: `2px solid ${colors.border}` }}>
+                Service Offer Details
+              </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, marginBottom: '8px' }}>
@@ -158,10 +222,21 @@ export default async function AdminGigReviewPage({ params }: { params: Promise<{
                   </div>
                 )}
               </div>
-            </DashboardCard>
+            </div>
 
             {/* Packages */}
-            <DashboardCard title="Pricing Packages" style={{ marginBottom: '24px' }}>
+            <div
+              style={{
+                backgroundColor: 'white',
+                borderRadius: borderRadius.lg,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                padding: '20px',
+                marginBottom: '24px',
+              }}
+            >
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.textPrimary, marginBottom: '20px', paddingBottom: '16px', borderBottom: `2px solid ${colors.border}` }}>
+                Pricing Packages
+              </h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
                 {gig.packages.map((pkg, index) => (
                   <div
@@ -199,13 +274,24 @@ export default async function AdminGigReviewPage({ params }: { params: Promise<{
                   </div>
                 ))}
               </div>
-            </DashboardCard>
+            </div>
           </div>
 
           {/* Sidebar */}
           <div>
             {/* Fixer Information */}
-            <DashboardCard title="Fixer Information" style={{ marginBottom: '24px' }}>
+            <div
+              style={{
+                backgroundColor: 'white',
+                borderRadius: borderRadius.lg,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                padding: '20px',
+                marginBottom: '24px',
+              }}
+            >
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.textPrimary, marginBottom: '20px', paddingBottom: '16px', borderBottom: `2px solid ${colors.border}` }}>
+                Fixer Information
+              </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textSecondary, marginBottom: '4px' }}>
@@ -296,10 +382,21 @@ export default async function AdminGigReviewPage({ params }: { params: Promise<{
                   </Link>
                 </div>
               </div>
-            </DashboardCard>
+            </div>
 
             {/* Statistics */}
-            <DashboardCard title="Statistics" style={{ marginBottom: '24px' }}>
+            <div
+              style={{
+                backgroundColor: 'white',
+                borderRadius: borderRadius.lg,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                padding: '20px',
+                marginBottom: '24px',
+              }}
+            >
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.textPrimary, marginBottom: '20px', paddingBottom: '16px', borderBottom: `2px solid ${colors.border}` }}>
+                Statistics
+              </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '14px', color: colors.textSecondary }}>Orders</span>
@@ -322,10 +419,10 @@ export default async function AdminGigReviewPage({ params }: { params: Promise<{
                   </span>
                 </div>
               </div>
-            </DashboardCard>
+            </div>
           </div>
         </div>
       </div>
-    </DashboardLayoutWithHeader>
+    </AdminDashboardWrapper>
   );
 }

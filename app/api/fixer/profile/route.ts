@@ -100,12 +100,23 @@ export async function POST(request: NextRequest) {
       data: { name },
     });
 
-    // Get first neighborhood for profile location fields (legacy)
+    // Get first neighborhood for profile location fields (with full hierarchy)
     const firstNeighborhood = await prisma.neighborhood.findUnique({
       where: { id: neighborhoodIds[0] },
+      include: {
+        city: {
+          include: {
+            state: {
+              include: {
+                country: true,
+              },
+            },
+          },
+        },
+      },
     });
 
-    if (!firstNeighborhood) {
+    if (!firstNeighborhood || !firstNeighborhood.city) {
       return NextResponse.json({ error: 'Invalid neighborhood selected' }, { status: 400 });
     }
 
@@ -123,10 +134,12 @@ export async function POST(request: NextRequest) {
         fixerId: user.id,
         yearsOfService: parseInt(yearsOfService),
         qualifications: Array.isArray(qualifications) ? qualifications : [],
+        neighborhoodId: firstNeighborhood.id,
+        // Legacy fields for backward compatibility
         neighbourhood: firstNeighborhood.name,
-        city: firstNeighborhood.city,
-        state: firstNeighborhood.state,
-        country: firstNeighborhood.country || 'Nigeria',
+        city: firstNeighborhood.city.name,
+        state: firstNeighborhood.city.state.name,
+        country: firstNeighborhood.city.state.country.name,
         primaryPhone,
         secondaryPhone: secondaryPhone || null,
         pendingChanges: true,
@@ -134,10 +147,12 @@ export async function POST(request: NextRequest) {
       update: {
         yearsOfService: parseInt(yearsOfService),
         qualifications: Array.isArray(qualifications) ? qualifications : [],
+        neighborhoodId: firstNeighborhood.id,
+        // Legacy fields for backward compatibility
         neighbourhood: firstNeighborhood.name,
-        city: firstNeighborhood.city,
-        state: firstNeighborhood.state,
-        country: firstNeighborhood.country || 'Nigeria',
+        city: firstNeighborhood.city.name,
+        state: firstNeighborhood.city.state.name,
+        country: firstNeighborhood.city.state.country.name,
         primaryPhone,
         secondaryPhone: secondaryPhone || null,
         pendingChanges: true,

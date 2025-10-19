@@ -1,0 +1,40 @@
+{
+  "types": [
+    {
+      "id": "govt_id",
+      "name": "Government-Issued ID",
+      "description": "National ID, Driver's License, or International Passport",
+      "icon": "🆔"
+    },
+    {
+      "id": "proof_of_address",
+      "name": "Proof of Address",
+      "description": "Utility bill, bank statement, or official document showing residential address",
+      "icon": "🏠"
+    },
+    {
+      "id": "criminal_record",
+      "name": "Criminal Record Check",
+      "description": "Police clearance certificate or background check report",
+      "icon": "🛡️"
+    },
+    {
+      "id": "professional_cert",
+      "name": "Professional Certification",
+      "description": "Industry-specific certifications or licenses",
+      "icon": "📜"
+    },
+    {
+      "id": "insurance",
+      "name": "Insurance Certificate",
+      "description": "Professional liability or general insurance documentation",
+      "icon": "🏥"
+    },
+    {
+      "id": "business_reg",
+      "name": "Business Registration",
+      "description": "CAC registration or business license",
+      "icon": "🏢"
+    }
+  ]
+}

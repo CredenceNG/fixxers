@@ -17,16 +17,46 @@ export async function GET(request: NextRequest) {
 
     const roles = user.roles || [];
 
-    // Fetch profiles based on user roles
+    // Fetch profiles based on user roles with neighborhood data
     const clientProfile = roles.includes('CLIENT')
       ? await prisma.clientProfile.findUnique({
           where: { clientId: user.id },
+          include: {
+            neighborhood: {
+              include: {
+                city: {
+                  include: {
+                    state: {
+                      include: {
+                        country: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         })
       : null;
 
     const fixerProfile = roles.includes('FIXER')
       ? await prisma.fixerProfile.findUnique({
           where: { fixerId: user.id },
+          include: {
+            neighborhood: {
+              include: {
+                city: {
+                  include: {
+                    state: {
+                      include: {
+                        country: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         })
       : null;
 
@@ -48,16 +78,18 @@ export async function GET(request: NextRequest) {
     }
 
     // Merge profile data (prefer fixer profile for shared fields if both exist)
+    const profile = fixerProfile || clientProfile;
     const mergedData = {
       name: user.name || '',
-      primaryPhone: fixerProfile?.primaryPhone || clientProfile?.primaryPhone || '',
-      secondaryPhone: fixerProfile?.secondaryPhone || clientProfile?.secondaryPhone || '',
+      primaryPhone: profile?.primaryPhone || '',
+      secondaryPhone: profile?.secondaryPhone || '',
       alternateEmail: clientProfile?.alternateEmail || '',
-      streetAddress: fixerProfile?.streetAddress || clientProfile?.streetAddress || '',
-      neighbourhood: fixerProfile?.neighbourhood || clientProfile?.neighbourhood || '',
-      city: fixerProfile?.city || clientProfile?.city || '',
-      state: fixerProfile?.state || clientProfile?.state || '',
-      country: fixerProfile?.country || clientProfile?.country || '',
+      streetAddress: profile?.streetAddress || '',
+      neighborhoodId: profile?.neighborhoodId || '',
+      neighbourhood: profile?.neighbourhood || '',
+      city: profile?.city || '',
+      state: profile?.state || '',
+      country: profile?.country || '',
       yearsOfService: fixerProfile?.yearsOfService || 0,
       qualifications: fixerProfile?.qualifications || [],
     };
@@ -102,12 +134,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get neighborhood data
+    // Get neighborhood data with full hierarchy
     const neighbourhood = await prisma.neighborhood.findUnique({
       where: { id: neighbourhoodId },
+      include: {
+        city: {
+          include: {
+            state: {
+              include: {
+                country: true,
+              },
+            },
+          },
+        },
+      },
     });
 
-    if (!neighbourhood) {
+    if (!neighbourhood || !neighbourhood.city) {
       return NextResponse.json({ error: 'Invalid neighbourhood' }, { status: 400 });
     }
 
@@ -123,10 +166,12 @@ export async function POST(request: NextRequest) {
       primaryPhone,
       secondaryPhone: secondaryPhone || null,
       streetAddress: streetAddress || null,
+      neighborhoodId: neighbourhoodId,
+      // Legacy fields for backward compatibility
       neighbourhood: neighbourhood.name,
-      city: neighbourhood.city,
-      state: neighbourhood.state,
-      country: neighbourhood.country || 'Nigeria',
+      city: neighbourhood.city.name,
+      state: neighbourhood.city.state.name,
+      country: neighbourhood.city.state.country.name,
     };
 
     let hasClientProfile = false;

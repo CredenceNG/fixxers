@@ -7,6 +7,14 @@ import { SearchBar } from '@/components/SearchBar';
 import Header from '@/components/Header';
 import { CategoryCard } from '@/components/CategoryCard';
 import { ViewAllCategoriesButton } from '@/components/ViewAllCategoriesButton';
+import {
+  YearsOfService,
+  ReviewCount,
+  ResponseTimeBadge,
+  JobsCompleted,
+  ServiceArea,
+} from '@/components/quick-wins/QuickWinBadges';
+import { VerificationMessage } from '@/components/VerificationMessage';
 import styles from './home.module.css';
 
 export default async function Home() {
@@ -27,6 +35,16 @@ export default async function Home() {
           id: true,
           name: true,
           profileImage: true,
+          createdAt: true,
+          fixerProfile: {
+            select: {
+              averageResponseMinutes: true,
+              totalJobsCompleted: true,
+              neighbourhood: true,
+              city: true,
+              state: true,
+            },
+          },
         },
       },
       subcategory: {
@@ -118,6 +136,9 @@ export default async function Home() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: colors.white }}>
       <Header />
+
+      {/* Verification Message Modal */}
+      <VerificationMessage />
 
       {/* Hero Section */}
       <div className={styles.heroSection} style={{ backgroundColor: colors.bgSecondary }}>
@@ -239,6 +260,28 @@ export default async function Home() {
                           <span style={{ fontSize: '14px', color: colors.textSecondary }}>New service</span>
                         )}
                       </div>
+
+                      {/* Quick Wins Badges */}
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px', minHeight: '24px' }}>
+                        {gig.seller.createdAt && <YearsOfService createdAt={gig.seller.createdAt} />}
+                        {rating && rating.count > 0 && (
+                          <ReviewCount count={rating.count} averageRating={rating.avg} />
+                        )}
+                        {gig.seller.fixerProfile?.averageResponseMinutes && (
+                          <ResponseTimeBadge averageResponseMinutes={gig.seller.fixerProfile.averageResponseMinutes} />
+                        )}
+                        {gig.seller.fixerProfile?.totalJobsCompleted !== undefined && gig.seller.fixerProfile.totalJobsCompleted > 0 && (
+                          <JobsCompleted count={gig.seller.fixerProfile.totalJobsCompleted} />
+                        )}
+                        {gig.seller.fixerProfile?.neighbourhood && gig.seller.fixerProfile?.city && (
+                          <ServiceArea
+                            neighbourhood={gig.seller.fixerProfile.neighbourhood}
+                            city={gig.seller.fixerProfile.city}
+                            state={gig.seller.fixerProfile.state}
+                          />
+                        )}
+                      </div>
+
                       <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: '12px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                           <span style={{ fontSize: '12px', color: colors.textSecondary, textTransform: 'uppercase' }}>

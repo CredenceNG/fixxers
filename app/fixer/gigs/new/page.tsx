@@ -2,7 +2,8 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
-import { DashboardLayout, DashboardCard, DashboardButton } from '@/components/DashboardLayout';
+import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
+import { DashboardCard, DashboardButton } from '@/components/DashboardLayout';
 import { colors, borderRadius } from '@/lib/theme';
 import { CreateGigForm } from './CreateGigForm';
 
@@ -29,7 +30,7 @@ export default async function NewGigPage() {
   });
 
   return (
-    <DashboardLayout
+    <DashboardLayoutWithHeader
       title="Create New Service Offer"
       subtitle="Create a professional service offer to attract clients"
       actions={
@@ -60,6 +61,6 @@ export default async function NewGigPage() {
 
         <CreateGigForm categories={categories} />
       </div>
-    </DashboardLayout>
+    </DashboardLayoutWithHeader>
   );
 }

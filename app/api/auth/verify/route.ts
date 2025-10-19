@@ -45,12 +45,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get user with fixer and client profiles
+    // Get user with fixer, client, and agent profiles
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
         fixerProfile: true,
         clientProfile: true,
+        agentProfile: true,
       },
     });
 
@@ -69,6 +70,8 @@ export async function GET(request: NextRequest) {
     // Check if user has profiles
     const hasFixerProfile = !!user.fixerProfile;
     const hasClientProfile = !!user.clientProfile;
+    const hasAgentProfile = !!user.agentProfile;
+    const agentStatus = user.agentProfile?.status;
 
     // Determine primary role and overall profile status
     const roles = user.roles || [];
@@ -88,6 +91,8 @@ export async function GET(request: NextRequest) {
       hasProfile,
       hasFixerProfile,
       hasClientProfile,
+      hasAgentProfile,
+      agentStatus,
     });
 
     // Redirect based on role

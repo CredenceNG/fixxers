@@ -64,7 +64,7 @@ export async function POST(
                 </a>
               </div>
               <p>Thank you for your cooperation!</p>
-              <p style="margin-top: 30px;">Best regards,<br><strong>The Fixxers Team</strong></p>
+              <p style="margin-top: 30px;">Best regards,<br><strong>The Fixers Team</strong></p>
             </div>
           `,
         });

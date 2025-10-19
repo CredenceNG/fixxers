@@ -1,0 +1,106 @@
+.actionsContainer {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.walletBalance {
+  /* Always visible on all screen sizes */
+}
+
+/* Desktop & Tablet: Show Orders, Offers, Wallet, More */
+.desktopTabletActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.mobileActions {
+  display: none;
+}
+
+/* Mobile: <768px */
+@media (max-width: 767px) {
+  .actionsContainer {
+    width: 100%;
+  }
+
+  .desktopTabletActions {
+    display: none;
+  }
+
+  .mobileActions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+}
+
+/* Dropdown Menu Styles */
+.dropdownContainer {
+  position: relative;
+}
+
+.moreButton {
+  transition: all 0.2s ease;
+}
+
+.moreButton:hover {
+  opacity: 0.8;
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  background-color: transparent;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  z-index: 50;
+  overflow: hidden;
+}
+
+.dropdownItem {
+  display: block;
+  padding: 14px 18px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+}
+
+.dropdownItem:hover {
+  background-color: #f3f4f6;
+}
+
+.dropdownItem:last-child {
+  border-bottom: none !important;
+}
+
+/* Extra small devices: <480px */
+@media (max-width: 479px) {
+  .mobileActions {
+    gap: 4px;
+  }
+
+  .walletBalance {
+    font-size: 13px;
+  }
+
+  .dropdownMenu {
+    right: -8px;
+    min-width: 200px;
+  }
+}

@@ -181,8 +181,8 @@ export function FixerActionButtons({
     }
   };
 
-  // Show suspend button for ACTIVE fixers
-  if (status === 'ACTIVE') {
+  // Show suspend button for ACTIVE fixers (without pending changes)
+  if (status === 'ACTIVE' && !hasPendingChanges) {
     return (
       <div>
         {/* Messages */}
@@ -262,7 +262,7 @@ export function FixerActionButtons({
   }
 
   const showApprovalActions = status === 'PENDING' || hasPendingChanges;
-  const isReReview = status === 'PENDING' && wasApproved;
+  const isReReview = (status === 'PENDING' && wasApproved) || hasPendingChanges;
 
   // Show message for rejected fixers
   if (status === 'REJECTED') {

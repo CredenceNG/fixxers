@@ -2,8 +2,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
-import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
-import { DashboardCard, DashboardButton } from '@/components/DashboardLayout';
+import AdminDashboardWrapper from '@/components/layouts/AdminDashboardWrapper';
 import { colors, borderRadius } from '@/lib/theme';
 import { FixerActionButtons } from './FixerActionButtons';
 
@@ -22,6 +21,31 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
 
   const { id } = await params;
   const { success, error } = await searchParams;
+
+  // Fetch pending counts for AdminDashboardWrapper
+  const prismaAny = prisma as any;
+
+  const [pendingBadgeRequests, pendingAgentApplications, pendingReports] = await Promise.all([
+    prismaAny.badgeRequest?.count({
+      where: {
+        status: {
+          in: ['PENDING', 'PAYMENT_RECEIVED', 'UNDER_REVIEW'],
+        },
+      },
+    }) ?? 0,
+    prismaAny.agent?.count({
+      where: {
+        status: 'PENDING',
+      },
+    }) ?? 0,
+    prismaAny.reviewReport?.count({
+      where: {
+        status: {
+          in: ['PENDING', 'REVIEWING'],
+        },
+      },
+    }) ?? 0,
+  ]);
 
   // Fetch user with profile and services
   const user = await prisma.user.findUnique({
@@ -44,47 +68,73 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
     return <div>User not found</div>;
   }
 
-  const isApproved = user.status === 'ACTIVE';
+  const hasPendingChanges = !!user.fixerProfile?.pendingChanges;
+  const isApproved = user.status === 'ACTIVE' && !hasPendingChanges;
   const isRejected = user.status === 'REJECTED';
-  const isPending = user.status === 'PENDING';
-  const isReReview = isPending && !!user.fixerProfile?.approvedAt;
+  const isPending = user.status === 'PENDING' || hasPendingChanges;
+  const isReReview = (user.status === 'PENDING' && !!user.fixerProfile?.approvedAt) || hasPendingChanges;
 
   return (
-    <DashboardLayoutWithHeader
-      title="Review Fixer Application"
-      actions={
-        <Link href="/admin/dashboard">
-          <DashboardButton variant="outline">
-            ← Back to Dashboard
-          </DashboardButton>
-        </Link>
-      }
+    <AdminDashboardWrapper
+      userName={currentUser.name || undefined}
+      userAvatar={currentUser.profileImage || undefined}
+      pendingBadgeRequests={pendingBadgeRequests}
+      pendingAgentApplications={pendingAgentApplications}
+      pendingReports={pendingReports}
     >
-        {/* Success/Error Messages */}
-        {success === 'approved' && (
-          <DashboardCard style={{ marginBottom: '24px', padding: '20px', backgroundColor: colors.primaryLight, border: `1px solid ${colors.primary}` }}>
-            <p style={{ fontSize: '15px', color: colors.primaryDark, fontWeight: '600', margin: 0 }}>
-              ✓ Fixer has been successfully approved!
-            </p>
-          </DashboardCard>
-        )}
-        {success === 'rejected' && (
-          <DashboardCard style={{ marginBottom: '24px', padding: '20px', backgroundColor: '#FDEDEC', border: `1px solid ${colors.error}` }}>
-            <p style={{ fontSize: '15px', color: '#922B21', fontWeight: '600', margin: 0 }}>
-              Application has been rejected.
-            </p>
-          </DashboardCard>
-        )}
-        {error && (
-          <DashboardCard style={{ marginBottom: '24px', padding: '20px', backgroundColor: '#FDEDEC', border: `1px solid ${colors.error}` }}>
-            <p style={{ fontSize: '15px', color: '#922B21', fontWeight: '600', margin: 0 }}>
-              ✗ Error: {error === 'invalid_request' ? 'Invalid request' : error === 'processing_failed' ? 'Failed to process approval' : 'An error occurred'}
-            </p>
-          </DashboardCard>
-        )}
+      {/* Page Header */}
+      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary, marginBottom: '8px' }}>
+            Review Fixer Application
+          </h1>
+          <p style={{ fontSize: '14px', color: colors.textSecondary }}>
+            {user.name || user.email}
+          </p>
+        </div>
+        <Link
+          href="/admin/users"
+          style={{
+            padding: '10px 20px',
+            backgroundColor: colors.white,
+            color: colors.textPrimary,
+            border: `1px solid ${colors.border}`,
+            borderRadius: borderRadius.md,
+            fontSize: '14px',
+            fontWeight: '600',
+            textDecoration: 'none',
+            display: 'inline-block',
+          }}
+        >
+          ← Back to Users
+        </Link>
+      </div>
 
-        {/* Status Banner */}
-        <DashboardCard style={{ marginBottom: '32px', padding: '20px', borderLeft: `4px solid ${isApproved ? colors.success : isRejected ? colors.error : colors.warning}` }}>
+      {/* Success/Error Messages */}
+      {success === 'approved' && (
+        <div style={{ marginBottom: '24px', padding: '20px', backgroundColor: colors.primaryLight, border: `1px solid ${colors.primary}`, borderRadius: borderRadius.lg }}>
+          <p style={{ fontSize: '15px', color: colors.primaryDark, fontWeight: '600', margin: 0 }}>
+            ✓ Fixer has been successfully approved!
+          </p>
+        </div>
+      )}
+      {success === 'rejected' && (
+        <div style={{ marginBottom: '24px', padding: '20px', backgroundColor: '#FDEDEC', border: `1px solid ${colors.error}`, borderRadius: borderRadius.lg }}>
+          <p style={{ fontSize: '15px', color: '#922B21', fontWeight: '600', margin: 0 }}>
+            Application has been rejected.
+          </p>
+        </div>
+      )}
+      {error && (
+        <div style={{ marginBottom: '24px', padding: '20px', backgroundColor: '#FDEDEC', border: `1px solid ${colors.error}`, borderRadius: borderRadius.lg }}>
+          <p style={{ fontSize: '15px', color: '#922B21', fontWeight: '600', margin: 0 }}>
+            ✗ Error: {error === 'invalid_request' ? 'Invalid request' : error === 'processing_failed' ? 'Failed to process approval' : 'An error occurred'}
+          </p>
+        </div>
+      )}
+
+      {/* Status Banner */}
+      <div style={{ marginBottom: '32px', padding: '20px', backgroundColor: 'white', borderRadius: borderRadius.lg, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderLeft: `4px solid ${isApproved ? colors.success : isRejected ? colors.error : colors.warning}` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <p style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '4px' }}>Application Status</p>
@@ -103,16 +153,16 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
               </span>
             )}
           </div>
-        </DashboardCard>
+        </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }}>
-          {/* Left Column - Profile Details */}
-          <div>
-            {/* Basic Info */}
-            <DashboardCard>
-              <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '24px' }}>
-                Basic Information
-              </h2>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }}>
+        {/* Left Column - Profile Details */}
+        <div>
+          {/* Basic Info */}
+          <div style={{ backgroundColor: 'white', borderRadius: borderRadius.lg, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '20px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '24px', paddingBottom: '16px', borderBottom: `2px solid ${colors.border}` }}>
+              Basic Information
+            </h2>
               <div style={{ display: 'grid', gap: '16px' }}>
                 <div>
                   <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textSecondary, display: 'block', marginBottom: '4px' }}>
@@ -133,14 +183,14 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
                   <p style={{ fontSize: '15px', color: colors.textPrimary }}>{user.fixerProfile?.yearsOfService || 'Not provided'} years</p>
                 </div>
               </div>
-            </DashboardCard>
+            </div>
 
-            {/* Qualifications */}
-            {user.fixerProfile?.qualifications && user.fixerProfile.qualifications.length > 0 && (
-              <DashboardCard style={{ marginTop: '24px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px' }}>
-                  Qualifications
-                </h2>
+          {/* Qualifications */}
+          {user.fixerProfile?.qualifications && user.fixerProfile.qualifications.length > 0 && (
+            <div style={{ marginTop: '24px', backgroundColor: 'white', borderRadius: borderRadius.lg, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '20px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px', paddingBottom: '16px', borderBottom: `2px solid ${colors.border}` }}>
+                Qualifications
+              </h2>
                 <ul style={{ margin: 0, paddingLeft: '20px' }}>
                   {user.fixerProfile.qualifications.map((qual, index) => (
                     <li key={index} style={{ fontSize: '15px', color: colors.textPrimary, marginBottom: '8px' }}>
@@ -148,14 +198,14 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
                     </li>
                   ))}
                 </ul>
-              </DashboardCard>
+              </div>
             )}
 
-            {/* Location */}
-            <DashboardCard style={{ marginTop: '24px' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px' }}>
-                Service Location
-              </h2>
+          {/* Location */}
+          <div style={{ marginTop: '24px', backgroundColor: 'white', borderRadius: borderRadius.lg, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '20px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px', paddingBottom: '16px', borderBottom: `2px solid ${colors.border}` }}>
+              Service Location
+            </h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
                   <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textSecondary, display: 'block', marginBottom: '4px' }}>
@@ -182,13 +232,13 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
                   <p style={{ fontSize: '15px', color: colors.textPrimary }}>{user.fixerProfile?.country}</p>
                 </div>
               </div>
-            </DashboardCard>
+            </div>
 
-            {/* Contact Info */}
-            <DashboardCard style={{ marginTop: '24px' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px' }}>
-                Contact Information
-              </h2>
+          {/* Contact Info */}
+          <div style={{ marginTop: '24px', backgroundColor: 'white', borderRadius: borderRadius.lg, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '20px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px', paddingBottom: '16px', borderBottom: `2px solid ${colors.border}` }}>
+              Contact Information
+            </h2>
               <div style={{ display: 'grid', gap: '16px' }}>
                 <div>
                   <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textSecondary, display: 'block', marginBottom: '4px' }}>
@@ -205,13 +255,13 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
                   </div>
                 )}
               </div>
-            </DashboardCard>
+            </div>
 
-            {/* Services */}
-            <DashboardCard style={{ marginTop: '24px' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px' }}>
-                Service Categories
-              </h2>
+          {/* Services */}
+          <div style={{ marginTop: '24px', backgroundColor: 'white', borderRadius: borderRadius.lg, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '20px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px', paddingBottom: '16px', borderBottom: `2px solid ${colors.border}` }}>
+              Service Categories
+            </h2>
               {user.fixerServices.length === 0 ? (
                 <p style={{ fontSize: '15px', color: colors.textSecondary }}>No services added yet</p>
               ) : (
@@ -241,15 +291,15 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
                   ))}
                 </div>
               )}
-            </DashboardCard>
+            </div>
           </div>
 
-          {/* Right Column - Actions */}
-          <div>
-            <DashboardCard>
-              <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '24px' }}>
-                Actions
-              </h2>
+        {/* Right Column - Actions */}
+        <div>
+          <div style={{ backgroundColor: 'white', borderRadius: borderRadius.lg, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '20px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '24px', paddingBottom: '16px', borderBottom: `2px solid ${colors.border}` }}>
+              Actions
+            </h2>
 
               <FixerActionButtons
                 fixerId={user.id}
@@ -283,9 +333,9 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
                   </p>
                 </div>
               )}
-            </DashboardCard>
+            </div>
           </div>
         </div>
-    </DashboardLayoutWithHeader>
+    </AdminDashboardWrapper>
   );
 }

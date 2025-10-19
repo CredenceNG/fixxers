@@ -1,17 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import toast, { Toaster } from 'react-hot-toast';
 import { colors, borderRadius } from '@/lib/theme';
 
 export default function RegisterPage() {
+  const searchParams = useSearchParams();
+  const referralCode = searchParams.get('ref');
+
   const [formData, setFormData] = useState({
     name: '',
     emailOrPhone: '',
     roles: ['CLIENT'] as ('CLIENT' | 'FIXER')[],
+    referralCode: referralCode || '', // Quick Wins - Capture referral code from URL
   });
   const [loading, setLoading] = useState(false);
+
+  // Update referral code if URL param changes
+  useEffect(() => {
+    if (referralCode) {
+      setFormData(prev => ({ ...prev, referralCode }));
+    }
+  }, [referralCode]);
 
   const isEmail = formData.emailOrPhone.includes('@');
 
@@ -46,6 +58,11 @@ export default function RegisterPage() {
         payload.phone = formData.emailOrPhone;
       }
 
+      // Quick Wins - Include referral code if present
+      if (formData.referralCode) {
+        payload.referralCode = formData.referralCode;
+      }
+
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -56,7 +73,7 @@ export default function RegisterPage() {
 
       if (response.ok) {
         toast.success(data.message);
-        setFormData({ name: '', emailOrPhone: '', roles: ['CLIENT'] });
+        setFormData({ name: '', emailOrPhone: '', roles: ['CLIENT'], referralCode: referralCode || '' });
       } else {
         toast.error(data.error || 'Registration failed');
       }
@@ -83,18 +100,42 @@ export default function RegisterPage() {
             <Link href="/" style={{ textDecoration: 'none' }}>
               <h1 style={{
                 fontSize: '48px',
-                fontWeight: '800',
-                color: colors.textPrimary,
+                fontWeight: 'bold',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+                color: colors.primary,
                 marginBottom: '8px',
-                letterSpacing: '-0.02em'
+                letterSpacing: '-0.5px'
               }}>
-                <span style={{ color: colors.primary }}>FIXI</span>
-                <span style={{ color: colors.textPrimary }}>-NG</span>
+                fixers
               </h1>
             </Link>
             <p style={{ fontSize: '18px', color: colors.textSecondary }}>
               Create your account
             </p>
+
+            {/* Quick Wins - Show referral code indicator */}
+            {formData.referralCode && (
+              <div style={{
+                marginTop: '16px',
+                padding: '12px 16px',
+                backgroundColor: colors.primary + '10',
+                border: `1px solid ${colors.primary}30`,
+                borderRadius: borderRadius.md,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                <span style={{ fontSize: '14px', color: colors.primary, fontWeight: '500' }}>
+                  Referred by code: <strong>{formData.referralCode}</strong>
+                </span>
+              </div>
+            )}
           </div>
 
           <div style={{

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { styles, gradients, colors } from '@/lib/theme';
+import LocationCascadeSelect from '@/components/LocationCascadeSelect';
 
 interface Category {
   id: string;
@@ -15,20 +16,11 @@ interface Subcategory {
   name: string;
 }
 
-interface Neighborhood {
-  id: string;
-  name: string;
-  city: string;
-  state: string;
-  country?: string;
-}
-
 export default function NewRequestPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
-  const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
 
   const [formData, setFormData] = useState({
@@ -42,34 +34,17 @@ export default function NewRequestPage() {
     budget: '',
   });
 
-  const [selectedCountry, setSelectedCountry] = useState('');
-  const [selectedState, setSelectedState] = useState('');
-
-  // Get unique countries and states from neighborhoods
-  const countries = Array.from(new Set(neighborhoods.map(n => n.country || 'Nigeria')));
-  const states = selectedCountry
-    ? Array.from(new Set(neighborhoods.filter(n => (n.country || 'Nigeria') === selectedCountry).map(n => n.state))).sort()
-    : [];
-
-  // Filter neighborhoods based on country and state
-  const filteredNeighborhoods = neighborhoods.filter(n => {
-    const matchesCountry = !selectedCountry || (n.country || 'Nigeria') === selectedCountry;
-    const matchesState = !selectedState || n.state === selectedState;
-    return matchesCountry && matchesState;
-  });
-
   useEffect(() => {
-    // Fetch categories and neighborhoods
-    Promise.all([
-      fetch('/api/categories').then(res => res.json()),
-      fetch('/api/neighborhoods').then(res => res.json()),
-    ]).then(([categoriesData, neighborhoodsData]) => {
-      setCategories(categoriesData);
-      setNeighborhoods(neighborhoodsData);
-    }).catch(err => {
-      console.error('Failed to load data:', err);
-      setError('Failed to load form data. Please refresh the page.');
-    });
+    // Fetch categories
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(categoriesData => {
+        setCategories(categoriesData);
+      })
+      .catch(err => {
+        console.error('Failed to load data:', err);
+        setError('Failed to load form data. Please refresh the page.');
+      });
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -218,110 +193,29 @@ export default function NewRequestPage() {
               />
             </div>
 
-            {/* Location Fields */}
+            {/* Location */}
             <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '12px' }}>
-                Location <span style={{ color: colors.error }}>*</span>
+              <LocationCascadeSelect
+                value={formData.neighborhoodId}
+                onChange={(neighborhoodId) => setFormData({ ...formData, neighborhoodId })}
+                required
+                label="Location"
+              />
+            </div>
+
+            {/* Street Address */}
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
+                Street Address <span style={{ fontSize: '13px', fontWeight: '400', color: colors.textSecondary }}>(optional)</span>
               </label>
-
-              {/* Country and State Row */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: colors.textSecondary, marginBottom: '6px' }}>
-                    Country
-                  </label>
-                  <select
-                    value={selectedCountry}
-                    onChange={(e) => {
-                      setSelectedCountry(e.target.value);
-                      setSelectedState('');
-                      setFormData({ ...formData, neighborhoodId: '' });
-                    }}
-                    required
-                    style={{ width: '100%', padding: '12px 16px', fontSize: '15px', border: '2px solid #E4E6EB', borderRadius: '12px', outline: 'none' }}
-                  >
-                    <option value="">Select country</option>
-                    {countries.map(country => (
-                      <option key={country} value={country}>{country}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: colors.textSecondary, marginBottom: '6px' }}>
-                    State
-                  </label>
-                  <select
-                    value={selectedState}
-                    onChange={(e) => {
-                      setSelectedState(e.target.value);
-                      setFormData({ ...formData, neighborhoodId: '' });
-                    }}
-                    required
-                    disabled={!selectedCountry}
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      fontSize: '15px',
-                      border: '2px solid #E4E6EB',
-                      borderRadius: '12px',
-                      outline: 'none',
-                      backgroundColor: !selectedCountry ? '#F9FAFB' : 'white',
-                      cursor: !selectedCountry ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    <option value="">Select state</option>
-                    {states.map(state => (
-                      <option key={state} value={state}>{state}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Neighbourhood and Address Row */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: colors.textSecondary, marginBottom: '6px' }}>
-                    Neighbourhood
-                  </label>
-                  <select
-                    name="neighborhoodId"
-                    value={formData.neighborhoodId}
-                    onChange={handleInputChange}
-                    required
-                    disabled={!selectedState}
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      fontSize: '15px',
-                      border: '2px solid #E4E6EB',
-                      borderRadius: '12px',
-                      outline: 'none',
-                      backgroundColor: !selectedState ? '#F9FAFB' : 'white',
-                      cursor: !selectedState ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    <option value="">Select neighbourhood</option>
-                    {filteredNeighborhoods.map(nb => (
-                      <option key={nb.id} value={nb.id}>
-                        {nb.name}, {nb.city}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: colors.textSecondary, marginBottom: '6px' }}>
-                    Street Address (optional)
-                  </label>
-                  <input
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    placeholder="123 Main Street"
-                    style={{ width: '100%', padding: '12px 16px', fontSize: '15px', border: '2px solid #E4E6EB', borderRadius: '12px', outline: 'none' }}
-                  />
-                </div>
-              </div>
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+                placeholder="123 Main Street"
+                style={{ width: '100%', padding: '12px 16px', fontSize: '15px', border: '2px solid #E4E6EB', borderRadius: '12px', outline: 'none' }}
+              />
             </div>
 
             {/* Urgency and Date */}

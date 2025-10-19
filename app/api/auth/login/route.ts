@@ -4,6 +4,7 @@ import { generateMagicLink } from '@/lib/auth';
 import { sendMagicLinkEmail } from '@/lib/email';
 import { sendMagicLinkSMS } from '@/lib/sms';
 import { z } from 'zod';
+import { authLimiter, getClientIdentifier, rateLimitResponse } from '@/lib/ratelimit';
 
 const loginSchema = z.object({
   email: z.string().email().optional(),
@@ -14,6 +15,14 @@ const loginSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  // Apply rate limiting (5 requests per 15 minutes per IP)
+  const identifier = getClientIdentifier(request);
+  const rateLimitResult = await authLimiter.limit(identifier);
+
+  if (!rateLimitResult.success) {
+    return rateLimitResponse(rateLimitResult);
+  }
+
   try {
     const body = await request.json();
     const validated = loginSchema.parse(body);

@@ -157,6 +157,34 @@ export async function POST(
       }
     });
 
+    // Send payment confirmation emails
+    try {
+      const { sendPaymentReceivedEmail } = await import('@/lib/emails/template-renderer');
+
+      // Get service title from order
+      const serviceTitle = order.gig?.title || order.request?.title || 'Service';
+      const amountPaid = order.downPaymentPaid && order.downPaymentAmount
+        ? order.totalAmount - order.downPaymentAmount
+        : order.totalAmount;
+
+      // Send email to client
+      if (order.client.email && order.client.emailNotifications) {
+        await sendPaymentReceivedEmail({
+          clientEmail: order.client.email,
+          clientName: order.client.name || 'Client',
+          orderNumber: order.id,
+          serviceName: serviceTitle,
+          fixerName: order.fixer.name || 'Service Provider',
+          amountPaid: `₦${amountPaid.toLocaleString()}`,
+          totalAmount: `₦${order.totalAmount.toLocaleString()}`,
+          orderUrl: `${process.env.NEXT_PUBLIC_APP_URL}${order.gigId ? '/client/orders/' : '/client/requests/'}${order.id}`,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to send payment confirmation email:', error);
+      // Don't fail the request if email fails
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Payment processed successfully',

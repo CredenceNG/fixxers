@@ -14,7 +14,7 @@ export async function sendMagicLinkEmail(email: string, token: string, isRegistr
   const magicLink = redirectUrl
     ? `${APP_URL}/auth/verify?token=${token}&redirect=${encodeURIComponent(redirectUrl)}`
     : `${APP_URL}/auth/verify?token=${token}`;
-  const subject = isRegistration ? 'Complete Your Registration' : 'Login to Fixxers';
+  const subject = isRegistration ? 'Complete Your Registration' : 'Login to Fixers';
 
   // In development, log to console unless FORCE_SEND_EMAILS is set
   if (process.env.NODE_ENV === 'development' && process.env.FORCE_SEND_EMAILS !== 'true') {
@@ -80,7 +80,7 @@ export async function sendMagicLinkEmail(email: string, token: string, isRegistr
           </head>
           <body>
             <div class="container">
-              <h2>${isRegistration ? 'Welcome to Fixxers!' : 'Login to Fixxers'}</h2>
+              <h2>${isRegistration ? 'Welcome to Fixers!' : 'Login to Fixers'}</h2>
               <p>${isRegistration ? 'Click the button below to complete your registration:' : 'Click the button below to login to your account:'}</p>
               <a href="${magicLink}" class="button" target="fixxers-app">
                 ${isRegistration ? 'Complete Registration' : 'Login Now'}
@@ -94,7 +94,7 @@ export async function sendMagicLinkEmail(email: string, token: string, isRegistr
               </p>
               <div class="footer">
                 <p>If you didn't request this, you can safely ignore this email.</p>
-                <p>&copy; ${new Date().getFullYear()} Fixxers. All rights reserved.</p>
+                <p>&copy; ${new Date().getFullYear()} Fixers. All rights reserved.</p>
               </div>
             </div>
           </body>
@@ -166,7 +166,7 @@ export async function sendInvitationEmail(email: string, invitedBy: string, role
     await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
-      subject: `You've been invited to join Fixxers as a ${roleText}`,
+      subject: `You've been invited to join Fixers as a ${roleText}`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -204,8 +204,8 @@ export async function sendInvitationEmail(email: string, invitedBy: string, role
           </head>
           <body>
             <div class="container">
-              <h2>You've been invited to Fixxers!</h2>
-              <p>${invitedBy} has invited you to join Fixxers as a ${roleText}.</p>
+              <h2>You've been invited to Fixers!</h2>
+              <p>${invitedBy} has invited you to join Fixers as a ${roleText}.</p>
               <p>Click the button below to accept the invitation and set up your account:</p>
               <a href="${magicLink}" class="button">Accept Invitation</a>
               <p style="margin-top: 20px; font-size: 14px;">
@@ -216,7 +216,7 @@ export async function sendInvitationEmail(email: string, invitedBy: string, role
                 This link will expire in 15 minutes.
               </p>
               <div class="footer">
-                <p>&copy; ${new Date().getFullYear()} Fixxers. All rights reserved.</p>
+                <p>&copy; ${new Date().getFullYear()} Fixers. All rights reserved.</p>
               </div>
             </div>
           </body>
@@ -276,7 +276,7 @@ export async function sendFixerApprovalEmail(email: string, fixerName: string) {
         <body>
           <div class="container">
             <h2>🎉 Congratulations, ${fixerName}!</h2>
-            <p>Great news! Your fixer profile has been approved and is now active on FIXI-NG.</p>
+            <p>Great news! Your fixer profile has been approved and is now active on Fixers.</p>
             <p><strong>What's next?</strong></p>
             <ul>
               <li>Start browsing and responding to service requests</li>
@@ -290,8 +290,8 @@ export async function sendFixerApprovalEmail(email: string, fixerName: string) {
               <span style="color: #2563eb;">${dashboardLink}</span>
             </p>
             <div class="footer">
-              <p>Welcome to the FIXI-NG community!</p>
-              <p>&copy; ${new Date().getFullYear()} FIXI-NG. All rights reserved.</p>
+              <p>Welcome to the Fixers community!</p>
+              <p>&copy; ${new Date().getFullYear()} Fixers. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -351,7 +351,7 @@ export async function sendFixerRejectionEmail(email: string, fixerName: string, 
           <div class="container">
             <h2>Update on Your Fixer Application</h2>
             <p>Hello ${fixerName},</p>
-            <p>Thank you for your interest in becoming a fixer on FIXI-NG. After reviewing your application, we need you to make some updates to your profile before we can approve it.</p>
+            <p>Thank you for your interest in becoming a fixer on Fixers. After reviewing your application, we need you to make some updates to your profile before we can approve it.</p>
             ${reason ? `
             <div class="reason-box">
               <strong>Reason:</strong><br>
@@ -371,7 +371,7 @@ export async function sendFixerRejectionEmail(email: string, fixerName: string, 
             </p>
             <div class="footer">
               <p>If you have any questions, please don't hesitate to contact our support team.</p>
-              <p>&copy; ${new Date().getFullYear()} FIXI-NG. All rights reserved.</p>
+              <p>&copy; ${new Date().getFullYear()} Fixers. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -426,7 +426,7 @@ export async function sendRequestApprovalEmail(email: string, clientName: string
           <div class="container">
             <h2>✅ Your Service Request is Approved!</h2>
             <p>Hello ${clientName},</p>
-            <p>Great news! Your service request "<strong>${requestTitle}</strong>" has been approved and is now visible to fixers on FIXI-NG.</p>
+            <p>Great news! Your service request "<strong>${requestTitle}</strong>" has been approved and is now visible to fixers on Fixers.</p>
             <p><strong>What happens next?</strong></p>
             <ul>
               <li>Qualified fixers will review your request</li>
@@ -441,7 +441,7 @@ export async function sendRequestApprovalEmail(email: string, clientName: string
             </p>
             <div class="footer">
               <p>We'll notify you as soon as fixers start submitting quotes!</p>
-              <p>&copy; ${new Date().getFullYear()} FIXI-NG. All rights reserved.</p>
+              <p>&copy; ${new Date().getFullYear()} Fixers. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -501,7 +501,7 @@ export async function sendRequestRejectionEmail(email: string, clientName: strin
           <div class="container">
             <h2>Update on Your Service Request</h2>
             <p>Hello ${clientName},</p>
-            <p>Thank you for submitting your service request "<strong>${requestTitle}</strong>" on FIXI-NG. Unfortunately, we're unable to approve this request at this time.</p>
+            <p>Thank you for submitting your service request "<strong>${requestTitle}</strong>" on Fixers. Unfortunately, we're unable to approve this request at this time.</p>
             ${reason ? `
             <div class="reason-box">
               <strong>Reason:</strong><br>
@@ -521,7 +521,7 @@ export async function sendRequestRejectionEmail(email: string, clientName: strin
             </p>
             <div class="footer">
               <p>If you have any questions, please contact our support team.</p>
-              <p>&copy; ${new Date().getFullYear()} FIXI-NG. All rights reserved.</p>
+              <p>&copy; ${new Date().getFullYear()} Fixers. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -576,7 +576,7 @@ export async function sendGigApprovalEmail(email: string, fixerName: string, gig
           <div class="container">
             <h2>🎉 Your Service Offer is Live!</h2>
             <p>Hello ${fixerName},</p>
-            <p>Excellent news! Your service offer "<strong>${gigTitle}</strong>" has been approved and is now visible to clients on FIXI-NG.</p>
+            <p>Excellent news! Your service offer "<strong>${gigTitle}</strong>" has been approved and is now visible to clients on Fixers.</p>
             <p><strong>Start getting orders:</strong></p>
             <ul>
               <li>Your gig is now searchable by clients</li>
@@ -591,7 +591,7 @@ export async function sendGigApprovalEmail(email: string, fixerName: string, gig
             </p>
             <div class="footer">
               <p>💡 Tip: Share your gig link on social media to attract more clients!</p>
-              <p>&copy; ${new Date().getFullYear()} FIXI-NG. All rights reserved.</p>
+              <p>&copy; ${new Date().getFullYear()} Fixers. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -669,7 +669,7 @@ export async function sendGigRejectionEmail(email: string, fixerName: string, gi
             </p>
             <div class="footer">
               <p>We're here to help! If you have questions, contact our support team.</p>
-              <p>&copy; ${new Date().getFullYear()} FIXI-NG. All rights reserved.</p>
+              <p>&copy; ${new Date().getFullYear()} Fixers. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -756,7 +756,7 @@ export async function sendOrderCreatedEmailToFixer(email: string, fixerName: str
             </p>
             <div class="footer">
               <p>💡 Tip: Communicate with your client to clarify any requirements!</p>
-              <p>&copy; ${new Date().getFullYear()} FIXI-NG. All rights reserved.</p>
+              <p>&copy; ${new Date().getFullYear()} Fixers. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -842,7 +842,7 @@ export async function sendOrderCreatedEmailToClient(email: string, clientName: s
             </p>
             <div class="footer">
               <p>Need help? Contact us anytime!</p>
-              <p>&copy; ${new Date().getFullYear()} FIXI-NG. All rights reserved.</p>
+              <p>&copy; ${new Date().getFullYear()} Fixers. All rights reserved.</p>
             </div>
           </div>
         </body>

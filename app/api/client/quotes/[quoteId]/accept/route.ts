@@ -137,6 +137,30 @@ export async function POST(
       });
     });
 
+    // Send quote accepted email to fixer
+    try {
+      const { sendQuoteAcceptedEmail } = await import('@/lib/emails/template-renderer');
+      const client = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { name: true },
+      });
+
+      if (quote.fixer.email && quote.fixer.emailNotifications) {
+        await sendQuoteAcceptedEmail({
+          fixerEmail: quote.fixer.email,
+          fixerName: quote.fixer.name || 'Service Provider',
+          quoteId: quote.id,
+          serviceName: quote.request.title,
+          clientName: client?.name || user.name || 'Client',
+          quoteAmount: `₦${quote.totalAmount.toLocaleString()}`,
+          quoteUrl: `${process.env.NEXT_PUBLIC_APP_URL}/fixer/quotes`,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to send quote accepted email:', error);
+      // Don't fail the request if email fails
+    }
+
     console.log(`[Quote Accepted] Quote ${quoteId} accepted by ${user.email || user.phone}`);
 
     return NextResponse.json({

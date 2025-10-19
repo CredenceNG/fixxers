@@ -7,6 +7,16 @@ import Header from '@/components/Header';
 import { PackageSelector } from './PackageSelector';
 import { MessageFixerButton } from './MessageFixerButton';
 import { TwoColumnLayout } from '@/components/ResponsiveLayout';
+import {
+  AvailableNowBadge,
+  YearsOfService,
+  ReviewCount,
+  ResponseTimeBadge,
+  JobsCompleted,
+  ServiceArea,
+} from '@/components/quick-wins/QuickWinBadges';
+import { UserBadgeShowcase } from '@/components/badges';
+import { calculateBadgeTierFromCount } from '@/lib/badges/badge-utils';
 
 export default async function GigDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -22,6 +32,16 @@ export default async function GigDetailPage({ params }: { params: Promise<{ slug
           name: true,
           profileImage: true,
           bio: true,
+          createdAt: true,
+          fixerProfile: {
+            select: {
+              averageResponseMinutes: true,
+              totalJobsCompleted: true,
+              neighbourhood: true,
+              city: true,
+              state: true,
+            },
+          },
         },
       },
       subcategory: {
@@ -48,6 +68,39 @@ export default async function GigDetailPage({ params }: { params: Promise<{ slug
   const avgRating = reviews.length > 0
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
     : null;
+
+  // Get seller's active badges and tier
+  let sellerBadges: any[] = [];
+  let sellerBadgeTier: any = null;
+  let displayBadges: any[] = [];
+
+  try {
+    sellerBadges = await prisma.badgeAssignment.findMany({
+      where: {
+        fixerId: gig.sellerId,
+        expiresAt: { gt: new Date() },
+      },
+      include: {
+        badge: true,
+      },
+      orderBy: { assignedAt: 'desc' },
+    });
+
+    // Calculate seller's badge tier
+    sellerBadgeTier = calculateBadgeTierFromCount(sellerBadges.length);
+
+    // Format badges for display component
+    displayBadges = sellerBadges.map((assignment) => ({
+      id: assignment.badge.id,
+      name: assignment.badge.name,
+      icon: assignment.badge.icon,
+      type: assignment.badge.type,
+      expiresAt: assignment.expiresAt,
+    }));
+  } catch (error) {
+    // Badge system not migrated yet, skip badge display
+    console.log('Badge system not yet migrated');
+  }
 
   // Increment impressions (in production, you'd want to do this more carefully)
   await prisma.gig.update({
@@ -123,17 +176,35 @@ export default async function GigDetailPage({ params }: { params: Promise<{ slug
               >
                 {gig.seller.name?.charAt(0).toUpperCase() || '?'}
               </div>
-              <div>
-                <div style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary }}>
-                  {gig.seller.name || 'Anonymous'}
+              <div style={{ flex: 1 }}>
+                {/* Name with Badge Showcase */}
+                <UserBadgeShowcase
+                  userName={gig.seller.name || 'Anonymous'}
+                  tier={sellerBadgeTier}
+                  badges={displayBadges}
+                  badgeCount={sellerBadges.length}
+                  variant="compact"
+                  showTier={true}
+                  showVerified={sellerBadges.length > 0}
+                  maxVisibleBadges={3}
+                />
+
+                {/* Quick Wins Badges */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginTop: '8px' }}>
+                  {'allowInstantBooking' in gig && gig.allowInstantBooking && (
+                    <AvailableNowBadge allowInstantBooking={gig.allowInstantBooking} />
+                  )}
+                  {avgRating && (
+                    <ReviewCount count={reviews.length} averageRating={parseFloat(avgRating)} />
+                  )}
+                  <YearsOfService createdAt={gig.seller.createdAt} />
+                  {gig.seller.fixerProfile?.averageResponseMinutes && (
+                    <ResponseTimeBadge averageResponseMinutes={gig.seller.fixerProfile.averageResponseMinutes} />
+                  )}
+                  {gig.seller.fixerProfile?.totalJobsCompleted && gig.seller.fixerProfile.totalJobsCompleted > 0 && (
+                    <JobsCompleted count={gig.seller.fixerProfile.totalJobsCompleted} />
+                  )}
                 </div>
-                {avgRating && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px' }}>
-                    <span style={{ color: '#F59E0B' }}>★</span>
-                    <span style={{ fontWeight: '600', color: colors.textPrimary }}>{avgRating}</span>
-                    <span style={{ color: colors.textSecondary }}>({reviews.length} reviews)</span>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -251,22 +322,36 @@ export default async function GigDetailPage({ params }: { params: Promise<{ slug
                 >
                   {gig.seller.name?.charAt(0).toUpperCase() || '?'}
                 </div>
-                <div>
+                <div style={{ flex: 1 }}>
                   <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.textPrimary, marginBottom: '8px' }}>
                     {gig.seller.name || 'Anonymous'}
                   </h3>
+
+                  {/* Quick Wins Badges */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px', alignItems: 'center' }}>
+                    {avgRating && (
+                      <ReviewCount count={reviews.length} averageRating={parseFloat(avgRating)} />
+                    )}
+                    <YearsOfService createdAt={gig.seller.createdAt} />
+                    {gig.seller.fixerProfile?.averageResponseMinutes && (
+                      <ResponseTimeBadge averageResponseMinutes={gig.seller.fixerProfile.averageResponseMinutes} />
+                    )}
+                    {gig.seller.fixerProfile?.totalJobsCompleted && gig.seller.fixerProfile.totalJobsCompleted > 0 && (
+                      <JobsCompleted count={gig.seller.fixerProfile.totalJobsCompleted} />
+                    )}
+                    {gig.seller.fixerProfile && (
+                      <ServiceArea
+                        neighbourhood={gig.seller.fixerProfile.neighbourhood}
+                        city={gig.seller.fixerProfile.city}
+                        state={gig.seller.fixerProfile.state}
+                      />
+                    )}
+                  </div>
+
                   {gig.seller.bio && (
                     <p style={{ fontSize: '14px', color: colors.textSecondary, lineHeight: '1.6' }}>
                       {gig.seller.bio}
                     </p>
-                  )}
-                  {avgRating && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '12px', fontSize: '14px' }}>
-                      <div>
-                        <span style={{ color: '#F59E0B' }}>★</span>{' '}
-                        <span style={{ fontWeight: '600' }}>{avgRating}</span> ({reviews.length})
-                      </div>
-                    </div>
                   )}
                 </div>
               </div>
