@@ -6,6 +6,11 @@ import { Decimal } from '@prisma/client/runtime/library';
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { amount, bankDetails } = await request.json();
 
     if (!amount || amount <= 0) {

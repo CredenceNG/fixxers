@@ -70,19 +70,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Filter by status
-    if (status) {
-      commissions = commissions.filter((c) => c.status === status);
-    }
+    // Note: AgentCommission doesn't have a status field, so we skip status filtering
 
-    // Calculate summary
-    const totalEarned = commissions
-      .filter((c) => c.status === 'PAID')
-      .reduce((sum, c) => sum + Number(c.amount), 0);
-
-    const totalPending = commissions
-      .filter((c) => c.status === 'PENDING')
-      .reduce((sum, c) => sum + Number(c.amount), 0);
+    // Calculate summary - use all commissions since there's no status
+    const totalEarned = commissions.reduce((sum, c) => sum + Number(c.amount), 0);
+    const totalPending = 0; // No pending status tracking
 
     return NextResponse.json({
       commissions,
