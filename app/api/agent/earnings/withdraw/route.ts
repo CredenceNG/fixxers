@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       await tx.notification.create({
         data: {
           userId: 'admin',
-          type: 'AGENT_WITHDRAWAL_REQUEST',
+          type: 'SYSTEM',
           title: 'Agent Withdrawal Request',
           message: `Agent ${agent.businessName || user.name} has requested withdrawal of ₦${amount.toLocaleString()}`,
           link: `/admin/agents/${agent.id}`,
