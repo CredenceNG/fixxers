@@ -26,8 +26,6 @@ export async function GET(request: NextRequest) {
         },
         neighborhoods: {
           orderBy: [
-            { state: 'asc' },
-            { city: 'asc' },
             { name: 'asc' },
           ],
         },

@@ -154,7 +154,7 @@ export default function SubmitQuoteForm({ requestId }: { requestId: string }) {
                   <strong>Budget:</strong> ₦{Number(request.budget).toLocaleString()}
                 </div>
                 <div>
-                  <strong>Location:</strong> {request.neighborhood.name}, {request.neighborhood.legacyCity}
+                  <strong>Location:</strong> {request.neighborhood.name}, {request.neighborhood.city.name}
                 </div>
                 <div>
                   <strong>Urgency:</strong> {request.urgency}

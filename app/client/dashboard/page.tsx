@@ -34,7 +34,24 @@ export default async function ClientDashboard() {
           category: true,
         },
       },
-      neighborhood: true,
+      neighborhood: {
+        select: {
+          id: true,
+          name: true,
+          legacyCity: true,
+          legacyState: true,
+          city: {
+            select: {
+              name: true,
+              state: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      },
       quotes: {
         include: {
           fixer: true,

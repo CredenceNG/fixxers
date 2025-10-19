@@ -28,6 +28,16 @@ export default async function AgentApplicationPage({ searchParams }: PageProps) 
         select: {
           id: true,
           name: true,
+          city: {
+            select: {
+              name: true,
+              state: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -243,7 +253,7 @@ export default async function AgentApplicationPage({ searchParams }: PageProps) 
                                 border: `1px solid ${colors.blue}`,
                               }}
                             >
-                              {neighborhood.name}, {neighborhood.city}, {neighborhood.state}
+                              {neighborhood.name}, {neighborhood.city.name}, {neighborhood.city.state.name}
                             </span>
                           ))}
                         </div>

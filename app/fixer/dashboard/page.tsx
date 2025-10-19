@@ -109,7 +109,24 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
               category: true,
             },
           },
-          neighborhood: true,
+          neighborhood: {
+            select: {
+              id: true,
+              name: true,
+              legacyCity: true,
+              legacyState: true,
+              city: {
+                select: {
+                  name: true,
+                  state: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
           quotes: {
             where: { fixerId: user.id },
           },
@@ -129,6 +146,22 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
     orderBy: { name: 'asc' },
   });
   const neighborhoods = await prisma.neighborhood.findMany({
+    select: {
+      id: true,
+      name: true,
+      legacyCity: true,
+      legacyState: true,
+      city: {
+        select: {
+          name: true,
+          state: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
     orderBy: { name: 'asc' },
   });
 
@@ -475,7 +508,7 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
                 <option value="">All Neighborhoods</option>
                 {neighborhoods.map((neighborhood) => (
                   <option key={neighborhood.id} value={neighborhood.id}>
-                    {neighborhood.name}, {neighborhood.city}
+                    {neighborhood.name}, {neighborhood.city.name}
                   </option>
                 ))}
               </select>

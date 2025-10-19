@@ -23,8 +23,12 @@ interface ServiceRequest {
   };
   neighborhood: {
     name: string;
-    city: string;
-    state: string;
+    city: {
+      name: string;
+      state: {
+        name: string;
+      };
+    };
   };
   client: {
     name?: string;
@@ -231,7 +235,7 @@ export default function FixerRequestDetailsPage({ params }: { params: Promise<{ 
               <div style={{ marginBottom: '16px' }}>
                 <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '4px' }}>Location</div>
                 <div style={{ fontSize: '15px', color: colors.textPrimary }}>
-                  {request.neighborhood.name}, {request.neighborhood.legacyCity}, {request.neighborhood.legacyState}
+                  {request.neighborhood.name}, {request.neighborhood.city.name}, {request.neighborhood.city.state.name}
                 </div>
                 {request.address && (
                   <div style={{ fontSize: '14px', color: colors.textSecondary, marginTop: '4px' }}>

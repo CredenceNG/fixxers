@@ -30,7 +30,24 @@ export async function GET(
                 category: true,
               },
             },
-            neighborhood: true,
+            neighborhood: {
+              select: {
+                id: true,
+                name: true,
+                legacyCity: true,
+                legacyState: true,
+                city: {
+                  select: {
+                    name: true,
+                    state: {
+                      select: {
+                        name: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
             client: {
               select: {
                 id: true,

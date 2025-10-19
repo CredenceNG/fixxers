@@ -26,8 +26,12 @@ interface Order {
     };
     neighborhood: {
       name: string;
-      city: string;
-      state: string;
+      city: {
+        name: string;
+        state: {
+          name: string;
+        };
+      };
     };
     client: {
       id: string;
@@ -410,7 +414,7 @@ export default function FixerOrderViewPage({ params }: { params: Promise<{ order
                   <div style={{ marginBottom: '16px' }}>
                     <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '4px' }}>Location</div>
                     <div style={{ fontSize: '15px', color: colors.textPrimary }}>
-                      {order.request.neighborhood.name}, {order.request.neighborhood.legacyCity}, {order.request.neighborhood.legacyState}
+                      {order.request.neighborhood.name}, {order.request.neighborhood.city.name}, {order.request.neighborhood.city.state.name}
                     </div>
                     {order.request.address && (
                       <div style={{ fontSize: '14px', color: colors.textSecondary, marginTop: '4px' }}>

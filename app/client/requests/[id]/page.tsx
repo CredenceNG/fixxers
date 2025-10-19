@@ -29,7 +29,24 @@ export default async function RequestDetailsPage({ params }: { params: Promise<{
           category: true,
         },
       },
-      neighborhood: true,
+      neighborhood: {
+        select: {
+          id: true,
+          name: true,
+          legacyCity: true,
+          legacyState: true,
+          city: {
+            select: {
+              name: true,
+              state: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      },
       quotes: {
         include: {
           fixer: {
@@ -96,7 +113,7 @@ export default async function RequestDetailsPage({ params }: { params: Promise<{
               <div>
                 <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '4px' }}>Location</div>
                 <div style={{ fontSize: '15px', color: colors.textPrimary }}>
-                  {request.neighborhood.name}, {request.neighborhood.legacyCity}
+                  {request.neighborhood.name}, {request.neighborhood.city.name}
                 </div>
                 {request.address && (
                   <div style={{ fontSize: '14px', color: colors.textSecondary, marginTop: '4px' }}>{request.address}</div>

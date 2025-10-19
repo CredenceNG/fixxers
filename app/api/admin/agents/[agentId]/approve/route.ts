@@ -86,8 +86,16 @@ export async function POST(
           select: {
             id: true,
             name: true,
-            city: true,
-            state: true,
+            city: {
+              select: {
+                name: true,
+                state: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
           },
         },
       },

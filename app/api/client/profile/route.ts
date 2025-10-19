@@ -68,6 +68,17 @@ export async function POST(request: NextRequest) {
     // Get neighborhood data
     const neighborhood = await prisma.neighborhood.findUnique({
       where: { id: neighbourhoodId },
+      include: {
+        city: {
+          include: {
+            state: {
+              include: {
+                country: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!neighborhood) {
@@ -86,18 +97,18 @@ export async function POST(request: NextRequest) {
       create: {
         clientId: user.id,
         neighbourhood: neighborhood.name,
-        city: neighborhood.city,
-        state: neighborhood.state,
-        country: neighborhood.country || 'Nigeria',
+        city: neighborhood.city.name,
+        state: neighborhood.city.state.name,
+        country: neighborhood.city.state.country.name || 'Nigeria',
         primaryPhone,
         secondaryPhone: secondaryPhone || null,
         alternateEmail: alternateEmail || null,
       },
       update: {
         neighbourhood: neighborhood.name,
-        city: neighborhood.city,
-        state: neighborhood.state,
-        country: neighborhood.country || 'Nigeria',
+        city: neighborhood.city.name,
+        state: neighborhood.city.state.name,
+        country: neighborhood.city.state.country.name || 'Nigeria',
         primaryPhone,
         secondaryPhone: secondaryPhone || null,
         alternateEmail: alternateEmail || null,

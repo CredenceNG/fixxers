@@ -45,7 +45,24 @@ export default async function DashboardPage() {
             category: true,
           },
         },
-        neighborhood: true,
+        neighborhood: {
+          select: {
+            id: true,
+            name: true,
+            legacyCity: true,
+            legacyState: true,
+            city: {
+              select: {
+                name: true,
+                state: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
         quotes: {
           include: {
             fixer: true,
@@ -179,7 +196,24 @@ export default async function DashboardPage() {
               category: true,
             },
           },
-          neighborhood: true,
+          neighborhood: {
+            select: {
+              id: true,
+              name: true,
+              legacyCity: true,
+              legacyState: true,
+              city: {
+                select: {
+                  name: true,
+                  state: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
           quotes: {
             where: { fixerId: user.id },
           },

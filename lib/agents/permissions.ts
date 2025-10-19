@@ -260,9 +260,21 @@ export async function getAgentNeighborhoods(agentId: string) {
         select: {
           id: true,
           name: true,
-          city: true,
-          state: true,
-          country: true,
+          city: {
+            select: {
+              name: true,
+              state: {
+                select: {
+                  name: true,
+                  country: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     },

@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { isActiveAgent } from '@/lib/agents/permissions';
 
+/**
+ * GET /api/service-requests/[id] - Get single service request for agent
+ */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -13,13 +17,17 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!user.roles?.includes('FIXER')) {
-      return NextResponse.json({ error: 'Only fixers can view requests' }, { status: 403 });
+    const isAgent = await isActiveAgent(user.id);
+    if (!isAgent) {
+      return NextResponse.json(
+        { error: 'User is not an active agent' },
+        { status: 403 }
+      );
     }
 
     const { id } = await params;
 
-    // Fetch service request
+    // Fetch service request with city relations
     const serviceRequest = await prisma.serviceRequest.findUnique({
       where: { id },
       include: {
@@ -29,11 +37,7 @@ export async function GET(
           },
         },
         neighborhood: {
-          select: {
-            id: true,
-            name: true,
-            legacyCity: true,
-            legacyState: true,
+          include: {
             city: {
               select: {
                 name: true,
@@ -61,28 +65,31 @@ export async function GET(
       return NextResponse.json({ error: 'Request not found' }, { status: 404 });
     }
 
-    // Check if fixer has already quoted
-    const existingQuote = await prisma.quote.findUnique({
-      where: {
-        requestId_fixerId: {
-          requestId: id,
-          fixerId: user.id,
+    // Verify agent has access to this territory
+    const agent = await prisma.agent.findUnique({
+      where: { userId: user.id },
+      include: {
+        territories: {
+          where: {
+            neighborhoodId: serviceRequest.neighborhoodId,
+            status: 'APPROVED',
+          },
         },
       },
     });
 
-    if (existingQuote) {
+    if (!agent || agent.territories.length === 0) {
       return NextResponse.json(
-        { error: 'You have already submitted a quote for this request' },
-        { status: 400 }
+        { error: 'Access denied - not in your approved territories' },
+        { status: 403 }
       );
     }
 
-    return NextResponse.json(serviceRequest);
+    return NextResponse.json({ request: serviceRequest });
   } catch (error) {
-    console.error('Request fetch error:', error);
+    console.error('Service request fetch error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch request' },
+      { error: 'Failed to fetch service request' },
       { status: 500 }
     );
   }
