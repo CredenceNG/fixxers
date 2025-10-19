@@ -86,7 +86,7 @@ export async function POST(
                 </a>
               </div>
               <p>You'll receive another notification when the work is completed.</p>
-              <p style="margin-top: 30px;">Best regards,<br><strong>The Fixxers Team</strong></p>
+              <p style="margin-top: 30px;">Best regards,<br><strong>The Fixers Team</strong></p>
             </div>
           `,
         });

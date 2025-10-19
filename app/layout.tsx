@@ -1,18 +1,25 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/components/Footer";
+import { headers } from "next/headers";
 
 export const metadata: Metadata = {
-  title: "FIXI-NG - Local Services Marketplace",
+  title: "Fixers - Local Services Marketplace",
   description: "Connect with trusted local service providers for home repairs and maintenance",
   viewport: "width=device-width, initial-scale=1, maximum-scale=5",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") || "";
+
+  // Hide global footer for AdminLTE dashboard routes (all admin routes use AdminLTE layout)
+  const hideFooter = pathname.startsWith("/admin/");
+
   return (
     <html lang="en">
       <body className="antialiased" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -29,7 +36,7 @@ export default function RootLayout({
         <div style={{ flex: 1 }}>
           {children}
         </div>
-        <Footer />
+        {!hideFooter && <Footer />}
       </body>
     </html>
   );

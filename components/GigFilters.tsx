@@ -23,6 +23,8 @@ export function GigFilters({ categories }: GigFiltersProps) {
   const [selectedSubcategory, setSelectedSubcategory] = useState(searchParams.get('subcategory') || '');
   const [minAmount, setMinAmount] = useState(searchParams.get('minAmount') || '');
   const [maxAmount, setMaxAmount] = useState(searchParams.get('maxAmount') || '');
+  const [selectedTier, setSelectedTier] = useState(searchParams.get('tier') || '');
+  const [verifiedOnly, setVerifiedOnly] = useState(searchParams.get('verified') === 'true');
 
   const selectedCategoryObj = categories.find(cat => cat.id === selectedCategory);
   const subcategories = selectedCategoryObj?.subcategories || [];
@@ -33,6 +35,8 @@ export function GigFilters({ categories }: GigFiltersProps) {
     if (selectedSubcategory) params.set('subcategory', selectedSubcategory);
     if (minAmount) params.set('minAmount', minAmount);
     if (maxAmount) params.set('maxAmount', maxAmount);
+    if (selectedTier) params.set('tier', selectedTier);
+    if (verifiedOnly) params.set('verified', 'true');
 
     const queryString = params.toString();
     router.push(`/gigs${queryString ? `?${queryString}` : ''}`);
@@ -43,6 +47,8 @@ export function GigFilters({ categories }: GigFiltersProps) {
     setSelectedSubcategory('');
     setMinAmount('');
     setMaxAmount('');
+    setSelectedTier('');
+    setVerifiedOnly(false);
     router.push('/gigs');
   };
 
@@ -157,6 +163,53 @@ export function GigFilters({ categories }: GigFiltersProps) {
               color: colors.textPrimary,
             }}
           />
+        </div>
+
+        {/* Badge Tier Filter */}
+        <div>
+          <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
+            Badge Tier
+          </label>
+          <select
+            value={selectedTier}
+            onChange={(e) => setSelectedTier(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              fontSize: '14px',
+              border: `1px solid ${colors.border}`,
+              borderRadius: borderRadius.md,
+              backgroundColor: colors.white,
+              color: colors.textPrimary,
+              cursor: 'pointer',
+            }}
+          >
+            <option value="">All Tiers</option>
+            <option value="PLATINUM">🥇 Platinum</option>
+            <option value="GOLD">🥇 Gold</option>
+            <option value="SILVER">🥈 Silver</option>
+            <option value="BRONZE">🥉 Bronze</option>
+          </select>
+        </div>
+
+        {/* Verified Badge Filter */}
+        <div>
+          <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
+            Trust Level
+          </label>
+          <div style={{ display: 'flex', alignItems: 'center', height: '42px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={verifiedOnly}
+                onChange={(e) => setVerifiedOnly(e.target.checked)}
+                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+              />
+              <span style={{ fontSize: '14px', color: colors.textPrimary }}>
+                ✓ Verified Only
+              </span>
+            </label>
+          </div>
         </div>
       </div>
 

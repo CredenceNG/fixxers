@@ -19,7 +19,9 @@ html {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -139,5 +141,144 @@ img {
   }
   100% {
     transform: translate(0px, 0px) scale(1);
+  }
+}
+
+/* Quick Action Links */
+.quick-action-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #222325;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.quick-action-link:hover {
+  color: #1dbf73;
+}
+
+/* Table row hover effect */
+.table-row-hover:hover {
+  background-color: #fafafa;
+}
+
+/* Badge row hover effect */
+.badge-row-hover:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Request button hover effect */
+.request-button:hover {
+  background-color: #19a463;
+  box-shadow: 0 4px 12px rgba(29, 191, 115, 0.3);
+}
+
+/* Badge row responsive styles */
+@media (max-width: 768px) {
+  .badge-row-hover {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+  }
+
+  .badge-row-hover > div:last-child {
+    width: 100% !important;
+    align-items: flex-start !important;
+  }
+}
+
+/* Form input focus styles */
+textarea:focus,
+input:focus {
+  outline: none;
+  border-color: #1dbf73;
+  box-shadow: 0 0 0 3px rgba(29, 191, 115, 0.1);
+}
+
+/* Badge submit button hover */
+.badge-submit-button:not(:disabled):hover {
+  background-color: #19a463 !important;
+  box-shadow: 0 4px 12px rgba(29, 191, 115, 0.3);
+}
+
+/* View badges link hover */
+.view-badges-link:hover {
+  background-color: #e8f7f0 !important;
+  border-color: #1dbf73 !important;
+  box-shadow: 0 4px 12px rgba(29, 191, 115, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Quick Actions Grid - Responsive */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px 24px;
+}
+
+/* Dashboard Stats Grid - Responsive */
+.dashboard-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  /* Stack Quick Actions vertically on mobile */
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  /* Stack Stats vertically on mobile */
+  .dashboard-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  /* Make quick action links more touch-friendly */
+  .quick-action-link {
+    padding: 12px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    transition: all 0.2s ease;
+  }
+
+  .quick-action-link:active {
+    background-color: #e8f7f0;
+    transform: scale(0.98);
+  }
+}
+
+/* Quote Details Responsive Layout */
+.quote-details-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .quote-details-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+/* Tablet Responsive Styles */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .quick-actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
 }

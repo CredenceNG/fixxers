@@ -105,10 +105,10 @@ export async function POST(request: NextRequest) {
       try {
         await sendEmail({
           to: recipient.email,
-          subject: `New Message from ${user.name || 'A User'} on Fixxers`,
+          subject: `New Message from ${user.name || 'A User'} on Fixers`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #1DBF73;">New Message on Fixxers</h2>
+              <h2 style="color: #1DBF73;">New Message on Fixers</h2>
               <p><strong>${user.name || user.email || 'A user'}</strong> sent you a message:</p>
               <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
                 <p style="margin: 0;">${message}</p>
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
                 </a>
               </p>
               <p style="color: #666; font-size: 12px; margin-top: 30px;">
-                This is an automated message from Fixxers. To stop receiving email notifications, please update your notification preferences in your account settings.
+                This is an automated message from Fixers. To stop receiving email notifications, please update your notification preferences in your account settings.
               </p>
             </div>
           `,
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
       try {
         await sendSMS(
           recipient.phone,
-          `New message from ${user.name || 'a user'} on Fixxers${contextTitle ? ` about "${contextTitle}"` : ''}: "${message.substring(0, 100)}${message.length > 100 ? '...' : ''}" - Reply at ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3010'}/messages`
+          `New message from ${user.name || 'a user'} on Fixers${contextTitle ? ` about "${contextTitle}"` : ''}: "${message.substring(0, 100)}${message.length > 100 ? '...' : ''}" - Reply at ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3010'}/messages`
         );
       } catch (smsError) {
         console.error('Failed to send SMS notification:', smsError);

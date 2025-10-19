@@ -18,8 +18,8 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 export async function sendMagicLinkSMS(phone: string, token: string, isRegistration = false) {
   const magicLink = `${APP_URL}/auth/verify?token=${token}`;
   const message = isRegistration
-    ? `Welcome to Fixxers! Click to complete registration: ${magicLink} (Expires in 15 min)`
-    : `Your Fixxers login link: ${magicLink} (Expires in 15 min)`;
+    ? `Welcome to Fixers! Click to complete registration: ${magicLink} (Expires in 15 min)`
+    : `Your Fixers login link: ${magicLink} (Expires in 15 min)`;
 
   // In development, just log to console
   if (process.env.NODE_ENV === 'development') {
@@ -65,7 +65,7 @@ export async function sendInvitationSMS(phone: string, invitedBy: string, role: 
 
   const magicLink = `${APP_URL}/auth/verify?token=${token}&invited=true`;
   const roleText = role === 'FIXER' ? 'service provider' : 'client';
-  const message = `${invitedBy} invited you to join Fixxers as a ${roleText}. Accept: ${magicLink} (Expires in 15 min)`;
+  const message = `${invitedBy} invited you to join Fixers as a ${roleText}. Accept: ${magicLink} (Expires in 15 min)`;
 
   try {
     await client.messages.create({

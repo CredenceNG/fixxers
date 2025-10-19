@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
 import { DashboardCard, DashboardButton, DashboardStat } from '@/components/DashboardLayout';
-import { PurseBalanceInline } from '@/components/PurseBalanceInline';
+import { FixerDashboardActions } from '@/components/FixerDashboardActions';
 import { colors, borderRadius } from '@/lib/theme';
 
 interface PageProps {
@@ -53,8 +53,9 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
     redirect('/fixer/profile');
   }
 
-  // Check if fixer is approved
-  const isApproved = user.status === 'ACTIVE';
+  // Check if fixer is approved and doesn't have pending changes
+  const hasPendingChanges = fixerProfile?.pendingChanges || false;
+  const isApproved = user.status === 'ACTIVE' && !hasPendingChanges;
 
   // Fetch fixer's services
   const services = await prisma.fixerService.findMany({
@@ -266,28 +267,7 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
     <DashboardLayoutWithHeader
       title="Fixer Dashboard"
       subtitle={`Welcome back, ${user.name || user.email || user.phone}${!isApproved ? ' (Pending Approval)' : ''}`}
-      actions={
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <PurseBalanceInline />
-          {hasCLIENTRole && (
-            <DashboardButton variant="outline" href="/client/dashboard">
-              👤 Switch to Client Mode
-            </DashboardButton>
-          )}
-          <DashboardButton variant="outline" href="/fixer/gigs">
-            📋 My Service Offers
-          </DashboardButton>
-          <DashboardButton variant="outline" href="/fixer/orders">
-            📦 My Orders
-          </DashboardButton>
-          <DashboardButton variant="outline" href="/fixer/profile">
-            Edit Profile
-          </DashboardButton>
-          <DashboardButton href="/fixer/services">
-            My Services
-          </DashboardButton>
-        </div>
-      }
+      actions={<FixerDashboardActions hasCLIENTRole={hasCLIENTRole} />}
     >
       {/* Approval Status Banner */}
       {!isApproved && (
@@ -303,8 +283,13 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
         }}>
           <span style={{ fontSize: '24px', flexShrink: 0 }}>⚠️</span>
           <div>
-            <p style={{ fontSize: '15px', color: colors.textPrimary, lineHeight: '1.5' }}>
-              Your account is pending admin approval. You'll be able to view and respond to service requests once approved.
+            <p style={{ fontSize: '16px', color: colors.textPrimary, fontWeight: '600', marginBottom: '8px' }}>
+              {hasPendingChanges ? 'Profile Changes Under Review' : 'Account Pending Approval'}
+            </p>
+            <p style={{ fontSize: '15px', color: colors.textPrimary, lineHeight: '1.5', margin: 0 }}>
+              {hasPendingChanges
+                ? 'Your recent profile updates are under admin review. You cannot respond to service requests or post new gigs until the changes are approved.'
+                : 'Your account is pending admin approval. You\'ll be able to view and respond to service requests once approved.'}
             </p>
           </div>
         </div>

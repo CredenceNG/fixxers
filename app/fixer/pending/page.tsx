@@ -26,7 +26,7 @@ export default async function FixerPendingPage() {
           Application Under Review
         </h1>
         <p style={{ fontSize: '16px', color: colors.textSecondary, lineHeight: '1.6', marginBottom: '24px' }}>
-          Thank you for applying to become a service provider on Fixxers! Your application is currently being reviewed by our admin team.
+          Thank you for applying to become a service provider on Fixers! Your application is currently being reviewed by our admin team.
         </p>
         <p style={{ fontSize: '16px', color: colors.textSecondary, lineHeight: '1.6', marginBottom: '32px' }}>
           We'll notify you via {user.email ? 'email' : 'SMS'} once your application has been approved. This typically takes 1-2 business days.

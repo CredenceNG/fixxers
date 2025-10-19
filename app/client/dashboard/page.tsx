@@ -4,9 +4,10 @@ import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
 import { DashboardCard, DashboardButton, DashboardStat } from '@/components/DashboardLayout';
-import { PurseBalanceInline } from '@/components/PurseBalanceInline';
+import { ClientDashboardActions } from '@/components/ClientDashboardActions';
 import { colors, borderRadius } from '@/lib/theme';
 import { CancelButton } from './CancelButton';
+import { UpgradeSuccessMessage } from './UpgradeSuccessMessage';
 
 export default async function ClientDashboard() {
   const user = await getCurrentUser();
@@ -134,23 +135,11 @@ export default async function ClientDashboard() {
     <DashboardLayoutWithHeader
       title="Client Dashboard"
       subtitle={`Welcome back, ${user.name || user.email || user.phone}`}
-      actions={
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <PurseBalanceInline />
-          {hasFIXERRole && (
-            <DashboardButton variant="outline" href="/fixer/dashboard">
-              🔧 Switch to Fixer Mode
-            </DashboardButton>
-          )}
-          <DashboardButton variant="outline" href="/client/profile">
-            Edit Profile
-          </DashboardButton>
-          <DashboardButton href="/client/requests/new">
-            + New Request
-          </DashboardButton>
-        </div>
-      }
+      actions={<ClientDashboardActions hasFIXERRole={hasFIXERRole} />}
     >
+      {/* Upgrade Success Message */}
+      <UpgradeSuccessMessage />
+
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '32px' }}>
         <DashboardStat label="Total Requests" value={stats.totalRequests} icon="📋" />

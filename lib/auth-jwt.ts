@@ -11,6 +11,8 @@ export interface JWTPayload {
   hasProfile?: boolean;
   hasFixerProfile?: boolean;
   hasClientProfile?: boolean;
+  hasAgentProfile?: boolean;
+  agentStatus?: string;
 }
 
 /**

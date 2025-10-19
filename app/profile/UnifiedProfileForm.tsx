@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { styles, colors, borderRadius } from '@/lib/theme';
 import { FormGrid } from '@/components/ResponsiveLayout';
+import LocationCascadeSelect from '@/components/LocationCascadeSelect';
 
 interface Neighborhood {
   id: string;
@@ -61,44 +62,8 @@ export default function UnifiedProfileForm({
     streetAddress: existingData.streetAddress || '',
   });
 
-  // Location state
-  const [selectedCountry, setSelectedCountry] = useState(existingData.country || '');
-  const [selectedState, setSelectedState] = useState(existingData.state || '');
-  const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState('');
-
-  // Service state (for FIXER role)
-  const [selectedCategories, setSelectedCategories] = useState<{ categoryId: string; subcategoryIds: string[] }[]>([]);
-  const [selectedServiceNeighborhoods, setSelectedServiceNeighborhoods] = useState<string[]>([]);
-
-  // Find neighborhood ID from existing data
-  useEffect(() => {
-    if (existingData.neighbourhood && existingData.city && existingData.state) {
-      const neighborhood = neighborhoods.find(
-        (n) =>
-          n.name === existingData.neighbourhood &&
-          n.city === existingData.city &&
-          n.state === existingData.state
-      );
-      if (neighborhood) {
-        setSelectedNeighborhoodId(neighborhood.id);
-      }
-    }
-  }, [existingData, neighborhoods]);
-
-  const countries = Array.from(new Set(neighborhoods.map((n) => n.country || 'Nigeria')));
-  const states = selectedCountry
-    ? Array.from(
-        new Set(
-          neighborhoods.filter((n) => (n.country || 'Nigeria') === selectedCountry).map((n) => n.state)
-        )
-      ).sort()
-    : [];
-
-  const filteredNeighborhoods = neighborhoods.filter((n) => {
-    const matchesCountry = !selectedCountry || (n.country || 'Nigeria') === selectedCountry;
-    const matchesState = !selectedState || n.state === selectedState;
-    return matchesCountry && matchesState;
-  });
+  // Location state - use neighborhoodId from API response if available
+  const [neighborhoodId, setNeighborhoodId] = useState(existingData.neighborhoodId || '');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -110,7 +75,7 @@ export default function UnifiedProfileForm({
     setError('');
 
     // Validation
-    if (!formData.name || !formData.primaryPhone || !selectedNeighborhoodId) {
+    if (!formData.name || !formData.primaryPhone || !neighborhoodId) {
       setError('Please fill in all required fields (Name, Primary Phone, Location)');
       setLoading(false);
       return;
@@ -122,7 +87,7 @@ export default function UnifiedProfileForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          neighbourhoodId: selectedNeighborhoodId,
+          neighbourhoodId: neighborhoodId,
           roles: user.roles,
         }),
       });
@@ -219,25 +184,43 @@ export default function UnifiedProfileForm({
             }}
           >
             <h1 style={{ ...styles.headerTitle, margin: 0 }}>Complete Your Profile</h1>
-            <button
-              type="button"
-              onClick={async () => {
-                await fetch('/api/auth/logout', { method: 'POST' });
-                window.location.href = '/';
-              }}
-              style={{
-                padding: '8px 16px',
-                fontSize: '14px',
-                color: '#DC2626',
-                backgroundColor: 'transparent',
-                border: '1px solid #DC2626',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: '600',
-              }}
-            >
-              Logout
-            </button>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={() => router.push('/dashboard')}
+                style={{
+                  padding: '8px 16px',
+                  fontSize: '14px',
+                  color: colors.textSecondary,
+                  backgroundColor: 'transparent',
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                }}
+              >
+                Skip
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  await fetch('/api/auth/logout', { method: 'POST' });
+                  window.location.href = '/';
+                }}
+                style={{
+                  padding: '8px 16px',
+                  fontSize: '14px',
+                  color: '#DC2626',
+                  backgroundColor: 'transparent',
+                  border: '1px solid #DC2626',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                }}
+              >
+                Logout
+              </button>
+            </div>
           </div>
 
           <p style={{ fontSize: '15px', color: colors.textSecondary, marginBottom: '32px' }}>
@@ -424,123 +407,14 @@ export default function UnifiedProfileForm({
                 Location
               </h2>
 
-              {/* Country and State */}
-              <FormGrid>
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: colors.textPrimary,
-                      marginBottom: '8px',
-                    }}
-                  >
-                    Country <span style={{ color: colors.error }}>*</span>
-                  </label>
-                  <select
-                    value={selectedCountry}
-                    onChange={(e) => {
-                      setSelectedCountry(e.target.value);
-                      setSelectedState('');
-                      setSelectedNeighborhoodId('');
-                    }}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      fontSize: '15px',
-                      border: '2px solid #E4E6EB',
-                      borderRadius: '12px',
-                      outline: 'none',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <option value="">Select country</option>
-                    {countries.map((country) => (
-                      <option key={country} value={country}>
-                        {country}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: colors.textPrimary,
-                      marginBottom: '8px',
-                    }}
-                  >
-                    State <span style={{ color: colors.error }}>*</span>
-                  </label>
-                  <select
-                    value={selectedState}
-                    onChange={(e) => {
-                      setSelectedState(e.target.value);
-                      setSelectedNeighborhoodId('');
-                    }}
-                    required
-                    disabled={!selectedCountry}
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      fontSize: '15px',
-                      border: '2px solid #E4E6EB',
-                      borderRadius: '12px',
-                      outline: 'none',
-                      backgroundColor: !selectedCountry ? '#F9FAFB' : 'white',
-                      cursor: !selectedCountry ? 'not-allowed' : 'pointer',
-                    }}
-                  >
-                    <option value="">Select state</option>
-                    {states.map((state) => (
-                      <option key={state} value={state}>
-                        {state}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </FormGrid>
-
-              {/* Neighbourhood */}
+              {/* Location Cascade Select */}
               <div style={{ marginBottom: '24px' }}>
-                <label
-                  style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: colors.textPrimary,
-                    marginBottom: '8px',
-                  }}
-                >
-                  Neighbourhood <span style={{ color: colors.error }}>*</span>
-                </label>
-                <select
-                  value={selectedNeighborhoodId}
-                  onChange={(e) => setSelectedNeighborhoodId(e.target.value)}
+                <LocationCascadeSelect
+                  value={neighborhoodId}
+                  onChange={setNeighborhoodId}
                   required
-                  disabled={!selectedState}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    fontSize: '15px',
-                    border: '2px solid #E4E6EB',
-                    borderRadius: '12px',
-                    outline: 'none',
-                    backgroundColor: !selectedState ? '#F9FAFB' : 'white',
-                    cursor: !selectedState ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  <option value="">Select neighbourhood</option>
-                  {filteredNeighborhoods.map((nb) => (
-                    <option key={nb.id} value={nb.id}>
-                      {nb.name}, {nb.city}
-                    </option>
-                  ))}
-                </select>
+                  label=""
+                />
               </div>
 
               {/* Street Address */}

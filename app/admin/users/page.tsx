@@ -2,8 +2,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
-import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
-import { DashboardCard, DashboardButton } from '@/components/DashboardLayout';
+import AdminDashboardWrapper from '@/components/layouts/AdminDashboardWrapper';
 import { colors, borderRadius } from '@/lib/theme';
 import { SearchForm } from './SearchForm';
 
@@ -18,6 +17,30 @@ export default async function UsersPage({ searchParams }: PageProps) {
   if (!user || !roles.includes('ADMIN')) {
     redirect('/auth/login');
   }
+
+  // Fetch pending counts for AdminDashboardWrapper
+  const prismaAny = prisma as any;
+  const pendingBadgeRequests = await prismaAny.badgeRequest.count({
+    where: {
+      status: {
+        in: ['PENDING', 'PAYMENT_RECEIVED', 'UNDER_REVIEW'],
+      },
+    },
+  });
+
+  const pendingAgentApplications = await prismaAny.agent.count({
+    where: {
+      status: 'PENDING',
+    },
+  });
+
+  const pendingReports = await prismaAny.reviewReport.count({
+    where: {
+      status: {
+        in: ['PENDING', 'REVIEWING'],
+      },
+    },
+  });
 
   // Await searchParams
   const params = await searchParams;
@@ -53,8 +76,26 @@ export default async function UsersPage({ searchParams }: PageProps) {
       }
     : {};
 
-  // Build status filter
-  const statusWhereFilter = statusFilter ? { status: statusFilter as any } : {};
+  // Build status filter - handle special case for PENDING fixers
+  let statusWhereFilter: any = {};
+  if (statusFilter === 'PENDING' && roleFilter === 'FIXER') {
+    // Match the dashboard query: PENDING status OR pendingChanges in fixerProfile
+    statusWhereFilter = {
+      OR: [
+        { status: 'PENDING' },
+        {
+          fixerProfile: {
+            isNot: null,
+            is: {
+              pendingChanges: true,
+            },
+          },
+        },
+      ],
+    };
+  } else if (statusFilter) {
+    statusWhereFilter = { status: statusFilter as any };
+  }
 
   // Build role filter
   let roleWhereFilter = {};
@@ -101,6 +142,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
         select: {
           id: true,
           yearsOfService: true,
+          pendingChanges: true,
         },
       },
     },
@@ -151,73 +193,99 @@ export default async function UsersPage({ searchParams }: PageProps) {
   };
 
   return (
-    <DashboardLayoutWithHeader
-      title="User Management"
-      subtitle="View and manage all platform users"
-      actions={
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <SearchForm />
-          <DashboardButton variant="outline" href="/admin/dashboard">
-            Back to Dashboard
-          </DashboardButton>
-        </div>
-      }
+    <AdminDashboardWrapper
+      userName={user.name || user.email || 'Admin'}
+      userAvatar={user.avatar || undefined}
+      pendingBadgeRequests={pendingBadgeRequests}
+      pendingAgentApplications={pendingAgentApplications}
+      pendingReports={pendingReports}
     >
+      {/* Page Header */}
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary, margin: 0 }}>
+            User Management
+          </h1>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <SearchForm />
+            <Link
+              href="/admin/dashboard"
+              style={{
+                padding: '10px 20px',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: colors.textPrimary,
+                backgroundColor: colors.white,
+                border: `2px solid ${colors.border}`,
+                borderRadius: borderRadius.md,
+                textDecoration: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              Back to Dashboard
+            </Link>
+          </div>
+        </div>
+        <p style={{ fontSize: '14px', color: colors.textSecondary, margin: 0 }}>
+          View and manage all platform users
+        </p>
+      </div>
+
       {/* Stats Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-        <DashboardCard padding="20px">
+        <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: '20px', border: `1px solid ${colors.border}` }}>
           <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600', letterSpacing: '0.5px' }}>
             Total Users
           </div>
           <div style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary, lineHeight: '1' }}>
             {totalUsers}
           </div>
-        </DashboardCard>
+        </div>
 
-        <DashboardCard padding="20px">
+        <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: '20px', border: `1px solid ${colors.border}` }}>
           <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600', letterSpacing: '0.5px' }}>
             Clients
           </div>
           <div style={{ fontSize: '32px', fontWeight: '700', color: colors.primary, lineHeight: '1' }}>
             {totalClients}
           </div>
-        </DashboardCard>
+        </div>
 
-        <DashboardCard padding="20px">
+        <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: '20px', border: `1px solid ${colors.border}` }}>
           <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600', letterSpacing: '0.5px' }}>
             Fixers
           </div>
           <div style={{ fontSize: '32px', fontWeight: '700', color: colors.primary, lineHeight: '1' }}>
             {totalFixers}
           </div>
-        </DashboardCard>
+        </div>
 
-        <DashboardCard padding="20px">
+        <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: '20px', border: `1px solid ${colors.border}` }}>
           <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600', letterSpacing: '0.5px' }}>
             Active
           </div>
           <div style={{ fontSize: '32px', fontWeight: '700', color: colors.success, lineHeight: '1' }}>
             {activeUsers}
           </div>
-        </DashboardCard>
+        </div>
 
-        <DashboardCard padding="20px">
+        <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: '20px', border: `1px solid ${colors.border}` }}>
           <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600', letterSpacing: '0.5px' }}>
             Pending
           </div>
           <div style={{ fontSize: '32px', fontWeight: '700', color: colors.warningDark, lineHeight: '1' }}>
             {pendingUsers}
           </div>
-        </DashboardCard>
+        </div>
 
-        <DashboardCard padding="20px">
+        <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: '20px', border: `1px solid ${colors.border}` }}>
           <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600', letterSpacing: '0.5px' }}>
             Suspended
           </div>
           <div style={{ fontSize: '32px', fontWeight: '700', color: colors.error, lineHeight: '1' }}>
             {suspendedUsers}
           </div>
-        </DashboardCard>
+        </div>
       </div>
 
       {/* Role Filter Buttons */}
@@ -395,7 +463,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
       </div>
 
       {/* Users Table */}
-      <DashboardCard padding="0">
+      <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: '0', border: `1px solid ${colors.border}` }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
@@ -471,10 +539,10 @@ export default async function UsersPage({ searchParams }: PageProps) {
                         fontSize: '12px',
                         borderRadius: '6px',
                         fontWeight: '600',
-                        ...getStatusBadgeColor(u.status),
+                        ...getStatusBadgeColor(u.fixerProfile?.pendingChanges ? 'PENDING' : u.status),
                       }}
                     >
-                      {u.status}
+                      {u.fixerProfile?.pendingChanges ? 'PENDING REVIEW' : u.status}
                     </span>
                   </td>
                   <td style={{ padding: '16px 20px', fontSize: '13px', color: colors.textSecondary }}>
@@ -518,7 +586,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
             No users found
           </div>
         )}
-      </DashboardCard>
+      </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
@@ -588,6 +656,6 @@ export default async function UsersPage({ searchParams }: PageProps) {
       <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '14px', color: colors.textSecondary }}>
         Showing {skip + 1} to {Math.min(skip + perPage, totalCount)} of {totalCount} users
       </div>
-    </DashboardLayoutWithHeader>
+    </AdminDashboardWrapper>
   );
 }

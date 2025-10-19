@@ -2,10 +2,8 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
-import { DashboardCard } from '@/components/DashboardLayout';
+import AdminDashboardWrapper from '@/components/layouts/AdminDashboardWrapper';
 import { colors, borderRadius } from '@/lib/theme';
-import { ApproveRejectButtons } from './ApproveRejectButtons';
 
 export default async function AdminRequestsPage({
   searchParams,
@@ -18,6 +16,31 @@ export default async function AdminRequestsPage({
   if (!user || !roles.includes('ADMIN')) {
     redirect('/auth/login');
   }
+
+  // Fetch pending counts for AdminDashboardWrapper
+  const prismaAny = prisma as any;
+
+  const [pendingBadgeRequests, pendingAgentApplications, pendingReports] = await Promise.all([
+    prismaAny.badgeRequest?.count({
+      where: {
+        status: {
+          in: ['PENDING', 'PAYMENT_RECEIVED', 'UNDER_REVIEW'],
+        },
+      },
+    }) ?? 0,
+    prismaAny.agent?.count({
+      where: {
+        status: 'PENDING',
+      },
+    }) ?? 0,
+    prismaAny.reviewReport?.count({
+      where: {
+        status: {
+          in: ['PENDING', 'REVIEWING'],
+        },
+      },
+    }) ?? 0,
+  ]);
 
   // Pagination setup
   const resolvedParams = await searchParams;
@@ -73,10 +96,10 @@ export default async function AdminRequestsPage({
   const getStatusBadge = (status: string) => {
     const styles: Record<string, any> = {
       PENDING: { bg: '#FEF5E7', color: '#95620D' },
-      APPROVED: { bg: colors.successLight, color: colors.success },
+      APPROVED: { bg: '#D5F5E3', color: '#186A3B' },
       QUOTED: { bg: '#E8F4F8', color: '#2952A3' },
       ACCEPTED: { bg: colors.primaryLight, color: colors.primaryDark },
-      CANCELLED: { bg: colors.errorLight, color: colors.error },
+      CANCELLED: { bg: '#FDEDEC', color: '#922B21' },
     };
 
     const style = styles[status] || styles.PENDING;
@@ -102,48 +125,86 @@ export default async function AdminRequestsPage({
   const completedRequests = serviceRequests.filter(r => ['ACCEPTED', 'CANCELLED'].includes(r.status));
 
   return (
-    <DashboardLayoutWithHeader
-      title="Service Requests"
-      subtitle="Review and manage client service requests"
+    <AdminDashboardWrapper
+      userName={user.name || undefined}
+      userAvatar={user.profileImage || undefined}
+      pendingBadgeRequests={pendingBadgeRequests}
+      pendingAgentApplications={pendingAgentApplications}
+      pendingReports={pendingReports}
     >
+      {/* Page Header */}
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary, marginBottom: '8px' }}>
+          Service Requests
+        </h1>
+        <p style={{ fontSize: '14px', color: colors.textSecondary }}>
+          Review and manage client service requests
+        </p>
+      </div>
+
       {/* Summary Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '32px' }}>
-        <DashboardCard padding="24px">
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: borderRadius.lg,
+          padding: '24px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        }}>
           <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
             Pending
           </p>
-          <p style={{ fontSize: '32px', fontWeight: '700', color: colors.warning }}>
+          <p style={{ fontSize: '32px', fontWeight: '700', color: '#ffc107' }}>
             {pendingRequests.length}
           </p>
-        </DashboardCard>
-        <DashboardCard padding="24px">
+        </div>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: borderRadius.lg,
+          padding: '24px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        }}>
           <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
             Active
           </p>
           <p style={{ fontSize: '32px', fontWeight: '700', color: colors.primary }}>
             {activeRequests.length}
           </p>
-        </DashboardCard>
-        <DashboardCard padding="24px">
+        </div>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: borderRadius.lg,
+          padding: '24px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        }}>
           <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
             Completed
           </p>
-          <p style={{ fontSize: '32px', fontWeight: '700', color: colors.success }}>
+          <p style={{ fontSize: '32px', fontWeight: '700', color: '#28a745' }}>
             {completedRequests.length}
           </p>
-        </DashboardCard>
-        <DashboardCard padding="24px">
+        </div>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: borderRadius.lg,
+          padding: '24px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        }}>
           <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
             Total
           </p>
           <p style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>
             {serviceRequests.length}
           </p>
-        </DashboardCard>
+        </div>
       </div>
 
       {/* Service Requests Table */}
-      <DashboardCard>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: borderRadius.lg,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        padding: '24px',
+      }}>
         {serviceRequests.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px', color: colors.textSecondary }}>
             <p style={{ fontSize: '16px', marginBottom: '8px' }}>No service requests</p>
@@ -314,7 +375,7 @@ export default async function AdminRequestsPage({
             )}
           </div>
         )}
-      </DashboardCard>
-    </DashboardLayoutWithHeader>
+      </div>
+    </AdminDashboardWrapper>
   );
 }

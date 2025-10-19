@@ -20,7 +20,7 @@ interface MobileHeaderProps {
   } | null;
 }
 
-export default function MobileHeader({ user }: MobileHeaderProps) {
+export default function MobileHeader({ user, isAgent = false, agentStatus = null }: MobileHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -51,16 +51,17 @@ export default function MobileHeader({ user }: MobileHeaderProps) {
         <Link
           href="/"
           style={{
-            fontSize: '22px',
+            fontSize: '48px',
             fontWeight: '700',
-            color: colors.textPrimary,
+            color: colors.primary,
             textDecoration: 'none',
             display: 'flex',
             alignItems: 'center',
+            lineHeight: '1.2',
           }}
           onClick={closeMenu}
         >
-          <span style={{ color: colors.primary }}>FIXI-NG</span>
+          fixers
         </Link>
 
         {/* Desktop Navigation */}
@@ -124,6 +125,35 @@ export default function MobileHeader({ user }: MobileHeaderProps) {
                   }}
                 >
                   Browse Services
+                </Link>
+              )}
+              {isAgent ? (
+                <Link
+                  href="/agent/dashboard"
+                  style={{
+                    padding: '10px 20px',
+                    color: colors.primary,
+                    fontWeight: '600',
+                    fontSize: '15px',
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Agent Portal
+                </Link>
+              ) : !user?.roles?.includes('ADMIN') && (
+                <Link
+                  href="/agent/application"
+                  style={{
+                    padding: '10px 20px',
+                    color: colors.textPrimary,
+                    fontWeight: '600',
+                    fontSize: '15px',
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Become an Agent
                 </Link>
               )}
               <NotificationBell />
@@ -259,6 +289,39 @@ export default function MobileHeader({ user }: MobileHeaderProps) {
                   onClick={closeMenu}
                 >
                   Browse Services
+                </Link>
+              )}
+              {isAgent ? (
+                <Link
+                  href="/agent/dashboard"
+                  style={{
+                    padding: '12px 16px',
+                    color: colors.white,
+                    fontWeight: '600',
+                    fontSize: '16px',
+                    textDecoration: 'none',
+                    borderRadius: borderRadius.md,
+                    backgroundColor: colors.primary,
+                  }}
+                  onClick={closeMenu}
+                >
+                  Agent Portal
+                </Link>
+              ) : !user?.roles?.includes('ADMIN') && (
+                <Link
+                  href="/agent/application"
+                  style={{
+                    padding: '12px 16px',
+                    color: colors.textPrimary,
+                    fontWeight: '600',
+                    fontSize: '16px',
+                    textDecoration: 'none',
+                    borderRadius: borderRadius.md,
+                    backgroundColor: colors.bgSecondary,
+                  }}
+                  onClick={closeMenu}
+                >
+                  Become an Agent
                 </Link>
               )}
               <div style={{ padding: '8px 0', borderTop: `1px solid ${colors.border}`, marginTop: '4px', paddingTop: '12px' }}>

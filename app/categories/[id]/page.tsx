@@ -4,6 +4,13 @@ import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import { colors, borderRadius, typography } from '@/lib/theme';
+import {
+  YearsOfService,
+  ReviewCount,
+  ResponseTimeBadge,
+  JobsCompleted,
+  ServiceArea,
+} from '@/components/quick-wins/QuickWinBadges';
 
 export default async function CategoryPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
@@ -24,6 +31,15 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
                   id: true,
                   name: true,
                   profileImage: true,
+                  createdAt: true,
+                  fixerProfile: {
+                    select: {
+                      averageResponseMinutes: true,
+                      totalJobsCompleted: true,
+                      neighbourhood: true,
+                      city: true,
+                    },
+                  },
                 },
               },
               packages: {
@@ -198,7 +214,26 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
                             <span style={{ fontSize: '14px', color: colors.textSecondary }}>New service</span>
                           )}
                         </div>
-                        <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: '12px' }}>
+
+                        {/* Quick Wins Badges */}
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px', minHeight: '24px' }}>
+                          {gig.seller.createdAt && <YearsOfService createdAt={gig.seller.createdAt} />}
+                          {rating && rating.count > 0 && (
+                            <ReviewCount count={rating.count} averageRating={rating.avg} />
+                          )}
+                          {gig.seller.fixerProfile?.averageResponseMinutes && (
+                            <ResponseTimeBadge averageResponseMinutes={gig.seller.fixerProfile.averageResponseMinutes} />
+                          )}
+                          {gig.seller.fixerProfile?.totalJobsCompleted !== undefined && gig.seller.fixerProfile.totalJobsCompleted > 0 && (
+                            <JobsCompleted count={gig.seller.fixerProfile.totalJobsCompleted} />
+                          )}
+                          {gig.seller.fixerProfile?.neighbourhood && gig.seller.fixerProfile?.city && (
+                            <ServiceArea
+                              neighbourhood={gig.seller.fixerProfile.neighbourhood}
+                              city={gig.seller.fixerProfile.city}
+                            />
+                          )}
+                        </div>                        <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: '12px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <span style={{ fontSize: '12px', color: colors.textSecondary, textTransform: 'uppercase' }}>
                               Starting at

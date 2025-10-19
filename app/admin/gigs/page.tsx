@@ -2,8 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
-import { DashboardCard } from '@/components/DashboardLayout';
+import AdminDashboardWrapper from '@/components/layouts/AdminDashboardWrapper';
 import { colors, borderRadius } from '@/lib/theme';
 
 export default async function AdminGigsPage({
@@ -18,6 +17,31 @@ export default async function AdminGigsPage({
   if (!user || !roles.includes('ADMIN')) {
     redirect('/auth/login');
   }
+
+  // Fetch pending counts for AdminDashboardWrapper
+  const prismaAny = prisma as any;
+
+  const [pendingBadgeRequests, pendingAgentApplications, pendingReports] = await Promise.all([
+    prismaAny.badgeRequest?.count({
+      where: {
+        status: {
+          in: ['PENDING', 'PAYMENT_RECEIVED', 'UNDER_REVIEW'],
+        },
+      },
+    }) ?? 0,
+    prismaAny.agent?.count({
+      where: {
+        status: 'PENDING',
+      },
+    }) ?? 0,
+    prismaAny.reviewReport?.count({
+      where: {
+        status: {
+          in: ['PENDING', 'REVIEWING'],
+        },
+      },
+    }) ?? 0,
+  ]);
 
   // Pagination setup
   const resolvedParams = await searchParams;
@@ -97,10 +121,23 @@ export default async function AdminGigsPage({
   };
 
   return (
-    <DashboardLayoutWithHeader
-      title="Service Offers / Gigs"
-      subtitle={`Manage all service offers on the platform (${totalCount} total)`}
+    <AdminDashboardWrapper
+      userName={user.name || undefined}
+      userAvatar={user.profileImage || undefined}
+      pendingBadgeRequests={pendingBadgeRequests}
+      pendingAgentApplications={pendingAgentApplications}
+      pendingReports={pendingReports}
     >
+      {/* Page Header */}
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary, marginBottom: '8px' }}>
+          Service Offers / Gigs
+        </h1>
+        <p style={{ fontSize: '14px', color: colors.textSecondary }}>
+          Manage all service offers on the platform ({totalCount} total)
+        </p>
+      </div>
+
       {/* Filter tabs */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
         <Link
@@ -165,7 +202,12 @@ export default async function AdminGigsPage({
         </Link>
       </div>
 
-      <DashboardCard padding="0">
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: borderRadius.lg,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        padding: '0',
+      }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
             <thead>
@@ -315,7 +357,7 @@ export default async function AdminGigsPage({
             )}
           </div>
         )}
-      </DashboardCard>
-    </DashboardLayoutWithHeader>
+      </div>
+    </AdminDashboardWrapper>
   );
 }

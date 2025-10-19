@@ -105,7 +105,7 @@ export async function POST(
                   Review & Pay
                 </a>
               </div>
-              <p style="margin-top: 30px;">Best regards,<br><strong>The Fixxers Team</strong></p>
+              <p style="margin-top: 30px;">Best regards,<br><strong>The Fixers Team</strong></p>
             </div>
           `,
         });

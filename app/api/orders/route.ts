@@ -132,34 +132,27 @@ export async function POST(request: NextRequest) {
 
     // Send notifications to both parties
     try {
-      const { sendOrderCreatedEmailToFixer, sendOrderCreatedEmailToClient } = await import('@/lib/email');
+      const { sendOrderConfirmationEmail } = await import('@/lib/emails/template-renderer');
 
-      // Notify fixer
-      if (gig.seller.email && gig.seller.emailNotifications) {
-        await sendOrderCreatedEmailToFixer(
-          gig.seller.email,
-          gig.seller.name || 'Service Provider',
-          user.name || 'Client',
-          gig.title,
-          selectedPackage.price,
-          order.id,
-          true // isGigOrder
-        );
-      }
-
-      // Notify client
+      // Notify client with order confirmation
       if (fullUser.email && fullUser.emailNotifications) {
-        await sendOrderCreatedEmailToClient(
-          fullUser.email,
-          fullUser.name || 'Client',
-          gig.seller.name || 'Service Provider',
-          gig.title,
-          selectedPackage.price,
-          order.id
-        );
+        await sendOrderConfirmationEmail({
+          clientEmail: fullUser.email,
+          clientName: fullUser.name || 'Client',
+          orderNumber: order.id,
+          serviceName: gig.title,
+          fixerName: gig.seller.name || 'Service Provider',
+          totalAmount: `₦${selectedPackage.price.toLocaleString()}`,
+          deliveryDate: deliveryDate.toLocaleDateString('en-NG', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          }),
+          orderUrl: `${process.env.NEXT_PUBLIC_APP_URL}/client/orders/${order.id}`,
+        });
       }
     } catch (error) {
-      console.error('Failed to send order notification emails:', error);
+      console.error('Failed to send order confirmation email:', error);
       // Don't fail the order creation if emails fail
     }
 

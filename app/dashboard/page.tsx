@@ -169,24 +169,24 @@ export default async function DashboardPage() {
 
     const availableRequests = isApproved
       ? await prisma.serviceRequest.findMany({
-          where: {
-            status: 'APPROVED',
-          },
-          include: {
-            client: true,
-            subcategory: {
-              include: {
-                category: true,
-              },
-            },
-            neighborhood: true,
-            quotes: {
-              where: { fixerId: user.id },
+        where: {
+          status: 'APPROVED',
+        },
+        include: {
+          client: true,
+          subcategory: {
+            include: {
+              category: true,
             },
           },
-          orderBy: { createdAt: 'desc' },
-          take: 20,
-        })
+          neighborhood: true,
+          quotes: {
+            where: { fixerId: user.id },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+      })
       : [];
 
     const inspectionQuotes = await prisma.quote.findMany({
@@ -348,6 +348,12 @@ export default async function DashboardPage() {
               </DashboardButton>
             </>
           )}
+          <DashboardButton variant="outline" href="/settings">
+            ⚙️ Settings
+          </DashboardButton>
+          <DashboardButton variant="outline" href="/settings/referral">
+            🎁 Referrals
+          </DashboardButton>
         </div>
       }
     >

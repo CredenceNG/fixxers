@@ -2,9 +2,8 @@ import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
-import { DashboardCard, DashboardButton } from '@/components/DashboardLayout';
-import { colors, borderRadius } from '@/lib/theme';
+import AdminDashboardWrapper from '@/components/layouts/AdminDashboardWrapper';
+import { colors, borderRadius, shadows } from '@/lib/theme';
 import { RequestActionButtons } from './RequestActionButtons';
 
 export default async function AdminRequestDetailPage({
@@ -20,6 +19,38 @@ export default async function AdminRequestDetailPage({
   }
 
   const { requestId } = await params;
+
+  const prismaAny = prisma as any;
+
+  // Fetch pending counts for AdminDashboardWrapper
+  const [pendingBadgeRequests, pendingAgentApplications, pendingReports, activeDisputes] = await Promise.all([
+    prismaAny.badgeRequest?.count({
+      where: {
+        status: {
+          in: ['PENDING', 'PAYMENT_RECEIVED', 'UNDER_REVIEW'],
+        },
+      },
+    }) ?? 0,
+    prismaAny.agent?.count({
+      where: {
+        status: 'PENDING',
+      },
+    }) ?? 0,
+    prismaAny.reviewReport?.count({
+      where: {
+        status: {
+          in: ['PENDING', 'REVIEWING'],
+        },
+      },
+    }) ?? 0,
+    prisma.dispute?.count({
+      where: {
+        status: {
+          in: ['OPEN', 'UNDER_REVIEW', 'ESCALATED'],
+        },
+      },
+    }) ?? 0,
+  ]);
 
   // Fetch the service request
   const request = await prisma.serviceRequest.findUnique({
@@ -98,20 +129,49 @@ export default async function AdminRequestDetailPage({
   };
 
   return (
-    <DashboardLayoutWithHeader
-      title={`Request #${request.id.slice(-8).toUpperCase()}`}
-      subtitle="Review and manage service request"
-      actions={
-        <Link href="/admin/requests">
-          <DashboardButton variant="outline">← Back to Requests</DashboardButton>
-        </Link>
-      }
+    <AdminDashboardWrapper
+      userName={user.name || undefined}
+      userAvatar={user.profileImage || undefined}
+      pendingBadgeRequests={pendingBadgeRequests}
+      pendingAgentApplications={pendingAgentApplications}
+      pendingReports={pendingReports}
+      activeDisputes={activeDisputes}
     >
+      {/* Page Header */}
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary, marginBottom: '8px' }}>
+          Request #{request.id.slice(-8).toUpperCase()}
+        </h1>
+        <p style={{ fontSize: '14px', color: colors.textSecondary }}>
+          Review and manage service request
+        </p>
+      </div>
+
+      {/* Back Button */}
+      <Link
+        href="/admin/requests"
+        style={{
+          display: 'inline-block',
+          marginBottom: '24px',
+          padding: '10px 18px',
+          backgroundColor: colors.white,
+          border: `1px solid ${colors.border}`,
+          borderRadius: borderRadius.md,
+          color: colors.textPrimary,
+          textDecoration: 'none',
+          fontSize: '14px',
+          fontWeight: '500',
+          transition: 'all 0.2s',
+        }}
+      >
+        ← Back to Requests
+      </Link>
+
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
         {/* Main Content */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Request Status and Actions */}
-          <DashboardCard>
+          <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, boxShadow: shadows.md, padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <div>
                 <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.textPrimary, marginBottom: '8px' }}>
@@ -129,10 +189,13 @@ export default async function AdminRequestDetailPage({
               clientName={request.client.name || 'Client'}
               adminApproved={request.adminApproved}
             />
-          </DashboardCard>
+          </div>
 
           {/* Request Details */}
-          <DashboardCard title="Request Details">
+          <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, boxShadow: shadows.md, padding: '24px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
+              Request Details
+            </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '4px', fontWeight: '600' }}>
@@ -219,11 +282,14 @@ export default async function AdminRequestDetailPage({
                 </div>
               </div>
             </div>
-          </DashboardCard>
+          </div>
 
           {/* Quotes */}
           {request.quotes.length > 0 && (
-            <DashboardCard title={`Quotes (${request.quotes.length})`}>
+            <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, boxShadow: shadows.md, padding: '24px' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
+                Quotes ({request.quotes.length})
+              </h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {request.quotes.map((quote) => (
                   <div
@@ -257,14 +323,17 @@ export default async function AdminRequestDetailPage({
                   </div>
                 ))}
               </div>
-            </DashboardCard>
+            </div>
           )}
         </div>
 
         {/* Sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Client Info */}
-          <DashboardCard title="Client Information">
+          <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, boxShadow: shadows.md, padding: '24px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
+              Client Information
+            </h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
               <div
                 style={{
@@ -303,18 +372,21 @@ export default async function AdminRequestDetailPage({
                 </div>
               )}
             </div>
-          </DashboardCard>
+          </div>
 
           {/* Admin Info */}
           {request.adminApproved && (
-            <DashboardCard title="Admin Review">
+            <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, boxShadow: shadows.md, padding: '24px' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
+                Admin Review
+              </h2>
               <div style={{ fontSize: '14px', color: colors.success, fontWeight: '500' }}>
                 ✓ Approved
               </div>
-            </DashboardCard>
+            </div>
           )}
         </div>
       </div>
-    </DashboardLayoutWithHeader>
+    </AdminDashboardWrapper>
   );
 }

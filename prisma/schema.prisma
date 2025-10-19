@@ -53,6 +53,11 @@ enum PaymentStatus {
   FLAGGED
 }
 
+enum PaymentProvider {
+  STRIPE
+  PAYSTACK
+}
+
 enum NotificationType {
   NEW_REQUEST
   NEW_QUOTE
@@ -69,6 +74,11 @@ enum NotificationType {
   FIXER_REJECTED
   GIG_ORDER
   GENERAL
+  AGENT_APPLICATION_SUBMITTED
+  AGENT_APPROVED
+  AGENT_REJECTED
+  AGENT_FIXER_NEEDS_VETTING
+  AGENT_COMMISSION_EARNED
 }
 
 enum GigStatus {
@@ -93,6 +103,83 @@ enum TransactionType {
   ADJUSTMENT           // Admin adjustment
 }
 
+enum ReviewReportStatus {
+  PENDING
+  REVIEWING
+  RESOLVED
+  DISMISSED
+}
+
+enum BadgeType {
+  IDENTITY_VERIFICATION
+  INSURANCE_VERIFICATION
+  BACKGROUND_CHECK
+  SKILL_CERTIFICATION
+  QUALITY_PERFORMANCE
+}
+
+enum BadgeRequestStatus {
+  PENDING           // Awaiting payment
+  PAYMENT_RECEIVED  // Paid, awaiting review
+  UNDER_REVIEW      // Admin is reviewing
+  MORE_INFO_NEEDED  // Admin needs more information
+  APPROVED          // Approved, badge assigned
+  REJECTED          // Rejected
+  EXPIRED           // Request expired (30 days unpaid)
+}
+
+enum BadgePaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+}
+
+enum BadgeStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+enum BadgeTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum AgentStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  REJECTED
+  BANNED
+}
+
+enum VetStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  CLOSED
+  ESCALATED
+}
+
+enum DisputeReason {
+  QUALITY_ISSUES
+  INCOMPLETE_WORK
+  OVERCHARGING
+  PAYMENT_DISPUTE
+  TIMELINE_ISSUES
+  COMMUNICATION_ISSUES
+  SCOPE_DISAGREEMENT
+  OTHER
+}
+
 // Models
 model User {
   id                String          @id @default(cuid())
@@ -108,6 +195,14 @@ model User {
   emailNotifications    Boolean     @default(true)
   smsNotifications      Boolean     @default(false)
 
+  // Quick Wins - Referral
+  referralCode      String?         @unique
+  referredById      String?         // User who referred this user
+
+  // Trust Badges
+  badgeTier         BadgeTier?      // Calculated based on active badges
+  lastTierUpdate    DateTime?
+
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 
@@ -122,16 +217,40 @@ model User {
   sentMessages      Message[]        @relation("SentMessages")
   reviewsGiven      Review[]         @relation("ReviewsGiven")
   reviewsReceived   Review[]         @relation("ReviewsReceived")
+  reviewHelpful     ReviewHelpful[]
+  reviewReports     ReviewReport[]
   notifications     Notification[]
   magicLinks        MagicLink[]
   invitedBy         User?            @relation("Invitations", fields: [invitedById], references: [id])
   invitedById       String?
   invitations       User[]           @relation("Invitations")
+  referredBy        User?            @relation("Referrals", fields: [referredById], references: [id])
+  referredUsers     User[]           @relation("Referrals")
   gigs              Gig[]
   requestMessages   RequestMessage[] @relation("RequestMessages")
   sentDirectMessages    DirectMessage[] @relation("SentDirectMessages")
   receivedDirectMessages DirectMessage[] @relation("ReceivedDirectMessages")
   purse             Purse?
+  
+  // Trust Badges Relations
+  badgeRequests     BadgeRequest[]   @relation("FixerBadgeRequests")
+  badges            BadgeAssignment[] @relation("FixerBadges")
+  reviewedRequests  BadgeRequest[]   @relation("ReviewedBadgeRequests")
+  revokedBadges     BadgeAssignment[] @relation("RevokedBadges")
+
+  // Agent Relations
+  agentProfile        Agent?
+  managedAsFixerBy    AgentFixer[]    @relation("AgentManagedFixers")
+  managedAsClientBy   AgentClient[]   @relation("AgentManagedClients")
+  approvedAgents      Agent[]         @relation("AgentApprovals")
+
+  // Dispute Relations
+  initiatedDisputes   Dispute[]       @relation("InitiatedDisputes")
+  resolvedDisputes    Dispute[]       @relation("ResolvedDisputes")
+  disputeMessages     DisputeMessage[]
+
+  // Audit Log Relations
+  auditLogs           AuditLog[]
 
   @@index([email])
   @@index([phone])
@@ -146,12 +265,20 @@ model FixerProfile {
   yearsOfService    Int
   qualifications    String[]  @default([])
   streetAddress     String?
-  neighbourhood     String
-  city              String
-  state             String
-  country           String
+  neighborhoodId    String?
+  neighborhood      Neighborhood? @relation("FixerNeighborhood", fields: [neighborhoodId], references: [id])
   primaryPhone      String
   secondaryPhone    String?
+
+  // Legacy fields - kept for backward compatibility during migration
+  neighbourhood     String?
+  city              String?
+  state             String?
+  country           String?
+
+  // Quick Wins - Performance Metrics
+  averageResponseMinutes Int?      // Average response time for quotes
+  totalJobsCompleted     Int       @default(0)
 
   approvedAt        DateTime?
   pendingChanges    Boolean   @default(true)
@@ -161,6 +288,7 @@ model FixerProfile {
 
   @@index([fixerId])
   @@index([pendingChanges])
+  @@index([neighborhoodId])
 }
 
 model ClientProfile {
@@ -169,18 +297,23 @@ model ClientProfile {
   client            User      @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   streetAddress     String?
-  neighbourhood     String
-  city              String
-  state             String
-  country           String
+  neighborhoodId    String?
+  neighborhood      Neighborhood? @relation("ClientNeighborhood", fields: [neighborhoodId], references: [id])
   primaryPhone      String
   secondaryPhone    String?
   alternateEmail    String?
+
+  // Legacy fields - kept for backward compatibility during migration
+  neighbourhood     String?
+  city              String?
+  state             String?
+  country           String?
 
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
   @@index([clientId])
+  @@index([neighborhoodId])
 }
 
 model MagicLink {
@@ -196,12 +329,57 @@ model MagicLink {
   @@index([userId])
 }
 
+// Location Hierarchy Models
+model Country {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  code      String   @unique // ISO country code (e.g., "NG", "US")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  states State[]
+}
+
+model State {
+  id        String   @id @default(cuid())
+  name      String
+  code      String?  // State code if applicable
+  countryId String
+  country   Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cities City[]
+
+  @@unique([name, countryId])
+  @@index([countryId])
+}
+
+model City {
+  id        String   @id @default(cuid())
+  name      String
+  stateId   String
+  state     State    @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  neighborhoods Neighborhood[]
+
+  @@unique([name, stateId])
+  @@index([stateId])
+}
+
 model Neighborhood {
   id              String            @id @default(cuid())
   name            String
-  city            String
-  state           String
-  country         String
+  cityId          String?
+  city            City?             @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  // Legacy fields - kept for backward compatibility during migration
+  legacyCity      String?
+  legacyState     String?
+  legacyCountry   String?
+
   latitude        Float?
   longitude       Float?
   createdAt       DateTime          @default(now())
@@ -209,9 +387,12 @@ model Neighborhood {
 
   serviceRequests ServiceRequest[]
   fixerServices   FixerService[]
+  approvedAgents  Agent[]          @relation("AgentNeighborhoods")
+  fixerProfiles   FixerProfile[]   @relation("FixerNeighborhood")
+  clientProfiles  ClientProfile[]  @relation("ClientNeighborhood")
 
-  @@unique([name, city, state])
-  @@index([city, state])
+  @@unique([name, cityId])
+  @@index([cityId])
 }
 
 model ServiceCategory {
@@ -298,6 +479,7 @@ model ServiceRequest {
   order             Order?
   messages          RequestMessage[]
   directMessages    DirectMessage[]
+  agentRequest      AgentServiceRequest?
 
   @@index([clientId])
   @@index([subcategoryId])
@@ -338,10 +520,14 @@ model Quote {
   isAccepted        Boolean         @default(false)
   aiPriceSuggestion Float?
 
+  // Quick Wins - Response Time Tracking
+  responseTimeMinutes Int?          // Time taken to respond in minutes
+
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 
   order             Order?
+  agentQuote        AgentQuote?
 
   @@unique([requestId, fixerId])
   @@index([requestId])
@@ -417,6 +603,8 @@ model Order {
   messages          Message[]
   directMessages    DirectMessage[]
   purseTransactions PurseTransaction[]
+  agentCommissions  AgentCommission[]
+  disputes          Dispute[]
 
   @@index([clientId])
   @@index([fixerId])
@@ -427,32 +615,37 @@ model Order {
 }
 
 model Payment {
-  id                  String          @id @default(cuid())
-  orderId             String?         @unique
-  order               Order?          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id                  String           @id @default(cuid())
+  orderId             String?          @unique
+  order               Order?           @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
-  stripePaymentId     String          @unique
+  // Payment provider tracking
+  provider            PaymentProvider  @default(STRIPE)
+  stripePaymentId     String?          @unique
+  paystackReference   String?          @unique
+
   amount              Float
-  status              PaymentStatus   @default(PENDING)
+  status              PaymentStatus    @default(PENDING)
 
   paidAt              DateTime?
   releasedAt          DateTime?
   refundedAt          DateTime?
 
-  isFlagged           Boolean         @default(false)
+  isFlagged           Boolean          @default(false)
   flagReason          String?
-  adminApproved       Boolean         @default(false)
+  adminApproved       Boolean          @default(false)
   adminApprovedAt     DateTime?
   adminApprovedBy     String?
 
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
 
   purseTransactions   PurseTransaction[]
 
   @@index([orderId])
   @@index([status])
   @@index([isFlagged])
+  @@index([provider])
 }
 
 model Review {
@@ -466,6 +659,23 @@ model Review {
 
   rating          Int       // 1-5 stars
   comment         String?
+  
+  // Verified Review Fields
+  photos          String[]  @default([])  // UploadThing URLs
+  isVerified      Boolean   @default(false) // True if linked to completed order
+  isAnonymous     Boolean   @default(false) // Hide reviewer name
+  
+  // Fixer Response
+  responseText    String?
+  respondedAt     DateTime?
+  
+  // Engagement Metrics
+  helpfulCount    Int       @default(0)
+  reportCount     Int       @default(0)
+  
+  // Relations
+  helpfulMarks    ReviewHelpful[]
+  reports         ReviewReport[]
 
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -473,6 +683,43 @@ model Review {
   @@index([reviewerId])
   @@index([revieweeId])
   @@index([orderId])
+  @@index([isVerified])
+  @@index([createdAt])
+}
+
+model ReviewHelpful {
+  id          String    @id @default(cuid())
+  reviewId    String
+  review      Review    @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([reviewId, userId])
+  @@index([reviewId])
+  @@index([userId])
+}
+
+model ReviewReport {
+  id          String              @id @default(cuid())
+  reviewId    String
+  review      Review              @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reportedBy  String
+  reporter    User                @relation(fields: [reportedBy], references: [id], onDelete: Cascade)
+  reason      String              // Free text reason
+  status      ReviewReportStatus  @default(PENDING)
+  
+  // Admin Resolution
+  resolvedBy  String?
+  resolvedAt  DateTime?
+  resolution  String?             // Admin notes
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([reviewId])
+  @@index([reportedBy])
+  @@index([status])
 }
 
 model Message {
@@ -567,6 +814,7 @@ model Gig {
 
   orders            Order[]
   directMessages    DirectMessage[]
+  agentGig          AgentGig?
 
   @@index([sellerId])
   @@index([subcategoryId])
@@ -709,4 +957,482 @@ model PurseTransaction {
   @@index([type])
   @@index([orderId])
   @@index([paymentId])
+}
+
+// Trust Badges System
+model Badge {
+  id          String   @id @default(cuid())
+  type        BadgeType
+  name        String   // "Identity Verification", "Insurance Verified", etc.
+  description String   @db.Text
+  icon        String   // Emoji or icon identifier
+  cost        Int      // Cost in Naira (kobo for decimal precision)
+  isActive    Boolean  @default(true)
+  
+  // Requirements
+  requiredDocuments String[]  // List of required document types
+  expiryMonths      Int?      // How many months until renewal needed (null = no expiry)
+  isAutomatic       Boolean   @default(false) // Can be earned automatically (e.g., Quality Performance)
+  
+  // Automatic badge criteria (for Quality Performance badge)
+  minJobsRequired      Int?
+  minAverageRating     Float?
+  maxCancellationRate  Float?
+  maxComplaintRate     Float?
+  maxResponseMinutes   Int?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  requests    BadgeRequest[]
+  assignments BadgeAssignment[]
+
+  @@index([type])
+  @@index([isActive])
+}
+
+model BadgeRequest {
+  id          String   @id @default(cuid())
+  fixerId     String
+  badgeId     String
+  
+  status      BadgeRequestStatus @default(PENDING)
+  
+  // Submitted documents - JSON array of { type: string, url: string, name: string, uploadedAt: string }
+  documents   Json?
+  notes       String?  @db.Text // Fixer's additional notes
+  
+  // Admin review
+  reviewedBy      String?  // Admin user ID
+  reviewedAt      DateTime?
+  rejectionReason String?  @db.Text
+  adminNotes      String?  @db.Text
+  
+  // Payment
+  paymentStatus   BadgePaymentStatus @default(PENDING)
+  paymentAmount   Int      // Amount in kobo
+  paymentRef      String?  // Payment provider reference (paymentIntentId)
+  clientSecret    String?  // Stripe client secret for payment
+  paidAt          DateTime?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  fixer       User   @relation("FixerBadgeRequests", fields: [fixerId], references: [id], onDelete: Cascade)
+  badge       Badge  @relation(fields: [badgeId], references: [id])
+  reviewer    User?  @relation("ReviewedBadgeRequests", fields: [reviewedBy], references: [id])
+  assignment  BadgeAssignment?
+  
+  @@index([fixerId])
+  @@index([badgeId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([createdAt])
+}
+
+model BadgeAssignment {
+  id          String   @id @default(cuid())
+  fixerId     String
+  badgeId     String
+  requestId   String?  @unique  // Null for automatic badges (e.g., Quality Performance)
+  
+  status      BadgeStatus @default(ACTIVE)
+  
+  // Validity
+  assignedAt  DateTime @default(now())
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+  revokedBy   String?  // Admin user ID
+  revokeReason String? @db.Text
+  
+  // Verification details
+  verificationDate DateTime?
+  verificationNotes String? @db.Text
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  fixer       User   @relation("FixerBadges", fields: [fixerId], references: [id], onDelete: Cascade)
+  badge       Badge  @relation(fields: [badgeId], references: [id])
+  request     BadgeRequest? @relation(fields: [requestId], references: [id])
+  revoker     User?  @relation("RevokedBadges", fields: [revokedBy], references: [id])
+  
+  @@unique([fixerId, badgeId])
+  @@index([fixerId])
+  @@index([badgeId])
+  @@index([status])
+  @@index([expiresAt])
+}
+// Agent System Models
+
+model Agent {
+  id                    String          @id @default(cuid())
+  userId                String          @unique
+  user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Business Info
+  businessName          String?
+  businessAddress       String?
+  taxId                 String?
+
+  // Status & Approval
+  status                AgentStatus     @default(PENDING)
+  approvedAt            DateTime?
+  approvedById          String?
+  approver              User?           @relation("AgentApprovals", fields: [approvedById], references: [id])
+  rejectedAt            DateTime?
+  rejectionReason       String?
+  suspendedAt           DateTime?
+  suspensionReason      String?
+  bannedAt              DateTime?
+  banReason             String?
+
+  // Territory
+  approvedNeighborhoods Neighborhood[]  @relation("AgentNeighborhoods")
+  requestedNeighborhoodIds String[]      @default([])
+  pendingChanges        Boolean         @default(true)
+
+  // Commission (admin-configurable per agent)
+  commissionPercentage  Decimal         @default(5.00) @db.Decimal(5, 2)
+  fixerBonusEnabled     Boolean         @default(true)
+
+  // Metrics
+  totalFixersManaged    Int             @default(0)
+  activeFixersCount     Int             @default(0)
+  totalClientsManaged   Int             @default(0)
+  totalCommissions      Decimal         @default(0) @db.Decimal(10, 2)
+
+  // Wallet & Earnings
+  walletBalance         Decimal         @default(0) @db.Decimal(10, 2)
+  totalEarned           Decimal         @default(0) @db.Decimal(10, 2)
+  totalWithdrawn        Decimal         @default(0) @db.Decimal(10, 2)
+
+  // Relationships
+  managedFixers         AgentFixer[]
+  managedClients        AgentClient[]
+  agentGigs             AgentGig[]
+  agentQuotes           AgentQuote[]
+  agentRequests         AgentServiceRequest[]
+  commissions           AgentCommission[]
+
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([approvedAt])
+}
+
+model AgentFixer {
+  id                  String      @id @default(cuid())
+  agentId             String
+  agent               Agent       @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  fixerId             String
+  fixer               User        @relation("AgentManagedFixers", fields: [fixerId], references: [id], onDelete: Cascade)
+
+  // Vetting
+  vetStatus           VetStatus   @default(PENDING)
+  vetNotes            String?
+  vettedAt            DateTime?
+  vettedById          String?     // Agent user who vetted
+
+  // Registration bonus tracking
+  bonusPaid           Boolean     @default(false)
+  bonusAmount         Decimal?    @db.Decimal(10, 2)
+  bonusPaidAt         DateTime?
+  firstOrderId        String?     // Order that triggered bonus
+
+  registeredAt        DateTime    @default(now())
+
+  commissions         AgentCommission[]
+
+  @@unique([agentId, fixerId])
+  @@index([agentId])
+  @@index([fixerId])
+  @@index([vetStatus])
+}
+
+model AgentClient {
+  id          String    @id @default(cuid())
+  agentId     String
+  agent       Agent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  clientId    String
+  client      User      @relation("AgentManagedClients", fields: [clientId], references: [id], onDelete: Cascade)
+
+  addedAt     DateTime  @default(now())
+  notes       String?
+
+  @@unique([agentId, clientId])
+  @@index([agentId])
+  @@index([clientId])
+}
+
+model AgentGig {
+  id          String    @id @default(cuid())
+  agentId     String
+  agent       Agent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  gigId       String
+  gig         Gig       @relation(fields: [gigId], references: [id], onDelete: Cascade)
+  fixerId     String    // The actual fixer
+
+  createdAt   DateTime  @default(now())
+
+  @@unique([gigId])
+  @@index([agentId])
+  @@index([fixerId])
+}
+
+model AgentQuote {
+  id          String    @id @default(cuid())
+  agentId     String
+  agent       Agent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  quoteId     String
+  quote       Quote     @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  fixerId     String    // The actual fixer
+
+  createdAt   DateTime  @default(now())
+
+  @@unique([quoteId])
+  @@index([agentId])
+  @@index([fixerId])
+}
+
+model AgentServiceRequest {
+  id          String          @id @default(cuid())
+  agentId     String
+  agent       Agent           @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  requestId   String
+  request     ServiceRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  clientId    String          // The actual client
+
+  createdAt   DateTime        @default(now())
+
+  @@unique([requestId])
+  @@index([agentId])
+  @@index([clientId])
+}
+
+model AgentCommission {
+  id              String              @id @default(cuid())
+  agentId         String
+  agent           Agent               @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  type            String              // "ORDER_COMMISSION" or "FIXER_BONUS"
+  amount          Decimal             @db.Decimal(10, 2)
+
+  // Order commission
+  orderId         String?
+  order           Order?              @relation(fields: [orderId], references: [id])
+
+  // Fixer bonus
+  agentFixerId    String?
+  agentFixer      AgentFixer?         @relation(fields: [agentFixerId], references: [id])
+
+  isPaid          Boolean             @default(false)
+  paidAt          DateTime?
+  purseTransactionId String?
+
+  createdAt       DateTime            @default(now())
+
+  @@index([agentId])
+  @@index([orderId])
+  @@index([isPaid])
+  @@index([createdAt])
+}
+
+// Email Template System
+enum EmailTemplateType {
+  ORDER_CONFIRMATION
+  ORDER_PAID
+  ORDER_IN_PROGRESS
+  ORDER_COMPLETED
+  ORDER_CANCELLED
+  QUOTE_RECEIVED
+  QUOTE_ACCEPTED
+  QUOTE_REJECTED
+  INSPECTION_SCHEDULED
+  INSPECTION_COMPLETED
+  FINAL_QUOTE_SUBMITTED
+  PAYMENT_REMINDER
+  REVIEW_REQUEST
+  FIXER_APPROVED
+  FIXER_REJECTED
+  GIG_ORDER_RECEIVED
+  AGENT_APPLICATION_SUBMITTED
+  AGENT_APPROVED
+  AGENT_REJECTED
+  BADGE_APPROVED
+  BADGE_REJECTED
+  BADGE_EXPIRING
+  WELCOME_CLIENT
+  WELCOME_FIXER
+}
+
+model EmailTemplate {
+  id          String            @id @default(cuid())
+  type        EmailTemplateType @unique
+  name        String            // Human-readable name
+  description String?           // What this email is for
+  subject     String            // Email subject line (supports variables)
+  htmlBody    String            @db.Text // HTML email body (supports variables)
+  textBody    String?           @db.Text // Plain text fallback
+  variables   Json              // Available variables for this template
+  isActive    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([type])
+  @@index([isActive])
+}
+
+// Admin Audit Log System
+enum AuditAction {
+  // User management
+  USER_APPROVED
+  USER_REJECTED
+  USER_SUSPENDED
+  USER_UNSUSPENDED
+  USER_ROLE_CHANGED
+  USER_DELETED
+
+  // Fixer management
+  FIXER_APPROVED
+  FIXER_REJECTED
+  FIXER_RE_REVIEW_REQUESTED
+
+  // Badge management
+  BADGE_REQUEST_APPROVED
+  BADGE_REQUEST_REJECTED
+  BADGE_REVOKED
+  BADGE_DOCUMENT_UPDATED
+
+  // Order management
+  ORDER_CANCELLED
+  ORDER_DISPUTED
+  ORDER_REFUNDED
+  ORDER_STATUS_CHANGED
+
+  // Gig management
+  GIG_APPROVED
+  GIG_REJECTED
+  GIG_DELETED
+  GIG_STATUS_CHANGED
+
+  // Review moderation
+  REVIEW_APPROVED
+  REVIEW_REJECTED
+  REVIEW_DELETED
+  REVIEW_FLAGGED
+
+  // Report management
+  REPORT_RESOLVED
+  REPORT_DISMISSED
+  REPORT_ESCALATED
+
+  // Agent management
+  AGENT_APPROVED
+  AGENT_REJECTED
+  AGENT_COMMISSION_ADJUSTED
+
+  // Email template management
+  EMAIL_TEMPLATE_CREATED
+  EMAIL_TEMPLATE_UPDATED
+  EMAIL_TEMPLATE_DELETED
+
+  // System settings
+  SETTINGS_UPDATED
+  CATEGORY_CREATED
+  CATEGORY_UPDATED
+  CATEGORY_DELETED
+
+  // Financial operations
+  PAYOUT_PROCESSED
+  REFUND_PROCESSED
+  COMMISSION_ADJUSTED
+}
+
+model AuditLog {
+  id            String       @id @default(cuid())
+
+  // Who performed the action
+  performedBy   String
+  user          User         @relation(fields: [performedBy], references: [id], onDelete: Cascade)
+
+  // What action was performed
+  action        AuditAction
+
+  // Target of the action
+  targetType    String       // "User", "Order", "Gig", "Review", etc.
+  targetId      String?      // ID of the affected entity
+
+  // Details
+  description   String?      // Human-readable description
+  metadata      Json?        // Additional data (before/after values, etc.)
+  ipAddress     String?      // IP address of the admin
+  userAgent     String?      // Browser/device info
+
+  createdAt     DateTime     @default(now())
+
+  @@index([performedBy])
+  @@index([action])
+  @@index([targetType])
+  @@index([targetId])
+  @@index([createdAt])
+}
+
+// Dispute Resolution System
+model Dispute {
+  id              String          @id @default(cuid())
+  orderId         String
+  order           Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // Who initiated the dispute
+  initiatedById   String
+  initiatedBy     User            @relation("InitiatedDisputes", fields: [initiatedById], references: [id], onDelete: Cascade)
+
+  // Dispute details
+  reason          DisputeReason
+  description     String          @db.Text
+  evidence        String[]        @default([])  // URLs to uploaded evidence files
+
+  // Status and resolution
+  status          DisputeStatus   @default(OPEN)
+  resolution      String?         @db.Text
+  resolvedById    String?
+  resolvedBy      User?           @relation("ResolvedDisputes", fields: [resolvedById], references: [id])
+  resolvedAt      DateTime?
+
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  messages        DisputeMessage[]
+
+  @@index([orderId])
+  @@index([initiatedById])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model DisputeMessage {
+  id          String      @id @default(cuid())
+  disputeId   String
+  dispute     Dispute     @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+
+  senderId    String
+  sender      User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  message     String      @db.Text
+  isAdminNote Boolean     @default(false)  // True if this is an internal admin note
+  attachments String[]    @default([])
+
+  createdAt   DateTime    @default(now())
+
+  @@index([disputeId])
+  @@index([senderId])
+  @@index([createdAt])
 }

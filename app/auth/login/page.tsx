@@ -71,13 +71,13 @@ function LoginContent() {
             <Link href="/" style={{ textDecoration: 'none' }}>
               <h1 style={{
                 fontSize: '48px',
-                fontWeight: '800',
-                color: colors.textPrimary,
+                fontWeight: 'bold',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+                color: colors.primary,
                 marginBottom: '8px',
-                letterSpacing: '-0.02em'
+                letterSpacing: '-0.5px'
               }}>
-                <span style={{ color: colors.primary }}>FIXI</span>
-                <span style={{ color: colors.textPrimary }}>-NG</span>
+                fixers
               </h1>
             </Link>
             <p style={{ fontSize: '18px', color: colors.textSecondary }}>

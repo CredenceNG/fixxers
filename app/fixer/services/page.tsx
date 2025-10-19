@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { styles, colors } from '@/lib/theme';
 import MobileHeader from '@/components/MobileHeader';
+import useSWR from 'swr';
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface Category {
   id: string;
@@ -69,6 +72,42 @@ export default function FixerServicesPage() {
   const [profileNeighborhoodId, setProfileNeighborhoodId] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
+  // Service area selection state
+  const [countryId, setCountryId] = useState('');
+  const [stateId, setStateId] = useState('');
+  const [cityId, setCityId] = useState('');
+  const [selectedNeighborhoodIds, setSelectedNeighborhoodIds] = useState<string[]>([]);
+
+  // Fetch location data
+  const { data: countriesData } = useSWR('/api/locations/countries', fetcher);
+  const { data: statesData } = useSWR(
+    countryId ? `/api/locations/states?countryId=${countryId}` : null,
+    fetcher
+  );
+  const { data: citiesData } = useSWR(
+    stateId ? `/api/locations/cities?stateId=${stateId}` : null,
+    fetcher
+  );
+  const { data: neighborhoodsData } = useSWR(
+    cityId ? `/api/neighborhoods?cityId=${cityId}` : null,
+    fetcher
+  );
+
+  const countries = countriesData?.countries || [];
+  const states = statesData?.states || [];
+  const cities = citiesData?.cities || [];
+  const availableNeighborhoods = neighborhoodsData?.neighborhoods || [];
+
+  // Auto-select Nigeria as default country
+  useEffect(() => {
+    if (countries.length > 0 && !countryId) {
+      const nigeria = countries.find((c: any) => c.code === 'NG');
+      if (nigeria) {
+        setCountryId(nigeria.id);
+      }
+    }
+  }, [countries, countryId]);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -102,19 +141,9 @@ export default function FixerServicesPage() {
         setHasExistingProfile(true);
       }
 
-      // Get the fixer's neighborhood ID from their profile
-      if (profileData.profile && profileData.profile.neighbourhood) {
-        // Find the matching neighborhood ID from the neighborhoods array
-        const matchingNeighborhood = neighborhoodsData.find(
-          (nb: Neighborhood) =>
-            nb.name === profileData.profile.neighbourhood &&
-            nb.city === profileData.profile.city &&
-            nb.state === profileData.profile.state
-        );
-
-        if (matchingNeighborhood) {
-          setProfileNeighborhoodId(matchingNeighborhood.id);
-        }
+      // Get the fixer's neighborhood ID from their profile (for fallback)
+      if (profileData.profile && profileData.profile.neighborhoodId) {
+        setProfileNeighborhoodId(profileData.profile.neighborhoodId);
       }
 
       // Load existing services into forms
@@ -147,6 +176,17 @@ export default function FixerServicesPage() {
           isEditing: false,
         }));
         setServiceForms(existingForms);
+
+        // Load existing service neighborhoods
+        const existingNeighborhoodIds = new Set<string>();
+        servicesData.forEach((service: any) => {
+          if (service.neighborhoods && service.neighborhoods.length > 0) {
+            service.neighborhoods.forEach((nb: any) => {
+              existingNeighborhoodIds.add(nb.id);
+            });
+          }
+        });
+        setSelectedNeighborhoodIds(Array.from(existingNeighborhoodIds));
       }
 
       setInitialLoad(false);
@@ -310,8 +350,8 @@ export default function FixerServicesPage() {
       }
     }
 
-    if (!profileNeighborhoodId) {
-      setError('Profile neighborhood not found. Please complete Step 1 first.');
+    if (selectedNeighborhoodIds.length === 0) {
+      setError('Please select at least one service area neighborhood.');
       setLoading(false);
       return;
     }
@@ -339,7 +379,7 @@ export default function FixerServicesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           services,
-          neighborhoodIds: [profileNeighborhoodId],
+          neighborhoodIds: selectedNeighborhoodIds,
         }),
       });
 
@@ -1019,22 +1059,168 @@ export default function FixerServicesPage() {
           </div>
           )}
 
-          {/* SERVICE AREA INFO */}
-          {profileNeighborhoodId && (
-            <div style={{ ...styles.section, marginBottom: '32px' }}>
+          {/* SERVICE AREA SELECTION */}
+          <div style={{ ...styles.section, marginBottom: '32px' }}>
+            <h2 style={styles.sectionTitle}>Service Areas</h2>
+            <p style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '20px' }}>
+              Select the neighborhoods where you offer your services. You can select multiple areas.
+            </p>
+
+            {/* Cascading Location Selects */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
+                Country <span style={{ color: colors.error }}>*</span>
+              </label>
+              <select
+                value={countryId}
+                onChange={(e) => {
+                  setCountryId(e.target.value);
+                  setStateId('');
+                  setCityId('');
+                  setSelectedNeighborhoodIds([]);
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  fontSize: '15px',
+                  border: '2px solid #E4E6EB',
+                  borderRadius: '12px',
+                  outline: 'none',
+                  backgroundColor: 'white',
+                  cursor: 'pointer',
+                }}
+              >
+                <option value="">Select Country</option>
+                {countries.map((country: any) => (
+                  <option key={country.id} value={country.id}>{country.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {countryId && (
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
+                  State <span style={{ color: colors.error }}>*</span>
+                </label>
+                <select
+                  value={stateId}
+                  onChange={(e) => {
+                    setStateId(e.target.value);
+                    setCityId('');
+                    setSelectedNeighborhoodIds([]);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    fontSize: '15px',
+                    border: '2px solid #E4E6EB',
+                    borderRadius: '12px',
+                    outline: 'none',
+                    backgroundColor: 'white',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="">Select State</option>
+                  {states.map((state: any) => (
+                    <option key={state.id} value={state.id}>{state.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {stateId && (
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
+                  City/LGA <span style={{ color: colors.error }}>*</span>
+                </label>
+                <select
+                  value={cityId}
+                  onChange={(e) => {
+                    setCityId(e.target.value);
+                    setSelectedNeighborhoodIds([]);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    fontSize: '15px',
+                    border: '2px solid #E4E6EB',
+                    borderRadius: '12px',
+                    outline: 'none',
+                    backgroundColor: 'white',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="">Select City/LGA</option>
+                  {cities.map((city: any) => (
+                    <option key={city.id} value={city.id}>{city.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Neighborhood Multi-Select */}
+            {cityId && availableNeighborhoods.length > 0 && (
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '12px' }}>
+                  Neighborhoods (Select all that apply) <span style={{ color: colors.error }}>*</span>
+                </label>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                    gap: '12px',
+                    padding: '12px',
+                    border: '2px solid #E4E6EB',
+                    borderRadius: '12px',
+                    backgroundColor: 'white',
+                    maxHeight: '400px',
+                    overflowY: 'auto',
+                  }}
+                >
+                  {availableNeighborhoods.map((neighborhood: any) => (
+                    <label
+                      key={neighborhood.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '10px 16px',
+                        border: `2px solid ${selectedNeighborhoodIds.includes(neighborhood.id) ? colors.primary : '#E4E6EB'}`,
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        backgroundColor: selectedNeighborhoodIds.includes(neighborhood.id) ? `${colors.primary}15` : 'white',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedNeighborhoodIds.includes(neighborhood.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedNeighborhoodIds([...selectedNeighborhoodIds, neighborhood.id]);
+                          } else {
+                            setSelectedNeighborhoodIds(selectedNeighborhoodIds.filter(id => id !== neighborhood.id));
+                          }
+                        }}
+                        style={{ marginRight: '8px', cursor: 'pointer' }}
+                      />
+                      <span style={{ fontSize: '14px', fontWeight: '500', color: colors.textPrimary }}>
+                        {neighborhood.name}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Selected Neighborhoods Summary */}
+            {selectedNeighborhoodIds.length > 0 && (
               <div style={{ backgroundColor: '#EFF6FF', border: '1px solid #3B82F6', borderRadius: '12px', padding: '16px' }}>
                 <p style={{ fontSize: '14px', color: colors.textPrimary, marginBottom: '4px' }}>
-                  <strong>Service Area:</strong> Your services will be offered in{' '}
-                  {neighborhoods.find(nb => nb.id === profileNeighborhoodId)?.name},{' '}
-                  {neighborhoods.find(nb => nb.id === profileNeighborhoodId)?.city},{' '}
-                  {neighborhoods.find(nb => nb.id === profileNeighborhoodId)?.state}
-                </p>
-                <p style={{ fontSize: '13px', color: colors.textSecondary, marginTop: '8px', marginBottom: 0 }}>
-                  This is based on your location from Step 1. To change your service area, update your profile.
+                  <strong>Selected Service Areas:</strong> {selectedNeighborhoodIds.length} neighborhood(s)
                 </p>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Submit Button - Show if any service is being edited or if new services added */}
           {serviceForms.some(form => form.isEditing) && (

@@ -40,14 +40,20 @@ export function NotificationBell() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch('/api/notifications');
+      const response = await fetch('/api/notifications', {
+        // Add signal to abort fetch if component unmounts
+        signal: AbortSignal.timeout(10000), // 10 second timeout
+      });
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications || []);
         setUnreadCount(data.unreadCount || 0);
       }
     } catch (error) {
-      console.error('Failed to fetch notifications:', error);
+      // Silently ignore AbortError and network errors during unmount
+      if (error instanceof Error && error.name !== 'AbortError') {
+        console.error('Failed to fetch notifications:', error);
+      }
     }
   };
 
