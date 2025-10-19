@@ -152,9 +152,6 @@ export async function POST(
             agentId: agent.id,
             orderId: order.id,
             amount: commissionCalc.commissionAmount,
-            percentage: commissionCalc.commissionPercentage,
-            orderAmount: commissionCalc.orderAmount,
-            status: 'PENDING',
             type: 'ORDER_COMMISSION',
           },
         });

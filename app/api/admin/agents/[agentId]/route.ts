@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { Neighborhood } from '@prisma/client';
 
 export async function GET(
   request: NextRequest,
@@ -119,7 +120,7 @@ export async function GET(
     }
 
     // Get requested neighborhoods if any
-    let requestedNeighborhoods = [];
+    let requestedNeighborhoods: Neighborhood[] = [];
     if (agent.requestedNeighborhoodIds.length > 0) {
       requestedNeighborhoods = await prisma.neighborhood.findMany({
         where: {

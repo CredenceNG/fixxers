@@ -195,7 +195,7 @@ export default async function UsersPage({ searchParams }: PageProps) {
   return (
     <AdminDashboardWrapper
       userName={user.name || user.email || 'Admin'}
-      userAvatar={user.avatar || undefined}
+      userAvatar={user.profileImage || undefined}
       pendingBadgeRequests={pendingBadgeRequests}
       pendingAgentApplications={pendingAgentApplications}
       pendingReports={pendingReports}

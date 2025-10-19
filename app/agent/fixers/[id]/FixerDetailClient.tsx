@@ -121,7 +121,7 @@ export default function FixerDetailClient({ fixerId }: { fixerId: string }) {
         </div>
 
         {agentFixer.vetNotes && (
-          <div style={{ marginTop: '16px', padding: '12px', backgroundColor: colors.backgroundLight, borderRadius: '8px' }}>
+          <div style={{ marginTop: '16px', padding: '12px', backgroundColor: colors.bgSecondary, borderRadius: '8px' }}>
             <strong>Vetting Notes:</strong>
             <p style={{ marginTop: '8px', whiteSpace: 'pre-wrap' }}>{agentFixer.vetNotes}</p>
           </div>
@@ -166,7 +166,7 @@ export default function FixerDetailClient({ fixerId }: { fixerId: string }) {
                   key={sub.id}
                   style={{
                     padding: '6px 12px',
-                    backgroundColor: colors.backgroundLight,
+                    backgroundColor: colors.bgSecondary,
                     borderRadius: '16px',
                     fontSize: '14px',
                   }}

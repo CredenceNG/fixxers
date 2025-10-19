@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { sendBadgeApprovalEmail } from "@/lib/emails/badge-emails";
+import { BadgeTier } from "@prisma/client";
 
 export async function POST(
   request: NextRequest,
@@ -96,11 +97,11 @@ export async function POST(
       });
 
       // Calculate new tier
-      let newTier = "BRONZE";
+      let newTier: BadgeTier = BadgeTier.BRONZE;
       if (activeBadges >= 5) {
-        newTier = "GOLD";
+        newTier = BadgeTier.GOLD;
       } else if (activeBadges >= 3) {
-        newTier = "SILVER";
+        newTier = BadgeTier.SILVER;
       }
 
       // Update fixer's badge tier

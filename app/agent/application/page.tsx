@@ -200,32 +200,6 @@ export default async function AgentApplicationPage({ searchParams }: PageProps) 
                       fontWeight: '500',
                     }}>{Number(existingAgent.commissionPercentage)}%</dd>
                   </div>
-                  <div>
-                    <dt style={{
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      color: colors.textSecondary,
-                      marginBottom: spacing.xs,
-                    }}>Max Fixers</dt>
-                    <dd style={{
-                      fontSize: '14px',
-                      color: colors.textPrimary,
-                      fontWeight: '500',
-                    }}>{existingAgent.maxFixers}</dd>
-                  </div>
-                  <div>
-                    <dt style={{
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      color: colors.textSecondary,
-                      marginBottom: spacing.xs,
-                    }}>Max Clients</dt>
-                    <dd style={{
-                      fontSize: '14px',
-                      color: colors.textPrimary,
-                      fontWeight: '500',
-                    }}>{existingAgent.maxClients}</dd>
-                  </div>
                   <div style={{ gridColumn: '1 / -1' }}>
                     <dt style={{
                       fontSize: '14px',
@@ -253,7 +227,7 @@ export default async function AgentApplicationPage({ searchParams }: PageProps) 
                                 border: `1px solid ${colors.blue}`,
                               }}
                             >
-                              {neighborhood.name}, {neighborhood.city.name}, {neighborhood.city.state.name}
+                              {neighborhood.name}, {neighborhood.city?.name || 'N/A'}, {neighborhood.city?.state?.name || 'N/A'}
                             </span>
                           ))}
                         </div>

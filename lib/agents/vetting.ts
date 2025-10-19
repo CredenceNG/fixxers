@@ -346,7 +346,7 @@ export async function getAgentFixersWithVettingStatus(agentId: string) {
           id: true,
           name: true,
           email: true,
-          avatarUrl: true,
+          profileImage: true,
           fixerProfile: {
             select: {
               businessName: true,

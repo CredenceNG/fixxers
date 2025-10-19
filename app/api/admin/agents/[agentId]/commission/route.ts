@@ -58,7 +58,7 @@ export async function PUT(
     await prisma.notification.create({
       data: {
         userId: agent.userId,
-        type: 'AGENT_COMMISSION_UPDATED',
+        type: 'GENERAL',
         title: 'Commission Rate Updated',
         message: `Your commission rate has been updated to ${commissionPercentage}% by the admin.`,
         link: '/agent/dashboard',

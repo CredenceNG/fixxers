@@ -20,7 +20,7 @@ export default async function RegisterFixerPage() {
 
   // Fetch neighborhoods for location dropdown
   const neighborhoods = await prisma.neighborhood.findMany({
-    orderBy: [{ state: 'asc' }, { city: 'asc' }, { name: 'asc' }],
+    orderBy: [{ name: 'asc' }],
   });
 
   return (

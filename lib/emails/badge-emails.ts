@@ -14,7 +14,7 @@ interface BadgeApprovalEmailData {
   fixerName: string;
   badgeName: string;
   badgeIcon: string;
-  expiresAt: Date;
+  expiresAt: Date | null;
   newTier: string;
   activeBadges: number;
   profileUrl: string;

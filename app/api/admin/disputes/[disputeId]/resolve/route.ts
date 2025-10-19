@@ -125,7 +125,7 @@ export async function POST(
             await sendDisputeResolvedEmail({
               to: recipient.email,
               recipientName: recipient.name || 'User',
-              orderNumber: dispute.order.orderNumber || dispute.orderId,
+              orderNumber: dispute.orderId,
               disputeReason: reasonDisplay,
               resolution,
               finalStatus: status,
@@ -152,7 +152,7 @@ export async function POST(
             await sendDisputeStatusUpdateEmail({
               to: recipient.email,
               recipientName: recipient.name || 'User',
-              orderNumber: dispute.order.orderNumber || dispute.orderId,
+              orderNumber: dispute.orderId,
               oldStatus: dispute.status,
               newStatus: status,
               disputeUrl,

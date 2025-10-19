@@ -17,7 +17,7 @@ interface BadgeApprovalEmailProps {
     fixerName: string;
     badgeName: string;
     badgeIcon: string;
-    expiresAt: Date;
+    expiresAt: Date | null;
     newTier: string;
     activeBadges: number;
     profileUrl: string;
@@ -39,11 +39,11 @@ export const BadgeApprovalEmail = ({
     activeBadges = 1,
     profileUrl = 'https://fixxers.ng/profile',
 }: BadgeApprovalEmailProps) => {
-    const expiryDate = expiresAt.toLocaleDateString('en-US', {
+    const expiryDate = expiresAt ? expiresAt.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
-    });
+    }) : null;
 
     return (
         <Html>
@@ -78,7 +78,8 @@ export const BadgeApprovalEmail = ({
                             <Text style={badgeCardIcon}>{badgeIcon}</Text>
                             <Text style={badgeCardTitle}>{badgeName}</Text>
                             <Text style={badgeCardSubtitle}>Active Badge</Text>
-                            <Text style={badgeCardExpiry}>Valid until {expiryDate}</Text>
+                            {expiryDate && <Text style={badgeCardExpiry}>Valid until {expiryDate}</Text>}
+                            {!expiryDate && <Text style={badgeCardExpiry}>Permanent Badge</Text>}
                         </Section>
 
                         {/* Tier Update */}
@@ -110,9 +111,11 @@ export const BadgeApprovalEmail = ({
                             </Button>
                         </Section>
 
-                        <Text style={paragraph}>
-                            Remember to renew your badge before it expires on <strong>{expiryDate}</strong> to maintain your verified status.
-                        </Text>
+                        {expiryDate && (
+                            <Text style={paragraph}>
+                                Remember to renew your badge before it expires on <strong>{expiryDate}</strong> to maintain your verified status.
+                            </Text>
+                        )}
 
                         <Text style={footerText}>
                             Thank you for being a trusted member of the Fixers community!

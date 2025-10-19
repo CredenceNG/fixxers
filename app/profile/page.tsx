@@ -64,7 +64,7 @@ export default async function UnifiedProfilePage() {
 
   // Fetch neighborhoods for location dropdown
   const neighborhoods = await prisma.neighborhood.findMany({
-    orderBy: [{ state: 'asc' }, { city: 'asc' }, { name: 'asc' }],
+    orderBy: [{ name: 'asc' }],
   });
 
   // Fetch service categories and subcategories for fixer section

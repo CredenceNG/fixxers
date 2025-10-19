@@ -69,7 +69,7 @@ export async function POST(
       await tx.notification.create({
         data: {
           userId: agent.userId,
-          type: 'AGENT_CHANGES_APPROVED',
+          type: 'AGENT_APPROVED',
           title: 'Profile Changes Approved',
           message: 'Your profile/territory changes have been approved by the admin.',
           link: '/agent/profile',

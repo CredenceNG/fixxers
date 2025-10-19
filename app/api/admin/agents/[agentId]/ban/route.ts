@@ -52,7 +52,7 @@ export async function POST(
     await prisma.notification.create({
       data: {
         userId: agent.userId,
-        type: 'AGENT_BANNED',
+        type: 'GENERAL',
         title: 'Agent Account Banned',
         message: `Your agent account has been permanently banned. Reason: ${reason}`,
         link: '/agent/dashboard',
