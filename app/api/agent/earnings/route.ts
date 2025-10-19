@@ -18,8 +18,6 @@ export async function GET(request: NextRequest) {
             order: {
               select: {
                 id: true,
-                clientAmount: true,
-                fixerAmount: true,
                 status: true,
                 createdAt: true,
                 gig: {
