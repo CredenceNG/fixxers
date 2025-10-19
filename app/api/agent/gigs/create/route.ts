@@ -83,8 +83,7 @@ export async function POST(request: NextRequest) {
           slug,
           images: images || [],
           tags: tags || [],
-          faq: faq || [],
-          status: "PENDING",
+          status: "PENDING_REVIEW",
         },
       });
 
@@ -107,6 +106,7 @@ export async function POST(request: NextRequest) {
         data: {
           agentId: agent!.id,
           gigId: newGig.id,
+          fixerId: fixerId,
         },
       });
 

@@ -9,6 +9,10 @@ export async function GET(
   try {
     const user = await getCurrentUser();
 
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const agent = await prisma.agent.findUnique({
       where: { userId: user.id },
     });
@@ -31,14 +35,14 @@ export async function GET(
           include: {
             fixerProfile: {
               include: {
-                subcategories: {
+                neighborhood: true,
+              },
+            },
+            fixerServices: {
+              include: {
+                subcategory: {
                   include: {
                     category: true,
-                  },
-                },
-                neighborhoods: {
-                  include: {
-                    city: true,
                   },
                 },
               },

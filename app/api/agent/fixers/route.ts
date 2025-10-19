@@ -39,21 +39,21 @@ export async function GET() {
             profileImage: true,
             fixerProfile: {
               select: {
-                businessName: true,
-                yearsOfExperience: true,
-                approvalStatus: true,
-                services: {
+                yearsOfService: true,
+                primaryPhone: true,
+                streetAddress: true,
+              },
+            },
+            fixerServices: {
+              select: {
+                subcategory: {
                   select: {
-                    subcategory: {
+                    id: true,
+                    name: true,
+                    category: {
                       select: {
                         id: true,
                         name: true,
-                        category: {
-                          select: {
-                            id: true,
-                            name: true,
-                          },
-                        },
                       },
                     },
                   },

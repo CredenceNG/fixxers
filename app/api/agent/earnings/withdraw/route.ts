@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       await tx.notification.create({
         data: {
           userId: user.id,
-          type: 'WITHDRAWAL_REQUESTED',
+          type: 'GENERAL',
           title: 'Withdrawal Requested',
           message: `Your withdrawal request for ₦${amount.toLocaleString()} is being processed.`,
           link: '/agent/earnings',
