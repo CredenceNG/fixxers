@@ -508,7 +508,7 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
                 <option value="">All Neighborhoods</option>
                 {neighborhoods.map((neighborhood) => (
                   <option key={neighborhood.id} value={neighborhood.id}>
-                    {neighborhood.name}, {neighborhood.city.name}
+                    {neighborhood.name}{neighborhood.city ? `, ${neighborhood.city.name}` : ''}
                   </option>
                 ))}
               </select>

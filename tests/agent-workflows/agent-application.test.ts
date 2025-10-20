@@ -102,7 +102,7 @@ describe('Agent Application and Approval', () => {
       });
 
       const notifResult = await prismaMock.notification.createMany({
-        data: adminsResult.map((admin) => ({
+        data: adminsResult.map((admin: { id: string }) => ({
           userId: admin.id,
           type: 'AGENT_APPLICATION_SUBMITTED',
           title: 'New Agent Application',

@@ -77,6 +77,9 @@ export const spacing = {
   xl: '32px',
   xxl: '48px',
   xxxl: '64px',
+  '2xl': '48px', // Alias for xxl
+  '3xl': '56px',
+  '4xl': '64px', // Alias for xxxl
 };
 
 // Border Radius

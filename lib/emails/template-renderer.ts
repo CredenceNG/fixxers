@@ -77,13 +77,12 @@ export async function sendTemplatedEmail(
   type: EmailTemplateType,
   data: Record<string, any>
 ): Promise<void> {
-  const { subject, htmlBody, textBody } = await renderEmailTemplate(type, data);
+  const { subject, htmlBody } = await renderEmailTemplate(type, data);
 
   await sendEmail({
     to,
     subject,
     html: htmlBody,
-    text: textBody,
   });
 
   console.log(`[Email] Sent ${type} to ${to}`);

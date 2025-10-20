@@ -169,7 +169,7 @@ describe('Reviews and Ratings', () => {
         select: { rating: true },
       });
 
-      const average = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+      const average = reviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / reviews.length;
 
       expect(average).toBe(4.4);
     });
@@ -200,7 +200,7 @@ describe('Reviews and Ratings', () => {
         select: { rating: true },
       });
 
-      const distribution = reviews.reduce((acc, r) => {
+      const distribution = reviews.reduce((acc: Record<number, number>, r: { rating: number }) => {
         acc[r.rating] = (acc[r.rating] || 0) + 1;
         return acc;
       }, {} as Record<number, number>);

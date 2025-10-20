@@ -118,26 +118,76 @@ async function main() {
 
   // 4. Create Neighborhoods
   console.log('4️⃣  Creating neighborhoods...');
+
+  // First, ensure we have Nigeria country
+  const nigeria = await prisma.country.upsert({
+    where: {
+      name: 'Nigeria',
+    },
+    update: {},
+    create: {
+      name: 'Nigeria',
+      code: 'NG',
+    },
+  });
+
+  // Then ensure we have Lagos State
+  const lagosState = await prisma.state.upsert({
+    where: {
+      name_countryId: {
+        name: 'Lagos State',
+        countryId: nigeria.id,
+      },
+    },
+    update: {},
+    create: {
+      name: 'Lagos State',
+      countryId: nigeria.id,
+    },
+  });
+
+  // Then create Lagos city
+  const lagosCity = await prisma.city.upsert({
+    where: {
+      name_stateId: {
+        name: 'Lagos',
+        stateId: lagosState.id,
+      },
+    },
+    update: {},
+    create: {
+      name: 'Lagos',
+      stateId: lagosState.id,
+    },
+  });
+
   const neighborhoodsData = [
-    { name: 'Downtown', city: 'Lagos', state: 'Lagos State', country: 'Nigeria', latitude: 6.4541, longitude: 3.3947 },
-    { name: 'Lekki Phase 1', city: 'Lagos', state: 'Lagos State', country: 'Nigeria', latitude: 6.4432, longitude: 3.4745 },
-    { name: 'Victoria Island', city: 'Lagos', state: 'Lagos State', country: 'Nigeria', latitude: 6.4281, longitude: 3.4219 },
-    { name: 'Ikeja GRA', city: 'Lagos', state: 'Lagos State', country: 'Nigeria', latitude: 6.5968, longitude: 3.3426 },
-    { name: 'Surulere', city: 'Lagos', state: 'Lagos State', country: 'Nigeria', latitude: 6.4969, longitude: 3.3578 },
+    { name: 'Downtown', latitude: 6.4541, longitude: 3.3947 },
+    { name: 'Lekki Phase 1', latitude: 6.4432, longitude: 3.4745 },
+    { name: 'Victoria Island', latitude: 6.4281, longitude: 3.4219 },
+    { name: 'Ikeja GRA', latitude: 6.5968, longitude: 3.3426 },
+    { name: 'Surulere', latitude: 6.4969, longitude: 3.3578 },
   ];
 
   const neighborhoods = [];
   for (const nData of neighborhoodsData) {
     const neighborhood = await prisma.neighborhood.upsert({
       where: {
-        name_city_state: {
+        name_cityId: {
           name: nData.name,
-          city: nData.city,
-          state: nData.state,
+          cityId: lagosCity.id,
         },
       },
       update: {},
-      create: nData,
+      create: {
+        name: nData.name,
+        latitude: nData.latitude,
+        longitude: nData.longitude,
+        cityId: lagosCity.id,
+        legacyCity: 'Lagos',
+        legacyState: 'Lagos State',
+        legacyCountry: 'Nigeria',
+      },
     });
     neighborhoods.push(neighborhood);
   }
@@ -169,9 +219,9 @@ async function main() {
       create: {
         clientId: client.id,
         neighbourhood: neighborhood.name,
-        city: neighborhood.city,
-        state: neighborhood.state,
-        country: neighborhood.country,
+        city: neighborhood.legacyCity || 'Lagos',
+        state: neighborhood.legacyState || 'Lagos State',
+        country: neighborhood.legacyCountry || 'Nigeria',
         primaryPhone: `+234${8000000000 + i}`,
         streetAddress: `${i} Client Street`,
       },
@@ -210,9 +260,9 @@ async function main() {
         yearsOfService: i % 10 + 2,
         qualifications: ['Certified Professional', 'Licensed Expert', 'Quality Assured'].slice(0, (i % 3) + 1),
         neighbourhood: neighborhood.name,
-        city: neighborhood.city,
-        state: neighborhood.state,
-        country: neighborhood.country,
+        city: neighborhood.legacyCity || 'Lagos',
+        state: neighborhood.legacyState || 'Lagos State',
+        country: neighborhood.legacyCountry || 'Nigeria',
         primaryPhone: `+234${9000000000 + i}`,
         streetAddress: `${i} Fixer Avenue`,
         pendingChanges: false,

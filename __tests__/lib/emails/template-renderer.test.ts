@@ -135,7 +135,7 @@ describe('Email Template Renderer', () => {
       };
 
       vi.mocked(prisma.emailTemplate.findUnique).mockResolvedValue(mockTemplate as any);
-      vi.mocked(sendEmail).mockResolvedValue(undefined);
+      vi.mocked(sendEmail).mockResolvedValue({ success: true });
 
       await templateRenderer.sendTemplatedEmail(
         'test@example.com',
@@ -251,7 +251,7 @@ describe('Email Template Renderer', () => {
         };
 
         vi.mocked(prisma.emailTemplate.findUnique).mockResolvedValue(mockTemplate as any);
-        vi.mocked(sendEmail).mockResolvedValue(undefined);
+        vi.mocked(sendEmail).mockResolvedValue({ success: true });
 
         await templateRenderer.sendOrderConfirmationEmail({
           clientEmail: 'client@example.com',
@@ -282,7 +282,7 @@ describe('Email Template Renderer', () => {
         };
 
         vi.mocked(prisma.emailTemplate.findUnique).mockResolvedValue(mockTemplate as any);
-        vi.mocked(sendEmail).mockResolvedValue(undefined);
+        vi.mocked(sendEmail).mockResolvedValue({ success: true });
 
         await templateRenderer.sendPaymentReceivedEmail({
           fixerEmail: 'fixer@example.com',
@@ -314,7 +314,7 @@ describe('Email Template Renderer', () => {
         };
 
         vi.mocked(prisma.emailTemplate.findUnique).mockResolvedValue(mockTemplate as any);
-        vi.mocked(sendEmail).mockResolvedValue(undefined);
+        vi.mocked(sendEmail).mockResolvedValue({ success: true });
 
         await templateRenderer.sendQuoteReceivedEmail({
           clientEmail: 'client@example.com',

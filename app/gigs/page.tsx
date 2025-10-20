@@ -378,7 +378,7 @@ export default async function GigsPage({
                             {/* Available Now Badge */}
                             {'allowInstantBooking' in gig && gig.allowInstantBooking && (
                               <div style={{ marginLeft: 'auto' }}>
-                                <AvailableNowBadge allowInstantBooking={gig.allowInstantBooking} />
+                                <AvailableNowBadge allowInstantBooking={!!gig.allowInstantBooking} />
                               </div>
                             )}
                           </div>                          {/* Badge Display */}
@@ -429,11 +429,11 @@ export default async function GigsPage({
                           )}
 
                           {/* Service Area */}
-                          {gig.seller.fixerProfile && (
+                          {gig.seller.fixerProfile && gig.seller.fixerProfile.neighbourhood && gig.seller.fixerProfile.city && (
                             <ServiceArea
                               neighbourhood={gig.seller.fixerProfile.neighbourhood}
                               city={gig.seller.fixerProfile.city}
-                              state={gig.seller.fixerProfile.state}
+                              state={gig.seller.fixerProfile.state || undefined}
                             />
                           )}
                         </div>

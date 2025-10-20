@@ -65,7 +65,6 @@ export default async function QuoteDetailPage({ params }: PageProps) {
 
     return (
         <DashboardLayoutWithHeader
-            user={user}
             title="Quote Details"
             subtitle={`Quote #${quote.id.slice(-8)}`}
         >
@@ -85,7 +84,6 @@ export default async function QuoteDetailPage({ params }: PageProps) {
                         fontWeight: '600',
                         color: colors.textSecondary,
                         textDecoration: 'none',
-                        borderRadius: borderRadius.md,
                         transition: 'all 0.2s',
                     }}
                 >
@@ -119,7 +117,7 @@ export default async function QuoteDetailPage({ params }: PageProps) {
                                 fontSize: '12px',
                                 fontWeight: '600',
                                 borderRadius: borderRadius.full,
-                                backgroundColor: colors.infoLight,
+                                backgroundColor: colors.blueLight,
                                 color: colors.info,
                             }}>
                                 Initial Quote

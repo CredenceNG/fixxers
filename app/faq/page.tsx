@@ -129,7 +129,7 @@ export default function FAQPage() {
       </header>
 
       {/* Hero */}
-      <section style={{ backgroundColor: colors.primary, color: colors.white, padding: `${spacing['4xl']} ${spacing.xl}`, textAlign: 'center' }}>
+      <section style={{ backgroundColor: colors.primary, color: colors.white, padding: `${spacing.xxxl} ${spacing.xl}`, textAlign: 'center' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <h1 style={{ fontSize: '48px', fontWeight: 'bold', marginBottom: spacing.lg }}>Frequently Asked Questions</h1>
           <p style={{ fontSize: '20px', lineHeight: '1.6', opacity: 0.9 }}>
@@ -139,10 +139,10 @@ export default function FAQPage() {
       </section>
 
       {/* Main Content */}
-      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: `${spacing['4xl']} ${spacing.xl}` }}>
+      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: `${spacing.xxxl} ${spacing.xl}` }}>
 
         {faqs.map((section, sectionIndex) => (
-          <section key={sectionIndex} style={{ marginBottom: spacing['4xl'] }}>
+          <section key={sectionIndex} style={{ marginBottom: spacing.xxxl }}>
             <h2 style={{ fontSize: '32px', fontWeight: 'bold', color: colors.textPrimary, marginBottom: spacing.xl, paddingBottom: spacing.md, borderBottom: `2px solid ${colors.primary}` }}>
               {section.category}
             </h2>
@@ -164,7 +164,7 @@ export default function FAQPage() {
         ))}
 
         {/* Still Have Questions */}
-        <section style={{ textAlign: 'center', backgroundColor: colors.bgSecondary, padding: spacing['3xl'], borderRadius: borderRadius.lg, marginTop: spacing['4xl'] }}>
+        <section style={{ textAlign: 'center', backgroundColor: colors.bgSecondary, padding: spacing.xxl, borderRadius: borderRadius.lg, marginTop: spacing.xxxl }}>
           <div style={{ fontSize: '48px', marginBottom: spacing.md }}>💬</div>
           <h2 style={{ fontSize: '28px', fontWeight: 'bold', color: colors.textPrimary, marginBottom: spacing.md }}>
             Still Have Questions?
@@ -212,7 +212,7 @@ export default function FAQPage() {
       </main>
 
       {/* Footer */}
-      <footer style={{ backgroundColor: colors.bgSecondary, borderTop: `1px solid ${colors.border}`, padding: `${spacing.xl} ${spacing.lg}`, marginTop: spacing['4xl'] }}>
+      <footer style={{ backgroundColor: colors.bgSecondary, borderTop: `1px solid ${colors.border}`, padding: `${spacing.xl} ${spacing.lg}`, marginTop: spacing.xxxl }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', textAlign: 'center', color: colors.textSecondary, fontSize: '14px' }}>
           <p>© {new Date().getFullYear()} Fixers. All rights reserved.</p>
           <div style={{ marginTop: spacing.md, display: 'flex', gap: spacing.lg, justifyContent: 'center', flexWrap: 'wrap' }}>

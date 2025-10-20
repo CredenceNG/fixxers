@@ -50,7 +50,6 @@ export default async function FixerReviewsPage() {
 
     return (
         <DashboardLayoutWithHeader
-            currentUser={user}
             title="Your Reviews"
             subtitle="Manage and respond to reviews from your clients"
         >

@@ -145,7 +145,7 @@ describe('Client Service Requests Management', () => {
       });
 
       const result = await prismaMock.notification.createMany({
-        data: fixers.map((f) => ({
+        data: fixers.map((f: { fixerId: string }) => ({
           userId: f.fixerId,
           type: 'NEW_SERVICE_REQUEST',
           title: 'New service request available',

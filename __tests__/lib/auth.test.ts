@@ -39,6 +39,7 @@ describe('Authentication', () => {
       const payload = {
         userId: 'user-123',
         email: 'test@example.com',
+        role: 'CLIENT',
         roles: ['CLIENT'],
       };
 
@@ -55,7 +56,7 @@ describe('Authentication', () => {
     });
 
     it('should generate token with 7 day expiration', () => {
-      const payload = { userId: 'user-123', email: 'test@example.com', roles: [] };
+      const payload = { userId: 'user-123', email: 'test@example.com', role: 'CLIENT', roles: [] };
       const token = authLib.generateSessionToken(payload);
 
       const decoded = jwt.verify(token, JWT_SECRET) as any;
@@ -224,7 +225,7 @@ describe('Authentication', () => {
     });
 
     it('should return false if user roles is undefined', () => {
-      const user = { id: '1' };
+      const user = { id: '1', roles: undefined };
 
       expect(authLib.hasRole(user, ['ADMIN'])).toBe(false);
     });
@@ -249,7 +250,7 @@ describe('Authentication', () => {
     });
 
     it('should return false if user has no roles', () => {
-      const user = { id: '1' };
+      const user = { id: '1', roles: undefined };
 
       expect(authLib.hasAnyRole(user, 'ADMIN')).toBe(false);
     });
@@ -265,7 +266,7 @@ describe('Authentication', () => {
         status: 'ACTIVE',
       };
 
-      const payload = { userId: 'user-123', email: 'test@example.com', roles: ['CLIENT'] };
+      const payload = { userId: 'user-123', email: 'test@example.com', role: 'CLIENT', roles: ['CLIENT'] };
       const token = jwt.sign(payload, JWT_SECRET);
 
       // Mock cookies to return token

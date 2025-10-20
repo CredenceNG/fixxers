@@ -45,9 +45,8 @@ export default async function FixerQuotesPage() {
 
     const stats = {
         total: quotes.length,
-        pending: quotes.filter((q) => !q.isAccepted && !q.isRejected).length,
+        pending: quotes.filter((q) => !q.isAccepted).length,
         accepted: quotes.filter((q) => q.isAccepted).length,
-        rejected: quotes.filter((q) => q.isRejected).length,
     };
 
     const getStatusBadge = (quote: any) => {
@@ -57,9 +56,6 @@ export default async function FixerQuotesPage() {
         if (quote.isAccepted) {
             status = 'ACCEPTED';
             style = { bg: colors.successLight, color: colors.success };
-        } else if (quote.isRejected) {
-            status = 'REJECTED';
-            style = { bg: colors.errorLight, color: colors.error };
         }
 
         return (
@@ -118,12 +114,6 @@ export default async function FixerQuotesPage() {
                     value={stats.accepted}
                     icon="✅"
                     color={colors.success}
-                />
-                <DashboardStat
-                    label="Rejected"
-                    value={stats.rejected}
-                    icon="❌"
-                    color={colors.error}
                 />
             </div>
 

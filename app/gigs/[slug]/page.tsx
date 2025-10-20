@@ -192,7 +192,7 @@ export default async function GigDetailPage({ params }: { params: Promise<{ slug
                 {/* Quick Wins Badges */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginTop: '8px' }}>
                   {'allowInstantBooking' in gig && gig.allowInstantBooking && (
-                    <AvailableNowBadge allowInstantBooking={gig.allowInstantBooking} />
+                    <AvailableNowBadge allowInstantBooking={!!gig.allowInstantBooking} />
                   )}
                   {avgRating && (
                     <ReviewCount count={reviews.length} averageRating={parseFloat(avgRating)} />
@@ -339,11 +339,11 @@ export default async function GigDetailPage({ params }: { params: Promise<{ slug
                     {gig.seller.fixerProfile?.totalJobsCompleted && gig.seller.fixerProfile.totalJobsCompleted > 0 && (
                       <JobsCompleted count={gig.seller.fixerProfile.totalJobsCompleted} />
                     )}
-                    {gig.seller.fixerProfile && (
+                    {gig.seller.fixerProfile && gig.seller.fixerProfile.neighbourhood && gig.seller.fixerProfile.city && (
                       <ServiceArea
                         neighbourhood={gig.seller.fixerProfile.neighbourhood}
                         city={gig.seller.fixerProfile.city}
-                        state={gig.seller.fixerProfile.state}
+                        state={gig.seller.fixerProfile.state || undefined}
                       />
                     )}
                   </div>

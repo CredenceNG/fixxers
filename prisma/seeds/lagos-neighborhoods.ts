@@ -203,14 +203,62 @@ export async function seedLagosNeighborhoods() {
   let created = 0;
   let skipped = 0;
 
+  // First, ensure Nigeria country exists
+  const nigeria = await prisma.country.upsert({
+    where: {
+      name: 'Nigeria',
+    },
+    update: {},
+    create: {
+      name: 'Nigeria',
+      code: 'NG',
+    },
+  });
+
+  // Then ensure Lagos State exists
+  const lagosState = await prisma.state.upsert({
+    where: {
+      name_countryId: {
+        name: 'Lagos',
+        countryId: nigeria.id,
+      },
+    },
+    update: {},
+    create: {
+      name: 'Lagos',
+      countryId: nigeria.id,
+    },
+  });
+
+  // Then ensure all cities exist
+  const citiesMap = new Map<string, string>();
+  for (const neighborhood of lagosNeighborhoods) {
+    if (!citiesMap.has(neighborhood.city)) {
+      const city = await prisma.city.upsert({
+        where: {
+          name_stateId: {
+            name: neighborhood.city,
+            stateId: lagosState.id,
+          },
+        },
+        update: {},
+        create: {
+          name: neighborhood.city,
+          stateId: lagosState.id,
+        },
+      });
+      citiesMap.set(neighborhood.city, city.id);
+    }
+  }
+
   for (const neighborhood of lagosNeighborhoods) {
     try {
       // Check if neighborhood already exists
       const existing = await prisma.neighborhood.findFirst({
         where: {
           name: neighborhood.name,
-          city: neighborhood.city,
-          state: neighborhood.state,
+          legacyCity: neighborhood.city,
+          legacyState: neighborhood.state,
         },
       });
 
@@ -219,9 +267,23 @@ export async function seedLagosNeighborhoods() {
         continue;
       }
 
+      const cityId = citiesMap.get(neighborhood.city);
+      if (!cityId) {
+        console.error(`City not found for ${neighborhood.name}`);
+        continue;
+      }
+
       // Create new neighborhood
       await prisma.neighborhood.create({
-        data: neighborhood,
+        data: {
+          name: neighborhood.name,
+          cityId: cityId,
+          legacyCity: neighborhood.city,
+          legacyState: neighborhood.state,
+          legacyCountry: neighborhood.country,
+          latitude: neighborhood.latitude,
+          longitude: neighborhood.longitude,
+        },
       });
 
       created++;
