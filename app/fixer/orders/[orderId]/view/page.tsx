@@ -232,9 +232,12 @@ export default function FixerOrderViewPage({ params }: { params: Promise<{ order
             </div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '75% 25%', gap: '24px', alignItems: 'start' }}>
+          <div
+            style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px', alignItems: 'start' }}
+            className="order-view-layout"
+          >
             {/* Left Column - 75% */}
-            <div>
+            <div className="order-main-content">
               {/* Order Status Card */}
               <div style={{ ...styles.section, marginBottom: '24px' }}>
                 <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
@@ -537,7 +540,7 @@ export default function FixerOrderViewPage({ params }: { params: Promise<{ order
             </div>
 
             {/* Right Column - 25% (Messages) */}
-            <div style={{ position: 'sticky', top: '80px', minWidth: 0 }}>
+            <div className="order-messages-sidebar">
               <h2 style={{ ...styles.sectionTitle, marginBottom: '16px' }}>Messages</h2>
               <div style={{ minHeight: '600px' }}>
                 <RequestMessages requestId={order.request.id} currentUserId={currentUserId} />

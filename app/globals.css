@@ -295,3 +295,15 @@ input:focus {
     order: 1 !important;
   }
 }
+
+/* Fixer Order View Page Responsive Layout */
+@media (min-width: 768px) {
+  .order-view-layout {
+    grid-template-columns: 75% 25% !important;
+  }
+  .order-messages-sidebar {
+    position: sticky;
+    top: 80px;
+    min-width: 0;
+  }
+}

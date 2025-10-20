@@ -172,17 +172,22 @@ export default async function ClientDashboard() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Action</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Service</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Seller</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Package</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Amount</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Status</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {activeGigOrders.map((order) => (
                   <tr key={order.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                    <td style={{ padding: '16px' }}>
+                      <Link href={`/client/orders/${order.id}`} style={{ color: colors.primary, fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}>
+                        View Details
+                      </Link>
+                    </td>
                     <td style={{ padding: '16px' }}>
                       <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
                         {order.gig?.title}
@@ -218,11 +223,6 @@ export default async function ClientDashboard() {
                         {order.status}
                       </span>
                     </td>
-                    <td style={{ padding: '16px' }}>
-                      <Link href={`/client/orders/${order.id}`} style={{ color: colors.primary, fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}>
-                        View Details
-                      </Link>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -238,16 +238,21 @@ export default async function ClientDashboard() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Action</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Service</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Fixer</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Amount</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Status</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {activeOrders.map((order) => (
                   <tr key={order.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                    <td style={{ padding: '16px' }}>
+                      <Link href={`/client/orders/${order.id}`} style={{ color: colors.primary, fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}>
+                        View Details
+                      </Link>
+                    </td>
                     <td style={{ padding: '16px' }}>
                       <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
                         {order.request?.subcategory?.category?.name || order.gig?.subcategory?.category?.name || 'N/A'}
@@ -271,11 +276,6 @@ export default async function ClientDashboard() {
                       }}>
                         {order.status}
                       </span>
-                    </td>
-                    <td style={{ padding: '16px' }}>
-                      <Link href={`/client/orders/${order.id}`} style={{ color: colors.primary, fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}>
-                        View Details
-                      </Link>
                     </td>
                   </tr>
                 ))}
@@ -302,17 +302,30 @@ export default async function ClientDashboard() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Action</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Title</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Category</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Quotes</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Status</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Created</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {requests.map((request) => (
                   <tr key={request.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                    <td style={{ padding: '16px' }}>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <Link
+                          href={`/client/requests/${request.id}`}
+                          style={{ color: colors.primary, fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}
+                        >
+                          View
+                        </Link>
+                        {!['CANCELLED', 'ACCEPTED'].includes(request.status) && (
+                          <CancelButton requestId={request.id} requestTitle={request.title} />
+                        )}
+                      </div>
+                    </td>
                     <td style={{ padding: '16px' }}>
                       <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>{request.title}</div>
                       <div style={{ fontSize: '13px', color: colors.textSecondary }}>{request.neighborhood.name}</div>
@@ -344,19 +357,6 @@ export default async function ClientDashboard() {
                     <td style={{ padding: '16px', fontSize: '14px', color: colors.textSecondary }}>
                       {new Date(request.createdAt).toLocaleDateString()}
                     </td>
-                    <td style={{ padding: '16px' }}>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        <Link
-                          href={`/client/requests/${request.id}`}
-                          style={{ color: colors.primary, fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}
-                        >
-                          View
-                        </Link>
-                        {!['CANCELLED', 'ACCEPTED'].includes(request.status) && (
-                          <CancelButton requestId={request.id} requestTitle={request.title} />
-                        )}
-                      </div>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -372,16 +372,21 @@ export default async function ClientDashboard() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Action</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Service</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Fixer</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Completed</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Review</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {completedOrders.map((order) => (
                   <tr key={order.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                    <td style={{ padding: '16px' }}>
+                      <Link href={`/client/orders/${order.id}`} style={{ color: colors.primary, fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}>
+                        View
+                      </Link>
+                    </td>
                     <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>
                       {order.request?.subcategory?.name || order.gig?.subcategory?.name || 'N/A'}
                     </td>
@@ -402,11 +407,6 @@ export default async function ClientDashboard() {
                           Leave Review
                         </Link>
                       )}
-                    </td>
-                    <td style={{ padding: '16px' }}>
-                      <Link href={`/client/orders/${order.id}`} style={{ color: colors.primary, fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}>
-                        View
-                      </Link>
                     </td>
                   </tr>
                 ))}

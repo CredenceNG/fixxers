@@ -403,16 +403,21 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Action</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Service</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Client</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Your Earnings</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Status</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {activeOrders.map((order) => (
                   <tr key={order.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                    <td style={{ padding: '16px' }}>
+                      <Link href={`/fixer/orders/${order.id}`} style={{ color: colors.primary, fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}>
+                        View Details
+                      </Link>
+                    </td>
                     <td style={{ padding: '16px' }}>
                       <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
                         {order.request?.subcategory?.category?.name || order.gig?.subcategory?.category?.name || 'N/A'}
@@ -436,11 +441,6 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
                       }}>
                         {order.status}
                       </span>
-                    </td>
-                    <td style={{ padding: '16px' }}>
-                      <Link href={`/fixer/orders/${order.id}`} style={{ color: colors.primary, fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}>
-                        View Details
-                      </Link>
                     </td>
                   </tr>
                 ))}
@@ -579,11 +579,11 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Action</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Request</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Client</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Location</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Posted</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -594,17 +594,6 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
                   const canQuote = hasNeighborhood && hasCategory;
                   return (
                     <tr key={request.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
-                      <td style={{ padding: '16px' }}>
-                        <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>{request.title}</div>
-                        <div style={{ fontSize: '13px', color: colors.textSecondary }}>{request.subcategory.name}</div>
-                      </td>
-                      <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>
-                        {request.client.name || request.client.email || request.client.phone}
-                      </td>
-                      <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>{request.neighborhood.name}</td>
-                      <td style={{ padding: '16px', fontSize: '14px', color: colors.textSecondary }}>
-                        {new Date(request.createdAt).toLocaleDateString()}
-                      </td>
                       <td style={{ padding: '16px' }}>
                         {hasQuoted ? (
                           <span style={{ color: colors.success, fontWeight: '600', fontSize: '14px' }}>Quoted</span>
@@ -618,6 +607,17 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
                         ) : (
                           <span style={{ color: colors.textTertiary, fontSize: '14px' }}>View Only</span>
                         )}
+                      </td>
+                      <td style={{ padding: '16px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>{request.title}</div>
+                        <div style={{ fontSize: '13px', color: colors.textSecondary }}>{request.subcategory.name}</div>
+                      </td>
+                      <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>
+                        {request.client.name || request.client.email || request.client.phone}
+                      </td>
+                      <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>{request.neighborhood.name}</td>
+                      <td style={{ padding: '16px', fontSize: '14px', color: colors.textSecondary }}>
+                        {new Date(request.createdAt).toLocaleDateString()}
                       </td>
                     </tr>
                   );
@@ -685,21 +685,16 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Status</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Request</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Client</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Amount</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Status</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Submitted</th>
                 </tr>
               </thead>
               <tbody>
                 {quotes.map((quote) => (
                   <tr key={quote.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
-                    <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>{quote.request.subcategory.name}</td>
-                    <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>
-                      {quote.request.client.name || quote.request.client.email || quote.request.client.phone}
-                    </td>
-                    <td style={{ padding: '16px', fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>₦{quote.totalAmount.toLocaleString()}</td>
                     <td style={{ padding: '16px' }}>
                       <span style={{
                         padding: '4px 12px',
@@ -712,6 +707,11 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
                         {quote.isAccepted ? 'Accepted' : 'Pending'}
                       </span>
                     </td>
+                    <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>{quote.request.subcategory.name}</td>
+                    <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>
+                      {quote.request.client.name || quote.request.client.email || quote.request.client.phone}
+                    </td>
+                    <td style={{ padding: '16px', fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>₦{quote.totalAmount.toLocaleString()}</td>
                     <td style={{ padding: '16px', fontSize: '14px', color: colors.textSecondary }}>
                       {new Date(quote.createdAt).toLocaleDateString()}
                     </td>
@@ -779,16 +779,23 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Rating</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Service</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Client</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Earned</th>
                   <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Completed</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>Rating</th>
                 </tr>
               </thead>
               <tbody>
                 {completedOrders.map((order) => (
                   <tr key={order.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                    <td style={{ padding: '16px', fontSize: '14px' }}>
+                      {order.review ? (
+                        <span style={{ color: '#F59E0B', fontWeight: '600' }}>★ {order.review.rating}/5</span>
+                      ) : (
+                        <span style={{ color: colors.textTertiary }}>No review</span>
+                      )}
+                    </td>
                     <td style={{ padding: '16px', fontSize: '14px', color: colors.textPrimary }}>
                       {order.request?.subcategory?.name || order.gig?.subcategory?.name || 'N/A'}
                     </td>
@@ -798,13 +805,6 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
                     <td style={{ padding: '16px', fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>₦{order.fixerAmount.toLocaleString()}</td>
                     <td style={{ padding: '16px', fontSize: '14px', color: colors.textSecondary }}>
                       {order.completedAt ? new Date(order.completedAt).toLocaleDateString() : 'N/A'}
-                    </td>
-                    <td style={{ padding: '16px', fontSize: '14px' }}>
-                      {order.review ? (
-                        <span style={{ color: '#F59E0B', fontWeight: '600' }}>★ {order.review.rating}/5</span>
-                      ) : (
-                        <span style={{ color: colors.textTertiary }}>No review</span>
-                      )}
                     </td>
                   </tr>
                 ))}
