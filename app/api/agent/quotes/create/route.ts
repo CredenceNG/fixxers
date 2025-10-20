@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Get request details for notifications
-    const request = await prisma.serviceRequest.findUnique({
+    const serviceRequest = await prisma.serviceRequest.findUnique({
       where: { id: requestId },
       select: {
         title: true,
@@ -109,21 +109,21 @@ export async function POST(request: NextRequest) {
     await prisma.notification.create({
       data: {
         userId: fixerId,
-        type: "QUOTE_SUBMITTED",
+        type: "GENERAL",
         title: "Quote Submitted",
-        message: `Your agent submitted a quote of ₦${totalAmount.toLocaleString()} for "${request?.title || 'service request'}".`,
+        message: `Your agent submitted a quote of ₦${totalAmount.toLocaleString()} for "${serviceRequest?.title || 'service request'}".`,
         link: `/fixer/quotes`,
       },
     });
 
     // Notify the client
-    if (request) {
+    if (serviceRequest) {
       await prisma.notification.create({
         data: {
-          userId: request.clientId,
-          type: "QUOTE_RECEIVED",
+          userId: serviceRequest.clientId,
+          type: "NEW_QUOTE",
           title: "New Quote Received",
-          message: `You received a quote of ₦${totalAmount.toLocaleString()} for "${request.title}".`,
+          message: `You received a quote of ₦${totalAmount.toLocaleString()} for "${serviceRequest.title}".`,
           link: `/client/requests/${requestId}`,
         },
       });
