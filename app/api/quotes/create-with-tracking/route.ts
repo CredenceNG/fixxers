@@ -134,10 +134,12 @@ export async function POST(req: NextRequest) {
         await sendQuoteReceivedEmail({
           clientEmail: client.email,
           clientName: client.name || 'Client',
-          quoteId: quote.id,
-          serviceName: serviceRequest.title,
+          serviceTitle: serviceRequest.title,
           fixerName: quote.fixer.name || 'Service Provider',
           quoteAmount: `₦${totalAmount.toLocaleString()}`,
+          estimatedDuration,
+          startDate: startDate ? new Date(startDate).toLocaleDateString() : undefined,
+          description,
           quoteUrl: `${process.env.NEXT_PUBLIC_APP_URL}/client/requests/${requestId}`,
         });
       }

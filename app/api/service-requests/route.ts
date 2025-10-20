@@ -26,20 +26,19 @@ export async function GET(request: NextRequest) {
     const agent = await prisma.agent.findUnique({
       where: { userId: user.id },
       include: {
-        territories: {
-          where: { status: 'APPROVED' },
+        approvedNeighborhoods: {
           select: {
-            neighborhoodId: true,
+            id: true,
           },
         },
       },
     });
 
-    if (!agent || agent.territories.length === 0) {
+    if (!agent || agent.approvedNeighborhoods.length === 0) {
       return NextResponse.json({ requests: [] });
     }
 
-    const neighborhoodIds = agent.territories.map((t) => t.neighborhoodId);
+    const neighborhoodIds = agent.approvedNeighborhoods.map((n) => n.id);
 
     // Fetch service requests in agent's territories
     const requests = await prisma.serviceRequest.findMany({

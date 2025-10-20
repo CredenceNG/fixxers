@@ -301,7 +301,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
                         {request.description}
                       </p>
                       <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: colors.textSecondary }}>
-                        <div>📍 {request.neighborhood.name}, {request.neighborhood.city.name}</div>
+                        <div>📍 {request.neighborhood.name}, {request.neighborhood.city?.name}</div>
                         <div>📅 {new Date(request.createdAt).toLocaleDateString()}</div>
                         {request.urgency && (
                           <div style={{ textTransform: 'capitalize' }}>

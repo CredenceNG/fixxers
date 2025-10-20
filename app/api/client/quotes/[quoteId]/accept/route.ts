@@ -149,11 +149,10 @@ export async function POST(
         await sendQuoteAcceptedEmail({
           fixerEmail: quote.fixer.email,
           fixerName: quote.fixer.name || 'Service Provider',
-          quoteId: quote.id,
-          serviceName: quote.request.title,
+          serviceTitle: quote.request.title,
           clientName: client?.name || user.name || 'Client',
           quoteAmount: `₦${quote.totalAmount.toLocaleString()}`,
-          quoteUrl: `${process.env.NEXT_PUBLIC_APP_URL}/fixer/quotes`,
+          orderUrl: `${process.env.NEXT_PUBLIC_APP_URL}/fixer/quotes`,
         });
       }
     } catch (error) {

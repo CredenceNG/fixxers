@@ -113,7 +113,7 @@ export default async function RequestDetailsPage({ params }: { params: Promise<{
               <div>
                 <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '4px' }}>Location</div>
                 <div style={{ fontSize: '15px', color: colors.textPrimary }}>
-                  {request.neighborhood.name}, {request.neighborhood.city.name}
+                  {request.neighborhood.name}, {request.neighborhood.city?.name}
                 </div>
                 {request.address && (
                   <div style={{ fontSize: '14px', color: colors.textSecondary, marginTop: '4px' }}>{request.address}</div>

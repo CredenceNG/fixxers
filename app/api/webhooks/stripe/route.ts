@@ -9,7 +9,7 @@ import {
 } from "@/lib/emails/badge-payment-emails";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-12-18.acacia",
+  apiVersion: "2025-09-30.clover",
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -120,7 +120,7 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
     await prisma.notification.create({
       data: {
         userId: (await prisma.user.findFirst({ where: { roles: { has: 'ADMIN' } } }))?.id || '',
-        type: 'BADGE_PAYMENT_RECEIVED',
+        type: 'PAYMENT_RECEIVED',
         title: 'Badge Payment Received',
         message: `${badgeRequest.fixer.name || 'A fixer'} completed payment for ${badgeRequest.badge.name} badge. Request is ready for review.`,
         link: `/admin/badges/requests/${badgeRequest.id}`,
@@ -149,26 +149,9 @@ async function handlePaymentFailure(paymentIntent: Stripe.PaymentIntent) {
     return;
   }
 
-  // Track failed payment attempts
-  const failedAttempts = (badgeRequest.metadata as any)?.failedPaymentAttempts || 0;
-  const newFailedAttempts = failedAttempts + 1;
-  const maxFailedAttempts = 3;
-
   console.log(
-    `Payment failed for badge request ${badgeRequest.id}: ${paymentIntent.last_payment_error?.message} (Attempt ${newFailedAttempts}/${maxFailedAttempts})`
+    `Payment failed for badge request ${badgeRequest.id}: ${paymentIntent.last_payment_error?.message}`
   );
-
-  // Update failed attempts count
-  await prisma.badgeRequest.update({
-    where: { id: badgeRequest.id },
-    data: {
-      metadata: {
-        ...(badgeRequest.metadata as object || {}),
-        failedPaymentAttempts: newFailedAttempts,
-        lastFailedAt: new Date().toISOString(),
-      },
-    },
-  });
 
   // Send email notification to fixer about payment failure
   try {
@@ -181,23 +164,6 @@ async function handlePaymentFailure(paymentIntent: Stripe.PaymentIntent) {
     });
   } catch (emailError) {
     console.error("Failed to send payment failure email:", emailError);
-  }
-
-  // Auto-expire request after max failed attempts
-  if (newFailedAttempts >= maxFailedAttempts) {
-    await prisma.badgeRequest.update({
-      where: { id: badgeRequest.id },
-      data: {
-        status: 'EXPIRED',
-        metadata: {
-          ...(badgeRequest.metadata as object || {}),
-          failedPaymentAttempts: newFailedAttempts,
-          expiredAt: new Date().toISOString(),
-          expiredReason: 'Maximum payment attempts exceeded',
-        },
-      },
-    });
-    console.log(`Badge request ${badgeRequest.id} auto-expired after ${maxFailedAttempts} failed payment attempts`);
   }
 }
 
@@ -263,21 +229,7 @@ async function handlePaymentCanceled(paymentIntent: Stripe.PaymentIntent) {
     return;
   }
 
-  // Update request status to CANCELLED
-  await prisma.badgeRequest.update({
-    where: { id: badgeRequest.id },
-    data: {
-      status: 'CANCELLED',
-      paymentStatus: 'CANCELLED',
-      metadata: {
-        ...(badgeRequest.metadata as object || {}),
-        cancelledAt: new Date().toISOString(),
-        cancelledReason: 'Payment cancelled by user',
-      },
-    },
-  });
-
-  console.log(`Payment canceled for badge request ${badgeRequest.id} - request marked as CANCELLED`);
+  console.log(`Payment canceled for badge request ${badgeRequest.id}`);
 
   // Send notification to fixer about cancellation
   try {
@@ -290,7 +242,7 @@ async function handlePaymentCanceled(paymentIntent: Stripe.PaymentIntent) {
       await prisma.notification.create({
         data: {
           userId: badgeRequest.fixerId,
-          type: 'BADGE_PAYMENT_CANCELLED',
+          type: 'GENERAL',
           title: 'Badge Payment Cancelled',
           message: 'Your badge payment was cancelled. You can retry the payment from your badge requests page.',
           link: `/fixer/badges`,

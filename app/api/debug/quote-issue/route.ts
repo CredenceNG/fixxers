@@ -92,8 +92,8 @@ export async function GET() {
           neighborhoods: s.neighborhoods.map(n => ({
             id: n.id,
             name: n.name,
-            city: n.city.name,
-            state: n.city.state.name
+            city: n.city?.name,
+            state: n.city?.state?.name
           }))
         }))
       },
@@ -109,8 +109,8 @@ export async function GET() {
           neighborhood: {
             id: r.neighborhoodId,
             name: r.neighborhood.name,
-            city: r.neighborhood.city.name,
-            state: r.neighborhood.city.state.name
+            city: r.neighborhood.city?.name,
+            state: r.neighborhood.city?.state?.name
           }
         }))
       },

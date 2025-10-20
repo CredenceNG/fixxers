@@ -121,7 +121,7 @@ export async function POST(
             await sendDisputeMessageEmail({
               to: recipient.email,
               recipientName: recipient.name || 'User',
-              orderNumber: dispute.order.orderNumber || dispute.orderId,
+              orderNumber: dispute.orderId,
               senderName: disputeMessage.sender.name || 'User',
               messagePreview,
               disputeUrl,

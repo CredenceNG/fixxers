@@ -144,21 +144,6 @@ async function handleChargeSuccess(data: any) {
     await sendEmail({
       to: order.client.email,
       subject: 'Payment Received - Fixers',
-      text: `
-Hello ${order.client.name || 'Customer'},
-
-We have received your payment of ₦${payment.amount.toLocaleString()} for ${serviceDescription}.
-
-Order ID: ${order.id}
-Amount Paid: ₦${payment.amount.toLocaleString()}
-Payment Method: Paystack
-
-Your service provider will be notified and will begin working on your request soon.
-
-View order details: ${process.env.NEXT_PUBLIC_APP_URL}/client/orders/${order.id}
-
-Thank you for using Fixers!
-      `.trim(),
       html: `
 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
   <h2 style="color: #2563eb;">Payment Received</h2>

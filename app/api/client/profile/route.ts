@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    if (!neighborhood) {
+    if (!neighborhood || !neighborhood.city || !neighborhood.city.state || !neighborhood.city.state.country) {
       return NextResponse.json({ error: 'Invalid neighborhood selected' }, { status: 400 });
     }
 

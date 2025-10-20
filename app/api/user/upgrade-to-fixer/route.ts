@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         await prisma.notification.createMany({
           data: admins.map((admin) => ({
             userId: admin.id,
-            type: 'ADMIN_ALERT',
+            type: 'GENERAL',
             title: 'New Service Provider Upgrade',
             message: `${user.name || 'A user'} has upgraded to service provider status.\n\nSkills: ${validated.skills}\nExperience: ${validated.experience}\nReason: ${validated.reason}`,
             link: `/admin/users?search=${user.email}`,
@@ -96,25 +96,6 @@ export async function POST(request: NextRequest) {
             await sendEmail({
               to: admin.email,
               subject: 'New Service Provider Upgrade - Fixers',
-              text: `
-Hello ${admin.name || 'Admin'},
-
-A new user has upgraded to service provider status on Fixers.
-
-User Details:
-- Name: ${user.name || 'N/A'}
-- Email: ${user.email}
-
-Upgrade Request Details:
-- Skills: ${validated.skills}
-- Experience: ${validated.experience}
-- Reason: ${validated.reason}
-
-View user profile: ${process.env.NEXT_PUBLIC_APP_URL}/admin/users?search=${user.email}
-
-Best regards,
-Fixers Team
-              `.trim(),
               html: `
 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
   <h2 style="color: #2563eb;">New Service Provider Upgrade</h2>

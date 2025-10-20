@@ -167,17 +167,17 @@ export async function POST(
         ? order.totalAmount - order.downPaymentAmount
         : order.totalAmount;
 
-      // Send email to client
-      if (order.client.email && order.client.emailNotifications) {
+      // Send email to fixer about payment received
+      if (order.fixer.email && order.fixer.emailNotifications) {
         await sendPaymentReceivedEmail({
-          clientEmail: order.client.email,
-          clientName: order.client.name || 'Client',
-          orderNumber: order.id,
-          serviceName: serviceTitle,
+          fixerEmail: order.fixer.email,
           fixerName: order.fixer.name || 'Service Provider',
-          amountPaid: `₦${amountPaid.toLocaleString()}`,
+          orderNumber: order.id,
+          clientName: order.client.name || 'Client',
           totalAmount: `₦${order.totalAmount.toLocaleString()}`,
-          orderUrl: `${process.env.NEXT_PUBLIC_APP_URL}${order.gigId ? '/client/orders/' : '/client/requests/'}${order.id}`,
+          fixerAmount: `₦${order.fixerAmount.toLocaleString()}`,
+          platformFee: `₦${order.platformFee.toLocaleString()}`,
+          orderUrl: `${process.env.NEXT_PUBLIC_APP_URL}/fixer/orders/${order.id}`,
         });
       }
     } catch (error) {

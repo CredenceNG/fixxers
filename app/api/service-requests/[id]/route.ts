@@ -69,16 +69,15 @@ export async function GET(
     const agent = await prisma.agent.findUnique({
       where: { userId: user.id },
       include: {
-        territories: {
+        approvedNeighborhoods: {
           where: {
-            neighborhoodId: serviceRequest.neighborhoodId,
-            status: 'APPROVED',
+            id: serviceRequest.neighborhoodId,
           },
         },
       },
     });
 
-    if (!agent || agent.territories.length === 0) {
+    if (!agent || agent.approvedNeighborhoods.length === 0) {
       return NextResponse.json(
         { error: 'Access denied - not in your approved territories' },
         { status: 403 }
