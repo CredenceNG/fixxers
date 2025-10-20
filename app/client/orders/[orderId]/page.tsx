@@ -103,9 +103,12 @@ export default async function ClientOrderDetailPage({ params }: { params: Promis
           </div>
         </DashboardCard>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+        <div
+          style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}
+          className="client-order-layout"
+        >
           {/* Main Content */}
-          <div>
+          <div className="client-order-main">
             {/* Timeline */}
             <DashboardCard title="Order Timeline" style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -330,7 +333,7 @@ export default async function ClientOrderDetailPage({ params }: { params: Promis
           </div>
 
           {/* Sidebar */}
-          <div>
+          <div className="client-order-sidebar">
             {/* Service Provider Info */}
             <DashboardCard title="Service Provider" style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>

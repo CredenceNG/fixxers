@@ -136,56 +136,56 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '32px' }}>
-        <div style={cardStyle}>
+      <div className="admin-stats-grid" style={{ marginBottom: '32px' }}>
+        <div style={cardStyle} className="admin-stat-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
             <div>
-              <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Total Users</p>
-              <p style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>{totalUsers}</p>
-              <p style={{ fontSize: '13px', color: colors.textLight, marginTop: '4px' }}>
+              <p className="admin-stat-title" style={{ color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Total Users</p>
+              <p className="admin-stat-value" style={{ fontWeight: '700', color: colors.textPrimary }}>{totalUsers}</p>
+              <p className="admin-stat-subtitle" style={{ color: colors.textLight, marginTop: '4px' }}>
                 {totalClients} Clients, {totalFixers} Fixers
               </p>
             </div>
-            <div style={{ fontSize: '32px' }}>👥</div>
+            <div className="admin-stat-icon">👥</div>
           </div>
         </div>
 
-        <div style={cardStyle}>
+        <div style={cardStyle} className="admin-stat-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
             <div>
-              <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Active Fixers</p>
-              <p style={{ fontSize: '32px', fontWeight: '700', color: '#28a745' }}>{activeFixers}</p>
-              <p style={{ fontSize: '13px', color: colors.textLight, marginTop: '4px' }}>
+              <p className="admin-stat-title" style={{ color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Active Fixers</p>
+              <p className="admin-stat-value" style={{ fontWeight: '700', color: '#28a745' }}>{activeFixers}</p>
+              <p className="admin-stat-subtitle" style={{ color: colors.textLight, marginTop: '4px' }}>
                 {pendingFixers} pending approval
               </p>
             </div>
-            <div style={{ fontSize: '32px' }}>🔧</div>
+            <div className="admin-stat-icon">🔧</div>
           </div>
         </div>
 
-        <div style={cardStyle}>
+        <div style={cardStyle} className="admin-stat-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
             <div>
-              <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Total Orders</p>
-              <p style={{ fontSize: '32px', fontWeight: '700', color: colors.primary }}>{totalOrders}</p>
-              <p style={{ fontSize: '13px', color: colors.textLight, marginTop: '4px' }}>
+              <p className="admin-stat-title" style={{ color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Total Orders</p>
+              <p className="admin-stat-value" style={{ fontWeight: '700', color: colors.primary }}>{totalOrders}</p>
+              <p className="admin-stat-subtitle" style={{ color: colors.textLight, marginTop: '4px' }}>
                 {completedOrders} completed
               </p>
             </div>
-            <div style={{ fontSize: '32px' }}>📦</div>
+            <div className="admin-stat-icon">📦</div>
           </div>
         </div>
 
-        <div style={cardStyle}>
+        <div style={cardStyle} className="admin-stat-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
             <div>
-              <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Platform Earnings</p>
-              <p style={{ fontSize: '32px', fontWeight: '700', color: colors.primary }}>₦{Math.round(platformEarnings).toLocaleString()}</p>
-              <p style={{ fontSize: '13px', color: colors.textLight, marginTop: '4px' }}>
+              <p className="admin-stat-title" style={{ color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Platform Earnings</p>
+              <p className="admin-stat-value" style={{ fontWeight: '700', color: colors.primary }}>₦{Math.round(platformEarnings).toLocaleString()}</p>
+              <p className="admin-stat-subtitle" style={{ color: colors.textLight, marginTop: '4px' }}>
                 {platformFeePercentage}% of ₦{totalRevenue.toLocaleString()}
               </p>
             </div>
-            <div style={{ fontSize: '32px' }}>💰</div>
+            <div className="admin-stat-icon">💰</div>
           </div>
         </div>
       </div>
@@ -199,7 +199,7 @@ export default async function AdminDashboard() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {pendingFixers > 0 && (
-              <Link href="/admin/users?status=PENDING&role=FIXER" style={actionCardStyle}>
+              <Link href="/admin/users?status=PENDING&role=FIXER" style={actionCardStyle} className="admin-action-card">
                 <div>
                   <p style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
                     Fixer Approvals
@@ -222,7 +222,7 @@ export default async function AdminDashboard() {
             )}
 
             {pendingGigs > 0 && (
-              <Link href="/admin/gigs?status=PENDING_REVIEW" style={actionCardStyle}>
+              <Link href="/admin/gigs?status=PENDING_REVIEW" style={actionCardStyle} className="admin-action-card">
                 <div>
                   <p style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
                     Service Offers
@@ -245,7 +245,7 @@ export default async function AdminDashboard() {
             )}
 
             {pendingRequests > 0 && (
-              <Link href="/admin/requests" style={actionCardStyle}>
+              <Link href="/admin/requests" style={actionCardStyle} className="admin-action-card">
                 <div>
                   <p style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
                     Service Requests
@@ -268,7 +268,7 @@ export default async function AdminDashboard() {
             )}
 
             {pendingAgentApplications > 0 && (
-              <Link href="/admin/agents?status=PENDING" style={actionCardStyle}>
+              <Link href="/admin/agents?status=PENDING" style={actionCardStyle} className="admin-action-card">
                 <div>
                   <p style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
                     Agent Applications
@@ -291,7 +291,7 @@ export default async function AdminDashboard() {
             )}
 
             {pendingBadgeRequests > 0 && (
-              <Link href="/admin/badges/requests" style={actionCardStyle}>
+              <Link href="/admin/badges/requests" style={actionCardStyle} className="admin-action-card">
                 <div>
                   <p style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
                     Badge Requests
@@ -314,7 +314,7 @@ export default async function AdminDashboard() {
             )}
 
             {pendingReports > 0 && (
-              <Link href="/admin/reports" style={actionCardStyle}>
+              <Link href="/admin/reports" style={actionCardStyle} className="admin-action-card">
                 <div>
                   <p style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
                     Review Reports
@@ -337,7 +337,7 @@ export default async function AdminDashboard() {
             )}
 
             {activeDisputes > 0 && (
-              <Link href="/admin/disputes" style={actionCardStyle}>
+              <Link href="/admin/disputes" style={actionCardStyle} className="admin-action-card">
                 <div>
                   <p style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
                     Active Disputes
@@ -368,7 +368,7 @@ export default async function AdminDashboard() {
           Quick Actions
         </h2>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+        <div className="admin-quick-actions">
           {[
             { href: '/admin/users', icon: '👥', label: 'Manage Users' },
             { href: '/admin/categories', icon: '📂', label: 'Categories' },
@@ -384,8 +384,8 @@ export default async function AdminDashboard() {
                 textAlign: 'center' as const,
                 cursor: 'pointer',
               }}>
-                <div style={{ fontSize: '32px', marginBottom: '12px' }}>{action.icon}</div>
-                <p style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary }}>{action.label}</p>
+                <div className="admin-quick-action-icon">{action.icon}</div>
+                <p className="admin-quick-action-label" style={{ fontWeight: '600', color: colors.textPrimary }}>{action.label}</p>
               </div>
             </Link>
           ))}

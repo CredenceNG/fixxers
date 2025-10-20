@@ -307,3 +307,132 @@ input:focus {
     min-width: 0;
   }
 }
+
+/* Admin Dashboard Responsive Layout */
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.admin-stat-card {
+  padding: 16px !important;
+}
+
+.admin-stat-title {
+  font-size: 12px !important;
+}
+
+.admin-stat-value {
+  font-size: 24px !important;
+}
+
+.admin-stat-subtitle {
+  font-size: 12px !important;
+}
+
+.admin-stat-icon {
+  font-size: 24px !important;
+}
+
+.admin-action-card {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 12px;
+}
+
+.admin-quick-actions {
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 12px !important;
+}
+
+.admin-quick-action-icon {
+  font-size: 24px !important;
+  margin-bottom: 8px !important;
+}
+
+.admin-quick-action-label {
+  font-size: 14px !important;
+}
+
+@media (min-width: 640px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .admin-stat-card {
+    padding: 20px !important;
+  }
+
+  .admin-stat-title {
+    font-size: 13px !important;
+  }
+
+  .admin-stat-value {
+    font-size: 28px !important;
+  }
+
+  .admin-stat-icon {
+    font-size: 28px !important;
+  }
+
+  .admin-action-card {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 16px;
+  }
+
+  .admin-quick-actions {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 14px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
+  .admin-stat-card {
+    padding: 24px !important;
+  }
+
+  .admin-stat-title {
+    font-size: 14px !important;
+  }
+
+  .admin-stat-value {
+    font-size: 32px !important;
+  }
+
+  .admin-stat-subtitle {
+    font-size: 13px !important;
+  }
+
+  .admin-stat-icon {
+    font-size: 32px !important;
+  }
+
+  .admin-quick-actions {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    gap: 16px !important;
+  }
+
+  .admin-quick-action-icon {
+    font-size: 32px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .admin-quick-action-label {
+    font-size: 16px !important;
+  }
+}
+
+/* Client Order Page Responsive Layout */
+@media (min-width: 768px) {
+  .client-order-layout {
+    grid-template-columns: 2fr 1fr !important;
+  }
+}
