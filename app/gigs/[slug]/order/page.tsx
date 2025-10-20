@@ -67,50 +67,17 @@ export default async function OrderPage({
           Order Details
         </h1>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '32px' }}>
-          {/* Left - Order Form */}
-          <div>
-            <div
-              style={{
-                backgroundColor: colors.white,
-                borderRadius: borderRadius.lg,
-                border: `1px solid ${colors.border}`,
-                padding: '32px',
-              }}
-            >
-              <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '24px' }}>
-                Requirements
-              </h2>
-
-              {gig.requirements.length > 0 ? (
-                <>
-                  <p style={{ fontSize: '15px', color: colors.textSecondary, marginBottom: '24px', lineHeight: '1.6' }}>
-                    Please provide the following information to help the seller deliver exactly what you need.
-                  </p>
-                  <OrderForm
-                    gigId={gig.id}
-                    packageId={selectedPackage.id}
-                    requirements={gig.requirements}
-                  />
-                </>
-              ) : (
-                <>
-                  <p style={{ fontSize: '15px', color: colors.textSecondary, marginBottom: '24px', lineHeight: '1.6' }}>
-                    No specific requirements needed. You can proceed with your order.
-                  </p>
-                  <OrderForm
-                    gigId={gig.id}
-                    packageId={selectedPackage.id}
-                    requirements={[]}
-                  />
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Right - Order Summary */}
-          <div>
-            <div style={{ position: 'sticky', top: '24px' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr',
+            gap: '32px',
+          }}
+          className="order-layout"
+        >
+          {/* Order Summary - Shows first on mobile */}
+          <div style={{ order: 1 }} className="order-summary-mobile">
+            <div>
               <div
                 style={{
                   backgroundColor: colors.white,
@@ -212,7 +179,61 @@ export default async function OrderPage({
               </div>
             </div>
           </div>
+
+          {/* Requirements - Shows second on mobile */}
+          <div style={{ order: 2 }} className="requirements-mobile">
+            <div
+              style={{
+                backgroundColor: colors.white,
+                borderRadius: borderRadius.lg,
+                border: `1px solid ${colors.border}`,
+                padding: '32px',
+              }}
+            >
+              <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '24px' }}>
+                Requirements
+              </h2>
+
+              {gig.requirements.length > 0 ? (
+                <>
+                  <p style={{ fontSize: '15px', color: colors.textSecondary, marginBottom: '24px', lineHeight: '1.6' }}>
+                    Please provide the following information to help the seller deliver exactly what you need.
+                  </p>
+                  <OrderForm
+                    gigId={gig.id}
+                    packageId={selectedPackage.id}
+                    requirements={gig.requirements}
+                  />
+                </>
+              ) : (
+                <>
+                  <p style={{ fontSize: '15px', color: colors.textSecondary, marginBottom: '24px', lineHeight: '1.6' }}>
+                    No specific requirements needed. You can proceed with your order.
+                  </p>
+                  <OrderForm
+                    gigId={gig.id}
+                    packageId={selectedPackage.id}
+                    requirements={[]}
+                  />
+                </>
+              )}
+            </div>
+          </div>
         </div>
+
+        <style jsx>{`
+          @media (min-width: 768px) {
+            .order-layout {
+              grid-template-columns: 1fr 400px !important;
+            }
+            .order-summary-mobile {
+              order: 2 !important;
+            }
+            .requirements-mobile {
+              order: 1 !important;
+            }
+          }
+        `}</style>
       </div>
     </div>
   );
