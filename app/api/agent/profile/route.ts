@@ -24,9 +24,9 @@ export async function GET() {
           select: {
             id: true,
             name: true,
-            city: true,
-            state: true,
-            country: true,
+            legacyCity: true,
+            legacyState: true,
+            legacyCountry: true,
           },
         },
       },
