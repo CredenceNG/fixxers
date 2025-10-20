@@ -6,6 +6,10 @@ export async function GET() {
   try {
     const user = await getCurrentUser();
 
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const agent = await prisma.agent.findUnique({
       where: { userId: user.id },
       include: {
@@ -36,7 +40,7 @@ export async function GET() {
     }
 
     // Get pending/requested neighborhoods
-    let pendingNeighborhoods = [];
+    let pendingNeighborhoods: any[] = [];
     if (agent.requestedNeighborhoodIds.length > 0) {
       pendingNeighborhoods = await prisma.neighborhood.findMany({
         where: {
@@ -78,6 +82,10 @@ export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser();
 
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const agent = await prisma.agent.findUnique({
       where: { userId: user.id },
       include: {
@@ -118,15 +126,22 @@ export async function POST(request: NextRequest) {
     });
 
     // Notify admins
-    await prisma.notification.create({
-      data: {
-        userId: 'admin',
-        type: 'AGENT_TERRITORY_CHANGE_REQUESTED',
-        title: 'Agent Territory Change Requested',
-        message: `Agent ${agent.businessName || user.name} has requested territory changes and requires approval.`,
-        link: `/admin/agents/${agent.id}`,
-      },
+    const admins = await prisma.user.findMany({
+      where: { roles: { has: 'ADMIN' } },
+      select: { id: true },
     });
+
+    if (admins.length > 0) {
+      await prisma.notification.createMany({
+        data: admins.map((admin) => ({
+          userId: admin.id,
+          type: 'GENERAL',
+          title: 'Agent Territory Change Requested',
+          message: `Agent ${agent.businessName || user.name || 'Unknown'} has requested territory changes and requires approval.`,
+          link: `/admin/agents/${agent.id}`,
+        })),
+      });
+    }
 
     return NextResponse.json({ agent: updatedAgent });
   } catch (error) {

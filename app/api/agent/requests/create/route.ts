@@ -67,11 +67,10 @@ export async function POST(request: NextRequest) {
           neighborhoodId,
           title,
           description,
-          budget: budget || null,
           urgency: urgency || "MEDIUM",
           images: images || [],
           preferredDate: preferredDate ? new Date(preferredDate) : null,
-          status: "OPEN",
+          status: "PENDING",
         },
       });
 
@@ -80,6 +79,7 @@ export async function POST(request: NextRequest) {
         data: {
           agentId: agent!.id,
           requestId: newRequest.id,
+          clientId,
         },
       });
 
@@ -101,8 +101,10 @@ export async function POST(request: NextRequest) {
     const fixers = await prisma.fixerService.findMany({
       where: {
         subcategoryId,
-        neighborhood: {
-          id: neighborhoodId,
+        neighborhoods: {
+          some: {
+            id: neighborhoodId,
+          },
         },
       },
       select: {
@@ -116,7 +118,7 @@ export async function POST(request: NextRequest) {
       await prisma.notification.createMany({
         data: fixers.map((fixer) => ({
           userId: fixer.fixerId,
-          type: "SERVICE_REQUEST_RECEIVED",
+          type: "NEW_REQUEST",
           title: "New Service Request",
           message: `New request in your area: "${title}". Submit a quote now!`,
           link: `/fixer/requests/${serviceRequest.id}`,

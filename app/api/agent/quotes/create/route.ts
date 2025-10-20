@@ -77,8 +77,10 @@ export async function POST(request: NextRequest) {
           requestId,
           fixerId,
           totalAmount,
+          laborCost: 0,
+          materialCost: 0,
           estimatedDuration,
-          notes,
+          description: notes || "",
           type: type || "DIRECT",
           inspectionFee: inspectionFee || null,
           inspectionFeePaid: false,
@@ -90,6 +92,7 @@ export async function POST(request: NextRequest) {
         data: {
           agentId: agent!.id,
           quoteId: newQuote.id,
+          fixerId,
         },
       });
 
