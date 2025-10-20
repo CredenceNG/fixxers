@@ -436,3 +436,12 @@ input:focus {
     grid-template-columns: 2fr 1fr !important;
   }
 }
+
+/* Notification Bell Responsive Design */
+@media (max-width: 767px) {
+  .notification-dropdown {
+    width: calc(100vw - 32px) !important;
+    max-width: 380px !important;
+    right: -8px !important;
+  }
+}

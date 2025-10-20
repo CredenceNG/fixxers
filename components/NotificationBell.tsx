@@ -158,6 +158,7 @@ export function NotificationBell() {
 
       {isOpen && (
         <div
+          className="notification-dropdown"
           style={{
             position: 'absolute',
             top: '100%',
