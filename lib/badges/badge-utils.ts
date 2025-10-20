@@ -91,9 +91,7 @@ export async function checkTopPerformerStatus(
     where: { id: fixerId },
     include: {
       fixerProfile: true,
-      reviewsReceived: {
-        where: { isVisible: true },
-      },
+      reviewsReceived: true,
       fixerOrders: {
         where: { status: "COMPLETED" },
       },
@@ -110,9 +108,7 @@ export async function checkTopPerformerStatus(
     },
     include: {
       fixerProfile: true,
-      reviewsReceived: {
-        where: { isVisible: true },
-      },
+      reviewsReceived: true,
       fixerOrders: {
         where: { status: "COMPLETED" },
       },
@@ -178,9 +174,7 @@ export async function checkQualityPerformanceCriteria(
           ],
         },
       },
-      reviewsReceived: {
-        where: { isVisible: true },
-      },
+      reviewsReceived: true,
     },
   });
 

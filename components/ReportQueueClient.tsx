@@ -111,7 +111,7 @@ export default function ReportQueueClient({ reports: initialReports }: ReportQue
                                     onClick={() => setStatusFilter(status as ReviewReportStatus | "ALL")}
                                     style={{
                                         padding: '10px 20px',
-                                        borderRadius: borderRadius.medium,
+                                        borderRadius: borderRadius.md,
                                         fontSize: '14px',
                                         fontWeight: '600',
                                         border: 'none',
@@ -162,7 +162,7 @@ export default function ReportQueueClient({ reports: initialReports }: ReportQue
                             width: '100%',
                             padding: '12px 16px',
                             border: `1px solid ${colors.gray300}`,
-                            borderRadius: borderRadius.medium,
+                            borderRadius: borderRadius.md,
                             fontSize: '14px',
                             color: colors.textPrimary,
                             outline: 'none',

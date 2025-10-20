@@ -18,6 +18,8 @@ interface MobileHeaderProps {
     bio: string | null;
     createdAt: Date;
   } | null;
+  isAgent?: boolean;
+  agentStatus?: string | null;
 }
 
 export default function MobileHeader({ user, isAgent = false, agentStatus = null }: MobileHeaderProps) {

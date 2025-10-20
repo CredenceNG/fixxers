@@ -59,10 +59,9 @@ export async function recordCommission(
       data: {
         agentId: agent.id,
         orderId,
+        type: "ORDER_COMMISSION",
         amount: calculation.commissionAmount,
-        percentage: calculation.commissionPercentage,
-        orderAmount: calculation.orderAmount,
-        status: "PENDING", // Will be PAID when agent withdraws
+        isPaid: false, // Will be true when agent withdraws
       },
     });
 
@@ -232,10 +231,10 @@ export async function markCommissionsAsPaid(
       where: {
         id: { in: commissionIds },
         agentId: agent.id,
-        status: "PENDING",
+        isPaid: false,
       },
       data: {
-        status: "PAID",
+        isPaid: true,
         paidAt: new Date(),
       },
     });
@@ -288,9 +287,9 @@ export async function getAgentEarningsAnalytics(
       },
     }),
 
-    // Breakdown by status
+    // Breakdown by paid status
     prisma.agentCommission.groupBy({
-      by: ["status"],
+      by: ["isPaid"],
       where: whereClause,
       _sum: {
         amount: true,
@@ -323,9 +322,9 @@ export async function getAgentEarningsAnalytics(
       average: totalStats._avg.amount || new Decimal(0),
     },
     byStatus: statusBreakdown.map((s) => ({
-      status: s.status,
-      amount: s._sum.amount || new Decimal(0),
-      count: s._count.id,
+      status: s.isPaid ? "PAID" : "PENDING",
+      amount: s._sum?.amount || new Decimal(0),
+      count: s._count?.id || 0,
     })),
     monthlyTrend: monthlyEarnings,
   };
@@ -435,7 +434,7 @@ export async function payFixerBonus(
         agentFixerId: agentFixer.id,
         type: "FIXER_BONUS",
         amount: new Decimal(bonusAmount),
-        status: "PAID",
+        isPaid: true,
         paidAt: new Date(),
       },
     });
@@ -468,7 +467,7 @@ export async function payFixerBonus(
     await tx.notification.create({
       data: {
         userId: agentFixer.agent.userId,
-        type: "AGENT_FIXER_BONUS_EARNED",
+        type: "AGENT_COMMISSION_EARNED",
         title: "Fixer Registration Bonus Earned",
         message: `You earned ₦${bonusAmount.toLocaleString()} bonus for your fixer completing their first order!`,
         link: "/agent/earnings",

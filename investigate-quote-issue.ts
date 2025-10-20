@@ -15,7 +15,15 @@ async function investigate() {
           subcategory: {
             include: { category: true }
           },
-          neighborhoods: true
+          neighborhoods: {
+            include: {
+              city: {
+                include: {
+                  state: true
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -29,7 +37,7 @@ async function investigate() {
   adoza?.fixerServices.forEach(service => {
     console.log('- Category:', service.subcategory.category.name, '(ID:', service.subcategory.categoryId + ')');
     console.log('  Subcategory:', service.subcategory.name);
-    console.log('  Neighborhoods:', service.neighborhoods.map(n => `${n.name}, ${n.city} (ID: ${n.id})`).join('; '));
+    console.log('  Neighborhoods:', service.neighborhoods.map(n => `${n.name}, ${n.city?.name || n.legacyCity || 'N/A'} (ID: ${n.id})`).join('; '));
   });
 
   // Find Guadalipe's request
@@ -52,7 +60,15 @@ async function investigate() {
       subcategory: {
         include: { category: true }
       },
-      neighborhood: true
+      neighborhood: {
+        include: {
+          city: {
+            include: {
+              state: true
+            }
+          }
+        }
+      }
     }
   });
 
@@ -62,7 +78,7 @@ async function investigate() {
     console.log('  Status:', req.status);
     console.log('  Category:', req.subcategory.category.name, '(ID:', req.subcategory.categoryId + ')');
     console.log('  Subcategory:', req.subcategory.name);
-    console.log('  Neighborhood:', `${req.neighborhood.name}, ${req.neighborhood.city} (ID: ${req.neighborhoodId})`);
+    console.log('  Neighborhood:', `${req.neighborhood.name}, ${req.neighborhood.city?.name || req.neighborhood.legacyCity || 'N/A'} (ID: ${req.neighborhoodId})`);
   });
 
   // Check matching logic

@@ -38,7 +38,7 @@ export async function canManageFixer(
       managedFixers: {
         where: {
           fixerId,
-          status: "ACTIVE",
+          vetStatus: "APPROVED",
         },
       },
     },
@@ -73,7 +73,6 @@ export async function canManageClient(
       managedClients: {
         where: {
           clientId,
-          status: "ACTIVE",
         },
       },
     },
@@ -173,7 +172,7 @@ export async function canSubmitFixerQuote(
     return { allowed: false, reason: "Service request not found" };
   }
 
-  if (request.status !== "OPEN") {
+  if (request.status !== "PENDING" && request.status !== "APPROVED") {
     return { allowed: false, reason: "Service request is not open" };
   }
 

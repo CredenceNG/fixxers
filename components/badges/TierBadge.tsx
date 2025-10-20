@@ -137,24 +137,24 @@ export function TierProgress({
       <div className="w-full bg-gray-200 rounded-full h-2">
         <div
           className={`h-2 rounded-full transition-all ${
-            tierConfig[nextTier.tier].color
+            nextTier.tier ? tierConfig[nextTier.tier].color : ''
           }`}
           style={{ width: `${Math.min((badgeCount / nextTier.required) * 100, 100)}%` }}
         />
       </div>
-      
+
       <p className="text-xs text-gray-600 mt-1">
         {remaining > 0 ? (
           <>
             {remaining} more {remaining === 1 ? 'badge' : 'badges'} to reach{' '}
-            <span className={tierConfig[nextTier.tier].textColor}>
-              {tierConfig[nextTier.tier].label}
+            <span className={nextTier.tier ? tierConfig[nextTier.tier].textColor : ''}>
+              {nextTier.tier ? tierConfig[nextTier.tier].label : ''}
             </span>
           </>
         ) : nextTier.tier === 'PLATINUM' ? (
           <>Keep up the great work to qualify for Platinum!</>
         ) : (
-          <>You've qualified for {tierConfig[nextTier.tier].label}!</>
+          <>You've qualified for {nextTier.tier ? tierConfig[nextTier.tier].label : ''}!</>
         )}
       </p>
     </div>

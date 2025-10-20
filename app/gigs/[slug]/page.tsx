@@ -191,8 +191,8 @@ export default async function GigDetailPage({ params }: { params: Promise<{ slug
 
                 {/* Quick Wins Badges */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginTop: '8px' }}>
-                  {'allowInstantBooking' in gig && gig.allowInstantBooking && (
-                    <AvailableNowBadge allowInstantBooking={!!gig.allowInstantBooking} />
+                  {('allowInstantBooking' in gig && (gig as any).allowInstantBooking) && (
+                    <AvailableNowBadge allowInstantBooking={!!(gig as any).allowInstantBooking} />
                   )}
                   {avgRating && (
                     <ReviewCount count={reviews.length} averageRating={parseFloat(avgRating)} />

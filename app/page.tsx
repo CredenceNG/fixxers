@@ -277,7 +277,7 @@ export default async function Home() {
                           <ServiceArea
                             neighbourhood={gig.seller.fixerProfile.neighbourhood}
                             city={gig.seller.fixerProfile.city}
-                            state={gig.seller.fixerProfile.state}
+                            state={gig.seller.fixerProfile.state || undefined}
                           />
                         )}
                       </div>

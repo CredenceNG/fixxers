@@ -50,8 +50,7 @@ export async function submitFixerForVetting(
     where: { id: agentFixer.id },
     data: {
       vetStatus: VetStatus.PENDING,
-      vettingNotes: notes,
-      vettingSubmittedAt: new Date(),
+      vetNotes: notes,
     },
     include: {
       agent: {
@@ -121,8 +120,8 @@ export async function approveVettedFixer(
     where: { id: agentFixer.id },
     data: {
       vetStatus: VetStatus.APPROVED,
-      vetApprovedBy: approvedByUserId,
-      vetApprovedAt: new Date(),
+      vettedById: approvedByUserId,
+      vettedAt: new Date(),
       vetNotes: notes,
     },
     include: {
@@ -192,9 +191,7 @@ export async function rejectVettedFixer(
     where: { id: agentFixer.id },
     data: {
       vetStatus: VetStatus.REJECTED,
-      vetRejectedAt: new Date(),
       vetNotes: reason,
-      status: "INACTIVE", // Deactivate the relationship
     },
     include: {
       agent: {
@@ -262,18 +259,17 @@ export async function getPendingVettingRequests() {
           email: true,
           fixerProfile: {
             select: {
-              businessName: true,
-              yearsOfExperience: true,
-              services: {
+              yearsOfService: true,
+            },
+          },
+          fixerServices: {
+            select: {
+              subcategory: {
                 select: {
-                  subcategory: {
+                  name: true,
+                  category: {
                     select: {
                       name: true,
-                      category: {
-                        select: {
-                          name: true,
-                        },
-                      },
                     },
                   },
                 },
@@ -284,7 +280,7 @@ export async function getPendingVettingRequests() {
       },
     },
     orderBy: {
-      vettingSubmittedAt: "asc",
+      registeredAt: "asc",
     },
   });
 
@@ -308,9 +304,8 @@ export async function getVettingStatus(
     select: {
       id: true,
       vetStatus: true,
-      vetApprovedBy: true,
-      vetApprovedAt: true,
-      vetRejectedAt: true,
+      vettedById: true,
+      vettedAt: true,
       vetNotes: true,
     },
   });
@@ -322,9 +317,9 @@ export async function getVettingStatus(
   return {
     vetId: agentFixer.id,
     status: agentFixer.vetStatus,
-    approvedBy: agentFixer.vetApprovedBy || undefined,
-    approvedAt: agentFixer.vetApprovedAt || undefined,
-    rejectedAt: agentFixer.vetRejectedAt || undefined,
+    approvedBy: agentFixer.vettedById || undefined,
+    approvedAt: agentFixer.vettedAt || undefined,
+    rejectedAt: agentFixer.vetStatus === VetStatus.REJECTED ? agentFixer.vettedAt || undefined : undefined,
     rejectionReason:
       agentFixer.vetStatus === VetStatus.REJECTED
         ? agentFixer.vetNotes || undefined
@@ -349,18 +344,17 @@ export async function getAgentFixersWithVettingStatus(agentId: string) {
           profileImage: true,
           fixerProfile: {
             select: {
-              businessName: true,
-              yearsOfExperience: true,
-              services: {
+              yearsOfService: true,
+            },
+          },
+          fixerServices: {
+            select: {
+              subcategory: {
                 select: {
-                  subcategory: {
+                  name: true,
+                  category: {
                     select: {
                       name: true,
-                      category: {
-                        select: {
-                          name: true,
-                        },
-                      },
                     },
                   },
                 },
@@ -371,22 +365,20 @@ export async function getAgentFixersWithVettingStatus(agentId: string) {
       },
     },
     orderBy: {
-      createdAt: "desc",
+      registeredAt: "desc",
     },
   });
 
   return agentFixers.map((af) => ({
     relationshipId: af.id,
     fixer: af.fixer,
-    status: af.status,
+    vetStatus: af.vetStatus,
     vetting: {
       status: af.vetStatus,
-      submittedAt: af.vettingSubmittedAt,
-      approvedAt: af.vetApprovedAt,
-      rejectedAt: af.vetRejectedAt,
+      vettedAt: af.vettedAt,
       notes: af.vetNotes,
     },
-    addedAt: af.createdAt,
+    addedAt: af.registeredAt,
   }));
 }
 
@@ -404,15 +396,11 @@ export async function requiresVetting(
         fixerId,
       },
     },
-    select: { vetStatus: true, status: true },
+    select: { vetStatus: true },
   });
 
   if (!agentFixer) {
     return true; // Not managed by agent
-  }
-
-  if (agentFixer.status !== "ACTIVE") {
-    return true; // Relationship not active
   }
 
   // Only approved fixers can receive work

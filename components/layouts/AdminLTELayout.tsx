@@ -185,7 +185,7 @@ export default function AdminLTELayout({
                             {child.badge && (
                               <span
                                 style={{
-                                  backgroundColor: child.badgeColor || colors.danger,
+                                  backgroundColor: child.badgeColor || colors.error,
                                   color: colors.white,
                                   padding: '2px 8px',
                                   borderRadius: '12px',
@@ -234,7 +234,7 @@ export default function AdminLTELayout({
                     {!sidebarCollapsed && item.badge && (
                       <span
                         style={{
-                          backgroundColor: item.badgeColor || colors.danger,
+                          backgroundColor: item.badgeColor || colors.error,
                           color: colors.white,
                           padding: '2px 8px',
                           borderRadius: '12px',

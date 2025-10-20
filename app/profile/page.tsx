@@ -63,9 +63,25 @@ export default async function UnifiedProfilePage() {
   }
 
   // Fetch neighborhoods for location dropdown
-  const neighborhoods = await prisma.neighborhood.findMany({
+  const neighborhoodsData = await prisma.neighborhood.findMany({
+    include: {
+      city: {
+        include: {
+          state: true,
+        },
+      },
+    },
     orderBy: [{ name: 'asc' }],
   });
+
+  // Transform to match interface
+  const neighborhoods = neighborhoodsData.map((n) => ({
+    id: n.id,
+    name: n.name,
+    city: n.city?.name || n.legacyCity || '',
+    state: n.city?.state?.name || n.legacyState || '',
+    country: n.legacyCountry || undefined,
+  }));
 
   // Fetch service categories and subcategories for fixer section
   const categories = roles.includes('FIXER')

@@ -376,9 +376,9 @@ export default async function GigsPage({
                               {gig.seller.name || 'Anonymous'}
                             </div>
                             {/* Available Now Badge */}
-                            {'allowInstantBooking' in gig && gig.allowInstantBooking && (
+                            {('allowInstantBooking' in gig && (gig as any).allowInstantBooking) && (
                               <div style={{ marginLeft: 'auto' }}>
-                                <AvailableNowBadge allowInstantBooking={!!gig.allowInstantBooking} />
+                                <AvailableNowBadge allowInstantBooking={!!(gig as any).allowInstantBooking} />
                               </div>
                             )}
                           </div>                          {/* Badge Display */}
