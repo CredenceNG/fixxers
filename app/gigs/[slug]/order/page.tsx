@@ -220,20 +220,6 @@ export default async function OrderPage({
             </div>
           </div>
         </div>
-
-        <style jsx>{`
-          @media (min-width: 768px) {
-            .order-layout {
-              grid-template-columns: 1fr 400px !important;
-            }
-            .order-summary-mobile {
-              order: 2 !important;
-            }
-            .requirements-mobile {
-              order: 1 !important;
-            }
-          }
-        `}</style>
       </div>
     </div>
   );
