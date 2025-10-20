@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
     const {
       fixerId,
       requestId,
@@ -32,7 +31,7 @@ export async function POST(request: NextRequest) {
       notes,
       type,
       inspectionFee,
-    } = body;
+    } = await request.json() as any;
 
     if (!fixerId || !requestId || !totalAmount) {
       return NextResponse.json(

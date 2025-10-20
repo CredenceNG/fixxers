@@ -53,6 +53,10 @@ export async function PUT(request: NextRequest) {
   try {
     const user = await getCurrentUser();
 
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const agent = await prisma.agent.findUnique({
       where: { userId: user.id },
     });
@@ -84,9 +88,9 @@ export async function PUT(request: NextRequest) {
       await prisma.notification.create({
         data: {
           userId: 'admin', // Send to all admins
-          type: 'AGENT_PROFILE_CHANGES_PENDING',
+          type: 'GENERAL',
           title: 'Agent Profile Changes Pending',
-          message: `Agent ${businessName || user.name} has updated their profile and requires re-approval.`,
+          message: `Agent ${businessName || user.name || 'Unknown'} has updated their profile and requires re-approval.`,
           link: `/admin/agents/${agent.id}`,
         },
       });
