@@ -258,7 +258,7 @@ export default function AgentFixersClient() {
 
                   {/* Actions */}
                   <Link
-                    href={`/users/${item.fixer.id}`}
+                    href={`/agent/fixers/${item.fixer.id}`}
                     style={{
                       fontSize: '14px',
                       fontWeight: '600',

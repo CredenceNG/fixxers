@@ -15,8 +15,12 @@ interface DashboardData {
     approvedNeighborhoods: Array<{
       id: string;
       name: string;
-      city: string;
-      state: string;
+      city: {
+        name: string;
+        state: {
+          name: string;
+        };
+      } | null;
     }>;
     counts: {
       fixers: number;
@@ -194,7 +198,7 @@ export default function AgentDashboardClient() {
                   fontSize: '14px',
                   color: colors.textPrimary,
                 }}>
-                  {n.name}, {n.city}, {n.state}
+                  {n.name}, {n.city?.name || 'N/A'}, {n.city?.state?.name || 'N/A'}
                 </div>
               ))}
             </div>

@@ -73,9 +73,14 @@ export default function AgentClientsClient() {
       title="Managed Clients"
       subtitle={`${clients.length} ${clients.length === 1 ? 'client' : 'clients'}`}
       actions={
-        <DashboardButton variant="primary" href="/agent/clients/new">
-          + Add Client
-        </DashboardButton>
+        <>
+          <DashboardButton variant="primary" href="/agent/clients/new">
+            + Add Client
+          </DashboardButton>
+          <DashboardButton variant="outline" href="/agent/dashboard">
+            ← Back to Dashboard
+          </DashboardButton>
+        </>
       }
     >
 

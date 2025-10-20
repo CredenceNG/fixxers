@@ -75,16 +75,32 @@ export async function submitFixerForVetting(
     },
   });
 
-  // Create notification for admin
-  await prisma.notification.create({
-    data: {
-      userId: updated.agent.userId,
-      type: "AGENT_FIXER_NEEDS_VETTING",
-      title: "Fixer Ready for Vetting",
-      message: `${updated.fixer.name} has been submitted for vetting approval`,
-      link: `/admin/agents/${agentId}/fixers/${fixerId}/vet`,
+  // Create notification for all admins
+  const admins = await prisma.user.findMany({
+    where: {
+      roles: {
+        has: 'ADMIN',
+      },
+    },
+    select: {
+      id: true,
     },
   });
+
+  // Send notification to each admin
+  await Promise.all(
+    admins.map((admin) =>
+      prisma.notification.create({
+        data: {
+          userId: admin.id,
+          type: "AGENT_FIXER_NEEDS_VETTING",
+          title: "Fixer Ready for Admin Review",
+          message: `Agent ${updated.agent.user.name} has submitted ${updated.fixer.name} for admin vetting approval`,
+          link: `/admin/agents/${agentId}/fixers/${fixerId}/vet`,
+        },
+      })
+    )
+  );
 
   return updated;
 }

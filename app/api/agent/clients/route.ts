@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { clientId, clientEmail, notes, name, email, phone, password, secondaryPhone, alternateEmail, streetAddress, neighbourhood, city, state, country } = body;
+    const { clientId, clientEmail, notes, name, email, phone, password, secondaryPhone, alternateEmail, streetAddress, neighborhoodId } = body;
 
     let actualClientId = clientId;
 
@@ -141,9 +141,9 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      if (!neighbourhood || !city || !state) {
+      if (!neighborhoodId) {
         return NextResponse.json(
-          { error: "Location (neighbourhood, city, state) is required for new clients" },
+          { error: "Location (neighborhood) is required for new clients" },
           { status: 400 }
         );
       }
@@ -164,10 +164,7 @@ export async function POST(request: NextRequest) {
                   secondaryPhone: secondaryPhone || undefined,
                   alternateEmail: alternateEmail || undefined,
                   streetAddress: streetAddress || undefined,
-                  neighbourhood,
-                  city,
-                  state,
-                  country: country || 'Nigeria',
+                  neighborhoodId,
                 },
               },
             },

@@ -72,18 +72,25 @@ export async function GET(request: NextRequest) {
 
     // Note: AgentCommission doesn't have a status field, so we skip status filtering
 
-    // Calculate summary - use all commissions since there's no status
-    const totalEarned = commissions.reduce((sum, c) => sum + Number(c.amount), 0);
-    const totalPending = 0; // No pending status tracking
+    // Calculate summary
+    const totalEarned = Number(agent.totalEarned || 0);
+    const walletBalance = Number(agent.walletBalance || 0);
+    const totalWithdrawn = Number(agent.totalWithdrawn || 0);
+
+    // Calculate pending and paid from commissions if they have a status field
+    const pendingCommissions = commissions.filter((c: any) => c.status === 'PENDING');
+    const paidCommissions = commissions.filter((c: any) => c.status === 'PAID');
+
+    const pendingAmount = pendingCommissions.reduce((sum, c) => sum + Number(c.amount || 0), 0);
+    const paidAmount = paidCommissions.reduce((sum, c) => sum + Number(c.amount || 0), 0);
 
     return NextResponse.json({
+      walletBalance,
+      totalEarned,
+      totalWithdrawn,
+      pendingAmount,
+      paidAmount,
       commissions,
-      summary: {
-        totalEarned: agent.totalEarned,
-        walletBalance: agent.walletBalance,
-        totalPending,
-        commissionCount: commissions.length,
-      },
     });
   } catch (error) {
     console.error('Error fetching earnings:', error);

@@ -289,6 +289,9 @@ export default async function AdminOrdersPage({
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
+                  <th style={{ padding: '12px', textAlign: 'center', fontSize: '13px', fontWeight: '600', color: colors.textSecondary }}>
+                    Actions
+                  </th>
                   <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.textSecondary }}>
                     Order ID
                   </th>
@@ -310,14 +313,29 @@ export default async function AdminOrdersPage({
                   <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.textSecondary }}>
                     Created
                   </th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontSize: '13px', fontWeight: '600', color: colors.textSecondary }}>
-                    Actions
-                  </th>
                 </tr>
               </thead>
               <tbody>
                 {orders.map((order) => (
                   <tr key={order.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                      <Link
+                        href={`/admin/orders/${order.id}`}
+                        style={{
+                          padding: '8px 16px',
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          color: colors.primary,
+                          backgroundColor: colors.primaryLight,
+                          border: `1px solid ${colors.primary}`,
+                          borderRadius: borderRadius.md,
+                          textDecoration: 'none',
+                          display: 'inline-block',
+                        }}
+                      >
+                        View
+                      </Link>
+                    </td>
                     <td style={{ padding: '12px', fontSize: '14px', color: colors.textPrimary, fontFamily: 'monospace' }}>
                       #{order.id.slice(-8).toUpperCase()}
                     </td>
@@ -342,24 +360,6 @@ export default async function AdminOrdersPage({
                     </td>
                     <td style={{ padding: '12px', fontSize: '14px', color: colors.textSecondary }}>
                       {formatDate(order.createdAt)}
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <Link
-                        href={`/admin/orders/${order.id}`}
-                        style={{
-                          padding: '8px 16px',
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          color: colors.primary,
-                          backgroundColor: colors.primaryLight,
-                          border: `1px solid ${colors.primary}`,
-                          borderRadius: borderRadius.md,
-                          textDecoration: 'none',
-                          display: 'inline-block',
-                        }}
-                      >
-                        View
-                      </Link>
                     </td>
                   </tr>
                 ))}

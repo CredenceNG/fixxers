@@ -213,6 +213,9 @@ export default async function AdminGigsPage({
             <thead>
               <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
                 <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>
+                  Actions
+                </th>
+                <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>
                   Title
                 </th>
                 <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>
@@ -233,9 +236,6 @@ export default async function AdminGigsPage({
                 <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>
                   Created
                 </th>
-                <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase' }}>
-                  Actions
-                </th>
               </tr>
             </thead>
             <tbody>
@@ -248,6 +248,23 @@ export default async function AdminGigsPage({
               ) : (
                 gigs.map((gig) => (
                   <tr key={gig.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                    <td style={{ padding: '16px 20px' }}>
+                      <Link
+                        href={`/admin/gigs/${gig.id}`}
+                        style={{
+                          padding: '6px 12px',
+                          backgroundColor: colors.primary,
+                          color: colors.white,
+                          borderRadius: borderRadius.md,
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          textDecoration: 'none',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        View
+                      </Link>
+                    </td>
                     <td style={{ padding: '16px 20px' }}>
                       <Link
                         href={`/gigs/${gig.slug}`}
@@ -283,23 +300,6 @@ export default async function AdminGigsPage({
                     </td>
                     <td style={{ padding: '16px 20px', fontSize: '14px', color: colors.textSecondary }}>
                       {formatDate(gig.createdAt)}
-                    </td>
-                    <td style={{ padding: '16px 20px' }}>
-                      <Link
-                        href={`/admin/gigs/${gig.id}`}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: colors.primary,
-                          color: colors.white,
-                          borderRadius: borderRadius.md,
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          textDecoration: 'none',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        View
-                      </Link>
                     </td>
                   </tr>
                 ))

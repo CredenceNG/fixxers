@@ -44,12 +44,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (approved) {
-      // Approve the fixer
-      await prisma.user.update({
-        where: { id: fixerId },
-        data: { status: 'ACTIVE' },
-      });
-
       // Mark profile as approved and clear pending changes
       await prisma.fixerProfile.update({
         where: { fixerId },
@@ -71,16 +65,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.redirect(new URL(`/admin/users/${fixerId}?success=approved`, request.url));
       }
     } else {
-      // Reject the fixer
-      await prisma.user.update({
-        where: { id: fixerId },
-        data: { status: 'REJECTED' },
-      });
-
-      // Clear pending changes flag
+      // Clear pending changes flag and remove approval
       await prisma.fixerProfile.update({
         where: { fixerId },
         data: {
+          approvedAt: null,
           pendingChanges: false,
         },
       });

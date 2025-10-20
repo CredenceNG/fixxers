@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { colors } from '@/lib/theme';
 import CommissionCard from '@/components/agent/CommissionCard';
 
@@ -123,9 +124,26 @@ export default function AgentEarningsClient() {
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ marginBottom: '24px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary, marginBottom: '8px' }}>
-            Earnings & Commissions
-          </h1>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary }}>
+              Earnings & Commissions
+            </h1>
+            <Link
+              href="/agent/dashboard"
+              style={{
+                padding: '10px 20px',
+                border: `1px solid ${colors.border}`,
+                borderRadius: '8px',
+                backgroundColor: colors.white,
+                color: colors.textPrimary,
+                textDecoration: 'none',
+                fontSize: '14px',
+                fontWeight: '500',
+              }}
+            >
+              ← Back to Dashboard
+            </Link>
+          </div>
           <p style={{ color: colors.textSecondary }}>
             Track your earnings and commission history
           </p>

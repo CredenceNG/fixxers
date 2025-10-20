@@ -58,7 +58,7 @@ export default async function AdminCategoriesPage({ searchParams }: PageProps) {
       pendingReports={pendingReports}
     >
       {/* Page Header */}
-      <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="admin-categories-header">
         <div>
           <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary, marginBottom: '8px' }}>
             Manage Service Categories
@@ -111,7 +111,7 @@ export default async function AdminCategoriesPage({ searchParams }: PageProps) {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+      <div className="admin-categories-grid">
         {/* Add New Category */}
         <div style={{ padding: '24px', backgroundColor: 'white', border: `1px solid ${colors.border}`, borderRadius: borderRadius.lg, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
           <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px' }}>

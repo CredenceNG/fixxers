@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import useSWR from 'swr';
+import { colors, borderRadius } from '@/lib/theme';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -71,7 +72,7 @@ export default function LocationCascadeSelect({
     if (neighborhoodId !== value) {
       onChange(neighborhoodId);
     }
-  }, [neighborhoodId, onChange]);
+  }, [neighborhoodId, value]);
 
   const handleCountryChange = (newCountryId: string) => {
     setCountryId(newCountryId);
@@ -95,18 +96,43 @@ export default function LocationCascadeSelect({
     setNeighborhoodId(newNeighborhoodId);
   };
 
+  const selectStyle = {
+    width: '100%',
+    padding: '12px',
+    border: `1px solid ${colors.border}`,
+    borderRadius: borderRadius.md,
+    fontSize: '14px',
+    backgroundColor: colors.white,
+    color: colors.textPrimary,
+  };
+
+  const disabledSelectStyle = {
+    ...selectStyle,
+    backgroundColor: colors.bgSecondary,
+    cursor: 'not-allowed',
+    opacity: 0.6,
+  };
+
+  const labelStyle = {
+    display: 'block',
+    marginBottom: '8px',
+    fontSize: '12px',
+    fontWeight: '500' as const,
+    color: colors.textSecondary,
+  };
+
   return (
     <div className={className}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          {label} {required && <span className="text-red-500">*</span>}
+        <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: colors.textPrimary }}>
+          {label} {required && <span style={{ color: colors.error }}>*</span>}
         </label>
       )}
 
-      <div className="space-y-3">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {/* Country */}
         <div>
-          <label htmlFor="country" className="block text-xs font-medium text-gray-600 mb-1">
+          <label htmlFor="country" style={labelStyle}>
             Country
           </label>
           <select
@@ -115,7 +141,7 @@ export default function LocationCascadeSelect({
             onChange={(e) => handleCountryChange(e.target.value)}
             disabled={disabled}
             required={required}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            style={disabled ? disabledSelectStyle : selectStyle}
           >
             <option value="">Select Country</option>
             {countries.map((country: any) => (
@@ -128,7 +154,7 @@ export default function LocationCascadeSelect({
 
         {/* State */}
         <div>
-          <label htmlFor="state" className="block text-xs font-medium text-gray-600 mb-1">
+          <label htmlFor="state" style={labelStyle}>
             State
           </label>
           <select
@@ -137,7 +163,7 @@ export default function LocationCascadeSelect({
             onChange={(e) => handleStateChange(e.target.value)}
             disabled={disabled || !countryId}
             required={required}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            style={(disabled || !countryId) ? disabledSelectStyle : selectStyle}
           >
             <option value="">Select State</option>
             {states.map((state: any) => (
@@ -150,7 +176,7 @@ export default function LocationCascadeSelect({
 
         {/* City */}
         <div>
-          <label htmlFor="city" className="block text-xs font-medium text-gray-600 mb-1">
+          <label htmlFor="city" style={labelStyle}>
             City/LGA
           </label>
           <select
@@ -159,7 +185,7 @@ export default function LocationCascadeSelect({
             onChange={(e) => handleCityChange(e.target.value)}
             disabled={disabled || !stateId}
             required={required}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            style={(disabled || !stateId) ? disabledSelectStyle : selectStyle}
           >
             <option value="">Select City/LGA</option>
             {cities.map((city: any) => (
@@ -172,7 +198,7 @@ export default function LocationCascadeSelect({
 
         {/* Neighborhood */}
         <div>
-          <label htmlFor="neighborhood" className="block text-xs font-medium text-gray-600 mb-1">
+          <label htmlFor="neighborhood" style={labelStyle}>
             Neighborhood
           </label>
           <select
@@ -181,7 +207,7 @@ export default function LocationCascadeSelect({
             onChange={(e) => handleNeighborhoodChange(e.target.value)}
             disabled={disabled || !cityId}
             required={required}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            style={(disabled || !cityId) ? disabledSelectStyle : selectStyle}
           >
             <option value="">Select Neighborhood</option>
             {neighborhoods.map((neighborhood: any) => (
@@ -193,7 +219,7 @@ export default function LocationCascadeSelect({
         </div>
       </div>
 
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      {error && <p style={{ marginTop: '8px', fontSize: '14px', color: colors.error }}>{error}</p>}
     </div>
   );
 }

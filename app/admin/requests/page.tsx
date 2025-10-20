@@ -215,6 +215,9 @@ export default async function AdminRequestsPage({
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
+                  <th style={{ padding: '12px', textAlign: 'center', fontSize: '13px', fontWeight: '600', color: colors.textSecondary }}>
+                    Actions
+                  </th>
                   <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.textSecondary }}>
                     Request ID
                   </th>
@@ -236,14 +239,29 @@ export default async function AdminRequestsPage({
                   <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.textSecondary }}>
                     Created
                   </th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontSize: '13px', fontWeight: '600', color: colors.textSecondary }}>
-                    Actions
-                  </th>
                 </tr>
               </thead>
               <tbody>
                 {serviceRequests.map((request) => (
                   <tr key={request.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                      <Link
+                        href={`/admin/requests/${request.id}`}
+                        style={{
+                          padding: '8px 16px',
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          color: colors.primary,
+                          backgroundColor: colors.primaryLight,
+                          border: `1px solid ${colors.primary}`,
+                          borderRadius: borderRadius.md,
+                          textDecoration: 'none',
+                          display: 'inline-block',
+                        }}
+                      >
+                        View Details
+                      </Link>
+                    </td>
                     <td style={{ padding: '12px', fontSize: '14px', color: colors.textPrimary }}>
                       #{request.id.slice(-8).toUpperCase()}
                     </td>
@@ -269,24 +287,6 @@ export default async function AdminRequestsPage({
                     </td>
                     <td style={{ padding: '12px', fontSize: '14px', color: colors.textSecondary }}>
                       {formatDate(request.createdAt)}
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <Link
-                        href={`/admin/requests/${request.id}`}
-                        style={{
-                          padding: '8px 16px',
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          color: colors.primary,
-                          backgroundColor: colors.primaryLight,
-                          border: `1px solid ${colors.primary}`,
-                          borderRadius: borderRadius.md,
-                          textDecoration: 'none',
-                          display: 'inline-block',
-                        }}
-                      >
-                        View Details
-                      </Link>
                     </td>
                   </tr>
                 ))}

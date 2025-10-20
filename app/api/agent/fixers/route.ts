@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { fixerId, name, email, phone, secondaryPhone, streetAddress, neighbourhood, city, state, country, vetNotes } = body;
+    const { fixerId, name, email, phone, secondaryPhone, streetAddress, neighborhoodId, subcategoryId, vetNotes } = body;
 
     let actualFixerId = fixerId;
 
@@ -124,9 +124,119 @@ export async function POST(request: NextRequest) {
             { phone },
           ],
         },
+        include: {
+          fixerProfile: true,
+          fixerServices: true,
+        },
       });
 
       if (existingUser) {
+        // Check if this is an incomplete registration (user exists but no fixer profile/services)
+        const isIncompleteRegistration =
+          existingUser.roles.includes('FIXER') &&
+          (!existingUser.fixerProfile || existingUser.fixerServices.length === 0);
+
+        if (isIncompleteRegistration) {
+          // Complete the registration by adding missing data
+          try {
+            const result = await prisma.$transaction(async (tx) => {
+              // Add fixer profile if missing
+              if (!existingUser.fixerProfile) {
+                await tx.fixerProfile.create({
+                  data: {
+                    fixerId: existingUser.id,
+                    primaryPhone: phone,
+                    secondaryPhone: secondaryPhone || undefined,
+                    streetAddress: streetAddress || undefined,
+                    neighborhoodId,
+                    yearsOfService: 0,
+                    pendingChanges: true,
+                  },
+                });
+              }
+
+              // Add fixer service if missing
+              if (existingUser.fixerServices.length === 0 && subcategoryId) {
+                await tx.fixerService.create({
+                  data: {
+                    fixerId: existingUser.id,
+                    subcategoryId,
+                  },
+                });
+              }
+
+              // Check if agent-fixer relationship already exists
+              const existingRelationship = await tx.agentFixer.findUnique({
+                where: {
+                  agentId_fixerId: {
+                    agentId: agent!.id,
+                    fixerId: existingUser.id,
+                  },
+                },
+                include: {
+                  fixer: {
+                    select: {
+                      id: true,
+                      name: true,
+                      email: true,
+                      profileImage: true,
+                    },
+                  },
+                },
+              });
+
+              if (existingRelationship) {
+                return { agentFixer: existingRelationship };
+              }
+
+              // Create agent-fixer relationship
+              const agentFixer = await tx.agentFixer.create({
+                data: {
+                  agentId: agent!.id,
+                  fixerId: existingUser.id,
+                  vetStatus: VetStatus.PENDING,
+                  vetNotes: vetNotes || undefined,
+                },
+                include: {
+                  fixer: {
+                    select: {
+                      id: true,
+                      name: true,
+                      email: true,
+                      profileImage: true,
+                    },
+                  },
+                },
+              });
+
+              // Notify the fixer
+              await tx.notification.create({
+                data: {
+                  userId: existingUser.id,
+                  type: "AGENT_APPLICATION_SUBMITTED",
+                  title: "Agent Added You",
+                  message: `You are now managed by ${user.name}. They can create gigs and submit quotes on your behalf.`,
+                  link: `/fixer/agents`,
+                },
+              });
+
+              return { agentFixer };
+            });
+
+            return NextResponse.json({
+              message: "Incomplete registration completed successfully",
+              agentFixer: result.agentFixer,
+            });
+          } catch (error: any) {
+            console.error("Error completing incomplete registration:", error);
+            return NextResponse.json(
+              { error: "Failed to complete registration" },
+              { status: 500 }
+            );
+          }
+        }
+
+        // User exists and is complete - return error
         if (existingUser.email === email) {
           return NextResponse.json(
             { error: "A user with this email already exists" },
@@ -142,9 +252,16 @@ export async function POST(request: NextRequest) {
       }
 
       // Validate required fields for FixerProfile
-      if (!neighbourhood || !city || !state) {
+      if (!neighborhoodId) {
         return NextResponse.json(
-          { error: "Location (neighbourhood, city, state) is required for new fixers" },
+          { error: "Location (neighborhood) is required for new fixers" },
+          { status: 400 }
+        );
+      }
+
+      if (!subcategoryId) {
+        return NextResponse.json(
+          { error: "Service (subcategory) is required for new fixers" },
           { status: 400 }
         );
       }
@@ -164,12 +281,14 @@ export async function POST(request: NextRequest) {
                   primaryPhone: phone,
                   secondaryPhone: secondaryPhone || undefined,
                   streetAddress: streetAddress || undefined,
-                  neighbourhood,
-                  city,
-                  state,
-                  country: country || 'Nigeria',
+                  neighborhoodId,
                   yearsOfService: 0,
                   pendingChanges: true,
+                },
+              },
+              fixerServices: {
+                create: {
+                  subcategoryId,
                 },
               },
             },

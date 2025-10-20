@@ -155,9 +155,9 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
           </div>
         </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }} className="admin-user-detail-grid">
         {/* Left Column - Profile Details */}
-        <div>
+        <div className="admin-user-detail-left">
           {/* Basic Info */}
           <div style={{ backgroundColor: 'white', borderRadius: borderRadius.lg, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '20px' }}>
             <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '24px', paddingBottom: '16px', borderBottom: `2px solid ${colors.border}` }}>
@@ -295,7 +295,7 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
           </div>
 
         {/* Right Column - Actions */}
-        <div>
+        <div className="admin-user-detail-right">
           <div style={{ backgroundColor: 'white', borderRadius: borderRadius.lg, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '20px' }}>
             <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '24px', paddingBottom: '16px', borderBottom: `2px solid ${colors.border}` }}>
               Actions

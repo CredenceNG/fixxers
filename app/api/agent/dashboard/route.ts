@@ -65,11 +65,12 @@ export async function GET() {
       );
     }
 
-    // Get pending vetting requests
+    // Get pending vetting requests (only those without vet notes)
     const pendingVetting = await prisma.agentFixer.count({
       where: {
         agentId: agent.id,
         vetStatus: "PENDING",
+        vetNotes: null,
       },
     });
 

@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { isActiveAgent } from "@/lib/agents/permissions";
+import Header from "@/components/Header";
 import AgentRequestsClient from "./AgentRequestsClient";
 
 export default async function AgentRequestsPage() {
@@ -15,5 +16,10 @@ export default async function AgentRequestsPage() {
     redirect("/agent/application");
   }
 
-  return <AgentRequestsClient />;
+  return (
+    <>
+      <Header />
+      <AgentRequestsClient />
+    </>
+  );
 }

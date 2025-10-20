@@ -25,12 +25,18 @@ interface ServiceRequest {
     name: string;
     city: {
       name: string;
-      state: string;
+      state: {
+        name: string;
+      };
     };
   };
   client: {
     id: string;
     name: string;
+    email: string;
+  };
+  _count: {
+    quotes: number;
   };
 }
 
@@ -45,7 +51,7 @@ export default function AgentRequestsClient() {
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch('/api/service-requests');
+      const res = await fetch('/api/agent/requests');
       const data = await res.json();
 
       if (!res.ok) {
@@ -77,6 +83,7 @@ export default function AgentRequestsClient() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'PENDING':
       case 'OPEN':
         return colors.primary;
       case 'IN_PROGRESS':
@@ -120,10 +127,10 @@ export default function AgentRequestsClient() {
         {/* Header */}
         <div style={{ marginBottom: '24px' }}>
           <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary, marginBottom: '8px' }}>
-            Service Requests
+            Client Service Requests
           </h1>
           <p style={{ color: colors.textSecondary }}>
-            Browse service requests in your approved territories
+            Manage service requests from your clients
           </p>
         </div>
 
@@ -131,7 +138,10 @@ export default function AgentRequestsClient() {
         {requests.length === 0 ? (
           <div style={{ backgroundColor: colors.white, padding: '40px', borderRadius: '12px', textAlign: 'center' }}>
             <p style={{ color: colors.textSecondary, marginBottom: '16px' }}>
-              No service requests available in your territories
+              No service requests from your clients yet
+            </p>
+            <p style={{ color: colors.textSecondary, fontSize: '14px' }}>
+              Create service requests on behalf of your clients to get started
             </p>
           </div>
         ) : (
@@ -183,7 +193,7 @@ export default function AgentRequestsClient() {
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: '24px', fontWeight: '700', color: colors.primary, marginBottom: '4px' }}>
-                      ₦{Number(request.budget).toLocaleString()}
+                      ₦{Number(request.budget || 0).toLocaleString()}
                     </div>
                     <div style={{ fontSize: '12px', color: colors.textSecondary }}>
                       Budget
@@ -200,7 +210,13 @@ export default function AgentRequestsClient() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: `1px solid ${colors.border}` }}>
                   <div style={{ fontSize: '14px', color: colors.textSecondary }}>
                     <div style={{ marginBottom: '4px' }}>
+                      <strong>Client:</strong> {request.client.name}
+                    </div>
+                    <div style={{ marginBottom: '4px' }}>
                       <strong>Location:</strong> {request.neighborhood.name}, {request.neighborhood.city.name}
+                    </div>
+                    <div style={{ marginBottom: '4px' }}>
+                      <strong>Quotes:</strong> {request._count.quotes}
                     </div>
                     <div>
                       <strong>Posted:</strong> {new Date(request.createdAt).toLocaleDateString('en-US', {
@@ -211,7 +227,7 @@ export default function AgentRequestsClient() {
                     </div>
                   </div>
                   <Link
-                    href={`/agent/requests/${request.id}/quote`}
+                    href={`/client/requests/${request.id}`}
                     style={{
                       padding: '10px 20px',
                       backgroundColor: colors.primary,
@@ -223,7 +239,7 @@ export default function AgentRequestsClient() {
                       display: 'inline-block',
                     }}
                   >
-                    Submit Quote
+                    View Details
                   </Link>
                 </div>
               </div>

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { isActiveAgent } from '@/lib/agents/permissions';
 import { submitFixerForVetting } from '@/lib/agents/vetting';
 
 export async function POST(
@@ -16,20 +18,33 @@ export async function POST(
       );
     }
 
-    const params = await paramsPromise;
-    const { agentId, notes } = await request.json();
-
-    if (!agentId) {
+    const isAgent = await isActiveAgent(user.id);
+    if (!isAgent) {
       return NextResponse.json(
-        { error: 'Agent ID is required' },
-        { status: 400 }
+        { error: 'User is not an active agent' },
+        { status: 403 }
       );
     }
 
-    const result = await submitFixerForVetting(agentId, params.id, notes);
+    const agent = await prisma.agent.findUnique({
+      where: { userId: user.id },
+      select: { id: true },
+    });
+
+    if (!agent) {
+      return NextResponse.json(
+        { error: 'Agent profile not found' },
+        { status: 404 }
+      );
+    }
+
+    const params = await paramsPromise;
+    const { notes } = await request.json();
+
+    const result = await submitFixerForVetting(agent.id, params.id, notes);
 
     return NextResponse.json({
-      message: 'Fixer submitted for vetting approval',
+      message: 'Fixer submitted for admin approval',
       agentFixer: result,
     });
   } catch (error: any) {

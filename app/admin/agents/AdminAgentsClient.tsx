@@ -23,8 +23,12 @@ interface AgentApplication {
   approvedNeighborhoods: Array<{
     id: string;
     name: string;
-    city: string;
-    state: string;
+    city: {
+      name: string;
+      state: {
+        name: string;
+      };
+    };
   }>;
   _count: {
     managedFixers: number;
@@ -314,7 +318,7 @@ export default function AdminAgentsClient() {
                             key={n.id}
                             style={{ display: 'inline-flex', alignItems: 'center', padding: '4px 8px', borderRadius: borderRadius.sm, fontSize: '12px', backgroundColor: colors.blueLight, color: '#2952A3' }}
                           >
-                            {n.name}, {n.city}, {n.state}
+                            {n.name}, {n.city.name}, {n.city.state.name}
                           </span>
                         ))}
                       </div>

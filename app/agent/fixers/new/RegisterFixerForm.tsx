@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { colors, borderRadius } from '@/lib/theme';
 import LocationCascadeSelect from '@/components/LocationCascadeSelect';
@@ -25,6 +25,39 @@ export default function RegisterFixerForm({ neighborhoods }: RegisterFixerFormPr
   // Location state - using normalized neighborhood ID
   const [neighborhoodId, setNeighborhoodId] = useState('');
 
+  // Service selection state
+  const [categories, setCategories] = useState<any[]>([]);
+  const [subcategories, setSubcategories] = useState<any[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState('');
+
+  // Fetch categories on mount
+  useEffect(() => {
+    fetch('/api/categories')
+      .then((res) => res.json())
+      .then((data) => {
+        // API returns array directly
+        setCategories(Array.isArray(data) ? data : []);
+      })
+      .catch((err) => console.error('Failed to fetch categories:', err));
+  }, []);
+
+  // Fetch subcategories when category changes
+  useEffect(() => {
+    if (selectedCategoryId) {
+      // Find the selected category and use its subcategories
+      const selectedCategory = categories.find((cat) => cat.id === selectedCategoryId);
+      if (selectedCategory && selectedCategory.subcategories) {
+        setSubcategories(selectedCategory.subcategories);
+      } else {
+        setSubcategories([]);
+      }
+    } else {
+      setSubcategories([]);
+      setSelectedSubcategoryId('');
+    }
+  }, [selectedCategoryId, categories]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -36,6 +69,12 @@ export default function RegisterFixerForm({ neighborhoods }: RegisterFixerFormPr
       return;
     }
 
+    if (!selectedSubcategoryId) {
+      setError('Please select a service');
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch('/api/agent/fixers', {
         method: 'POST',
@@ -43,6 +82,7 @@ export default function RegisterFixerForm({ neighborhoods }: RegisterFixerFormPr
         body: JSON.stringify({
           ...formData,
           neighborhoodId,
+          subcategoryId: selectedSubcategoryId,
         }),
       });
 
@@ -52,7 +92,7 @@ export default function RegisterFixerForm({ neighborhoods }: RegisterFixerFormPr
         throw new Error(data.error || 'Failed to register fixer');
       }
 
-      router.push(`/agent/fixers/${data.fixer.id}`);
+      router.push(`/agent/fixers/${data.agentFixer.fixer.id}`);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -197,6 +237,72 @@ export default function RegisterFixerForm({ neighborhoods }: RegisterFixerFormPr
                 fontSize: '14px',
               }}
             />
+          </div>
+        </div>
+
+        {/* Service Selection */}
+        <div style={{ marginBottom: '32px' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: '600', color: colors.textPrimary, marginBottom: '20px', paddingBottom: '12px', borderBottom: `2px solid ${colors.border}` }}>
+            Service *
+          </h2>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: colors.textPrimary }}>
+                Category *
+              </label>
+              <select
+                required
+                value={selectedCategoryId}
+                onChange={(e) => setSelectedCategoryId(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: borderRadius.md,
+                  fontSize: '14px',
+                  backgroundColor: colors.white,
+                  color: colors.textPrimary,
+                }}
+              >
+                <option value="">Select a category</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: colors.textPrimary }}>
+                Subcategory *
+              </label>
+              <select
+                required
+                value={selectedSubcategoryId}
+                onChange={(e) => setSelectedSubcategoryId(e.target.value)}
+                disabled={!selectedCategoryId}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: borderRadius.md,
+                  fontSize: '14px',
+                  backgroundColor: !selectedCategoryId ? colors.bgSecondary : colors.white,
+                  color: colors.textPrimary,
+                  cursor: !selectedCategoryId ? 'not-allowed' : 'pointer',
+                  opacity: !selectedCategoryId ? 0.6 : 1,
+                }}
+              >
+                <option value="">Select a subcategory</option>
+                {subcategories.map((sub) => (
+                  <option key={sub.id} value={sub.id}>
+                    {sub.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 

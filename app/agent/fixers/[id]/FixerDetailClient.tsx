@@ -36,7 +36,7 @@ export default function FixerDetailClient({ fixerId }: { fixerId: string }) {
     const res = await fetch(`/api/agent/fixers/${fixerId}/vet`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ approved, notes }),
+      body: JSON.stringify({ notes }),
     });
 
     const data = await res.json();
@@ -58,7 +58,7 @@ export default function FixerDetailClient({ fixerId }: { fixerId: string }) {
   }
 
   const fixer = agentFixer.fixer;
-  const needsVetting = agentFixer.vetStatus === 'PENDING';
+  const needsVetting = agentFixer.vetStatus === 'PENDING' && !agentFixer.vetNotes;
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
@@ -107,14 +107,14 @@ export default function FixerDetailClient({ fixerId }: { fixerId: string }) {
               <strong>Profile Status:</strong>{' '}
               <span
                 style={{
-                  backgroundColor: fixer.fixerProfile.status === 'APPROVED' ? '#D1FAE5' : '#FEF3C7',
-                  color: fixer.fixerProfile.status === 'APPROVED' ? '#065F46' : '#92400E',
+                  backgroundColor: fixer.fixerProfile.approvedAt ? '#D1FAE5' : '#FEF3C7',
+                  color: fixer.fixerProfile.approvedAt ? '#065F46' : '#92400E',
                   padding: '4px 8px',
                   borderRadius: '4px',
                   fontSize: '12px',
                 }}
               >
-                {fixer.fixerProfile.status}
+                {fixer.fixerProfile.approvedAt ? 'APPROVED' : 'PENDING'}
               </span>
             </div>
           )}
@@ -140,7 +140,7 @@ export default function FixerDetailClient({ fixerId }: { fixerId: string }) {
               cursor: 'pointer',
             }}
           >
-            Vet This Fixer
+            Submit for Admin Approval
           </button>
         )}
       </div>
@@ -154,32 +154,30 @@ export default function FixerDetailClient({ fixerId }: { fixerId: string }) {
         />
       )}
 
-      {fixer.fixerProfile && (
-        <div style={{ backgroundColor: colors.white, padding: '24px', borderRadius: '8px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '16px' }}>
-            Services
-          </h2>
-          {fixer.fixerProfile.subcategories?.length > 0 ? (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {fixer.fixerProfile.subcategories.map((sub: any) => (
-                <span
-                  key={sub.id}
-                  style={{
-                    padding: '6px 12px',
-                    backgroundColor: colors.bgSecondary,
-                    borderRadius: '16px',
-                    fontSize: '14px',
-                  }}
-                >
-                  {sub.name}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p style={{ color: colors.textLight }}>No services added yet</p>
-          )}
-        </div>
-      )}
+      <div style={{ backgroundColor: colors.white, padding: '24px', borderRadius: '8px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '16px' }}>
+          Services
+        </h2>
+        {fixer.fixerServices?.length > 0 ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {fixer.fixerServices.map((service: any) => (
+              <span
+                key={service.id}
+                style={{
+                  padding: '6px 12px',
+                  backgroundColor: colors.bgSecondary,
+                  borderRadius: '16px',
+                  fontSize: '14px',
+                }}
+              >
+                {service.subcategory.category.name} → {service.subcategory.name}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <p style={{ color: colors.textLight }}>No services added yet</p>
+        )}
+      </div>
 
       {fixer.gigs?.length > 0 && (
         <div style={{ backgroundColor: colors.white, padding: '24px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
