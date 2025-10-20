@@ -9,15 +9,22 @@ export async function GET(request: NextRequest) {
     const where: any = {};
 
     if (state) {
-      where.state = state;
+      where.stateId = state;
     }
 
     const cities = await prisma.city.findMany({
       where,
       orderBy: [
-        { state: 'asc' },
         { name: 'asc' },
       ],
+      include: {
+        state: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({ cities });
