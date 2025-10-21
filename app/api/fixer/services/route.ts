@@ -66,9 +66,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Please select at least one service' }, { status: 400 });
     }
 
-    if (!neighborhoodIds || neighborhoodIds.length === 0) {
-      return NextResponse.json({ error: 'Please select at least one service area' }, { status: 400 });
-    }
+    // Service areas are optional - will use fixer's profile neighborhood if not provided
+    // if (!neighborhoodIds || neighborhoodIds.length === 0) {
+    //   return NextResponse.json({ error: 'Please select at least one service area' }, { status: 400 });
+    // }
 
     // Validate each service has required per-service data
     for (const service of services) {
@@ -99,6 +100,24 @@ export async function POST(request: NextRequest) {
     }
 
     const isNewApplication = !fixerProfile.approvedAt;
+
+    // If no neighborhoods selected, try to use the fixer's profile neighborhood
+    let finalNeighborhoodIds = neighborhoodIds || [];
+    if (finalNeighborhoodIds.length === 0 && fixerProfile.neighbourhood) {
+      // Try to find a neighborhood that matches the profile location
+      const matchingNeighborhood = await prisma.neighborhood.findFirst({
+        where: {
+          name: {
+            contains: fixerProfile.neighbourhood,
+            mode: 'insensitive',
+          },
+        },
+      });
+
+      if (matchingNeighborhood) {
+        finalNeighborhoodIds = [matchingNeighborhood.id];
+      }
+    }
 
     // Mark profile for admin review
     await prisma.fixerProfile.update({
@@ -137,15 +156,17 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Connect neighborhoods to this service
-      await prisma.fixerService.update({
-        where: { id: fixerService.id },
-        data: {
-          neighborhoods: {
-            connect: neighborhoodIds.map((id: string) => ({ id })),
+      // Connect neighborhoods to this service (if any are available)
+      if (finalNeighborhoodIds.length > 0) {
+        await prisma.fixerService.update({
+          where: { id: fixerService.id },
+          data: {
+            neighborhoods: {
+              connect: finalNeighborhoodIds.map((id: string) => ({ id })),
+            },
           },
-        },
-      });
+        });
+      }
 
       // Collect category names for notification
       serviceCategories.add(service.categoryName);
