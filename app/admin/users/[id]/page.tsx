@@ -13,61 +13,104 @@ interface PageProps {
 }
 
 export default async function AdminUserReviewPage({ params, searchParams }: PageProps) {
-  const currentUser = await getCurrentUser();
-  const roles = currentUser?.roles || [];
+  try {
+    const currentUser = await getCurrentUser();
+    const roles = currentUser?.roles || [];
 
-  if (!currentUser || !roles.includes('ADMIN')) {
-    redirect('/auth/login');
-  }
+    if (!currentUser || !roles.includes('ADMIN')) {
+      redirect('/auth/login');
+    }
 
-  const { id } = await params;
-  const { success, error } = await searchParams;
+    const { id } = await params;
+    const { success, error } = await searchParams;
 
-  // Fetch pending counts for AdminDashboardWrapper
-  const prismaAny = prisma as any;
+    // Fetch pending counts for AdminDashboardWrapper
+    const prismaAny = prisma as any;
 
-  const [pendingBadgeRequests, pendingAgentApplications, pendingReports] = await Promise.all([
-    prismaAny.badgeRequest?.count({
-      where: {
-        status: {
-          in: ['PENDING', 'PAYMENT_RECEIVED', 'UNDER_REVIEW'],
+    const [pendingBadgeRequests, pendingAgentApplications, pendingReports] = await Promise.all([
+      prismaAny.badgeRequest?.count({
+        where: {
+          status: {
+            in: ['PENDING', 'PAYMENT_RECEIVED', 'UNDER_REVIEW'],
+          },
         },
-      },
-    }) ?? 0,
-    prismaAny.agent?.count({
-      where: {
-        status: 'PENDING',
-      },
-    }) ?? 0,
-    prismaAny.reviewReport?.count({
-      where: {
-        status: {
-          in: ['PENDING', 'REVIEWING'],
+      }) ?? 0,
+      prismaAny.agent?.count({
+        where: {
+          status: 'PENDING',
         },
-      },
-    }) ?? 0,
-  ]);
+      }) ?? 0,
+      prismaAny.reviewReport?.count({
+        where: {
+          status: {
+            in: ['PENDING', 'REVIEWING'],
+          },
+        },
+      }) ?? 0,
+    ]);
 
-  // Fetch user with profile and services
-  const user = await prisma.user.findUnique({
-    where: { id },
-    include: {
-      fixerProfile: true,
-      fixerServices: {
-        include: {
-          subcategory: {
-            include: {
-              category: true,
+    // Fetch user with profile and services
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: {
+        fixerProfile: true,
+        fixerServices: {
+          include: {
+            subcategory: {
+              include: {
+                category: true,
+              },
             },
           },
         },
       },
-    },
-  });
+    });
 
-  if (!user) {
-    return <div>User not found</div>;
-  }
+    if (!user) {
+      return (
+        <AdminDashboardWrapper
+          userName={currentUser.name || undefined}
+          userAvatar={currentUser.profileImage || undefined}
+          pendingBadgeRequests={pendingBadgeRequests}
+          pendingAgentApplications={pendingAgentApplications}
+          pendingReports={pendingReports}
+        >
+          <div style={{
+            backgroundColor: colors.white,
+            borderRadius: borderRadius.lg,
+            padding: '40px',
+            textAlign: 'center',
+            border: `1px solid ${colors.border}`,
+          }}>
+            <h1 style={{ fontSize: '24px', fontWeight: '700', color: colors.error, marginBottom: '16px' }}>
+              User Not Found
+            </h1>
+            <p style={{ fontSize: '16px', color: colors.textSecondary, marginBottom: '24px' }}>
+              The user with ID <code style={{
+                backgroundColor: colors.bgSecondary,
+                padding: '4px 8px',
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+              }}>{id}</code> could not be found in the database.
+            </p>
+            <Link
+              href="/admin/users"
+              style={{
+                display: 'inline-block',
+                padding: '12px 24px',
+                backgroundColor: colors.primary,
+                color: colors.white,
+                borderRadius: borderRadius.md,
+                textDecoration: 'none',
+                fontWeight: '600',
+              }}
+            >
+              Back to Users List
+            </Link>
+          </div>
+        </AdminDashboardWrapper>
+      );
+    }
 
   const hasPendingChanges = !!user.fixerProfile?.pendingChanges;
   const isApproved = user.status === 'ACTIVE' && !hasPendingChanges;
@@ -348,4 +391,82 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
         </div>
     </AdminDashboardWrapper>
   );
+  } catch (error: any) {
+    // Log error for debugging
+    console.error('Error loading admin user detail page:', error);
+
+    // Return error page with details for admin
+    return (
+      <AdminDashboardWrapper
+        userName="Admin"
+        userAvatar={undefined}
+        pendingBadgeRequests={0}
+        pendingAgentApplications={0}
+        pendingReports={0}
+      >
+        <div style={{
+          backgroundColor: colors.white,
+          borderRadius: borderRadius.lg,
+          padding: '40px',
+          border: `1px solid ${colors.error}`,
+        }}>
+          <h1 style={{ fontSize: '24px', fontWeight: '700', color: colors.error, marginBottom: '16px' }}>
+            Error Loading User Page
+          </h1>
+          <p style={{ fontSize: '16px', color: colors.textSecondary, marginBottom: '24px' }}>
+            An error occurred while trying to load this user's information.
+          </p>
+
+          {/* Error Details Section */}
+          <div style={{
+            backgroundColor: colors.errorLight,
+            border: `1px solid ${colors.error}`,
+            borderRadius: borderRadius.md,
+            padding: '20px',
+            marginBottom: '24px',
+            fontFamily: 'monospace',
+            fontSize: '14px',
+          }}>
+            <p style={{ fontWeight: '600', marginBottom: '8px', color: colors.errorDark }}>Error Details:</p>
+            <p style={{ color: colors.textPrimary, marginBottom: '8px' }}>
+              <strong>Message:</strong> {error.message || 'Unknown error'}
+            </p>
+            {error.stack && (
+              <details style={{ marginTop: '12px' }}>
+                <summary style={{ cursor: 'pointer', fontWeight: '600', color: colors.errorDark }}>
+                  Stack Trace (click to expand)
+                </summary>
+                <pre style={{
+                  marginTop: '8px',
+                  padding: '12px',
+                  backgroundColor: colors.white,
+                  borderRadius: '4px',
+                  overflow: 'auto',
+                  fontSize: '12px',
+                  maxHeight: '300px',
+                }}>
+                  {error.stack}
+                </pre>
+              </details>
+            )}
+          </div>
+
+          <Link
+            href="/admin/users"
+            style={{
+              display: 'inline-block',
+              padding: '12px 24px',
+              backgroundColor: colors.primary,
+              color: colors.white,
+              borderRadius: borderRadius.md,
+              textDecoration: 'none',
+              fontWeight: '600',
+            }}
+          >
+            Back to Users List
+          </Link>
+        </div>
+      </AdminDashboardWrapper>
+    );
+  }
 }
