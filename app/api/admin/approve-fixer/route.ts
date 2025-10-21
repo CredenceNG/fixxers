@@ -43,6 +43,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Fixer not found' }, { status: 404 });
     }
 
+    // Check if fixer profile exists
+    const fixerProfile = await prisma.fixerProfile.findUnique({
+      where: { fixerId },
+    });
+
+    if (!fixerProfile) {
+      return NextResponse.json({
+        error: 'Fixer profile not found. The user has not completed their fixer profile setup yet (Step 1).'
+      }, { status: 400 });
+    }
+
     if (approved) {
       // Mark profile as approved and clear pending changes
       await prisma.fixerProfile.update({
