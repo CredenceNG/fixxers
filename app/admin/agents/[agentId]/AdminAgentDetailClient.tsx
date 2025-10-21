@@ -325,9 +325,9 @@ export default function AdminAgentDetailClient({ agentId }: AdminAgentDetailClie
       </div>
 
       {/* Main Content Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+      <div className="admin-agent-detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
         {/* Agent Profile */}
-        <div style={{ backgroundColor: colors.white, padding: '24px', borderRadius: '8px', border: `1px solid ${colors.border}` }}>
+        <div className="admin-agent-profile" style={{ backgroundColor: colors.white, padding: '24px', borderRadius: '8px', border: `1px solid ${colors.border}` }}>
           <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '16px' }}>Agent Profile</h2>
 
           <div style={{ marginBottom: '12px' }}>
@@ -365,7 +365,7 @@ export default function AdminAgentDetailClient({ agentId }: AdminAgentDetailClie
         </div>
 
         {/* Statistics */}
-        <div style={{ backgroundColor: colors.white, padding: '24px', borderRadius: '8px', border: `1px solid ${colors.border}` }}>
+        <div className="admin-agent-statistics" style={{ backgroundColor: colors.white, padding: '24px', borderRadius: '8px', border: `1px solid ${colors.border}` }}>
           <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '16px' }}>Statistics</h2>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>

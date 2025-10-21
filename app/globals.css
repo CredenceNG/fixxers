@@ -446,6 +446,22 @@ input:focus {
   }
 }
 
+/* Admin Agent Detail Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .admin-agent-detail-grid {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .admin-agent-profile {
+    order: 1;
+  }
+
+  .admin-agent-statistics {
+    order: 2;
+  }
+}
+
 /* Admin User Detail Page - Mobile Responsive */
 .admin-user-detail-grid {
   display: grid;
