@@ -4,8 +4,6 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
 const upgradeRequestSchema = z.object({
-  skills: z.string().min(3, 'Skills must be at least 3 characters'),
-  experience: z.string().min(1, 'Experience is required'),
   reason: z.string().min(10, 'Reason must be at least 10 characters'),
 });
 
@@ -65,7 +63,7 @@ export async function POST(request: NextRequest) {
             userId: admin.id,
             type: 'GENERAL',
             title: 'New Service Provider Upgrade',
-            message: `${user.name || 'A user'} has upgraded to service provider status.\n\nSkills: ${validated.skills}\nExperience: ${validated.experience}\nReason: ${validated.reason}`,
+            message: `${user.name || 'A user'} has upgraded to service provider status.\n\nReason: ${validated.reason}`,
             link: `/admin/users?search=${user.email}`,
           })),
         });
@@ -112,9 +110,8 @@ export async function POST(request: NextRequest) {
 
   <div style="background-color: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
     <h3 style="margin-top: 0;">Upgrade Request Details</h3>
-    <p><strong>Skills:</strong> ${validated.skills}</p>
-    <p><strong>Experience:</strong> ${validated.experience}</p>
     <p><strong>Reason:</strong> ${validated.reason}</p>
+    <p><em>Note: User will complete their service provider profile separately.</em></p>
   </div>
 
   <p>

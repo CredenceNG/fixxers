@@ -9,8 +9,6 @@ export function UpgradeToFixerForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
-    skills: '',
-    experience: '',
     reason: '',
   });
 
@@ -36,8 +34,8 @@ export function UpgradeToFixerForm() {
         throw new Error(data.error || 'Failed to submit upgrade request');
       }
 
-      // Success! Redirect to client dashboard with success message
-      router.push('/client/dashboard?upgraded=success');
+      // Success! Redirect to fixer profile to complete setup
+      router.push('/fixer/profile?upgraded=success');
       router.refresh();
     } catch (err: any) {
       setError(err.message || 'An error occurred. Please try again.');
@@ -101,72 +99,6 @@ export function UpgradeToFixerForm() {
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* Skills */}
-          <div style={{ marginBottom: spacing.lg }}>
-            <label
-              htmlFor="skills"
-              style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: colors.textPrimary,
-                marginBottom: spacing.sm,
-              }}
-            >
-              Skills & Services You Can Offer *
-            </label>
-            <input
-              id="skills"
-              type="text"
-              required
-              value={formData.skills}
-              onChange={(e) => handleChange('skills', e.target.value)}
-              placeholder="e.g., Plumbing, Electrical Work, Carpentry, etc."
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                fontSize: '15px',
-                border: `1px solid ${colors.border}`,
-                borderRadius: borderRadius.md,
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
-
-          {/* Experience */}
-          <div style={{ marginBottom: spacing.lg }}>
-            <label
-              htmlFor="experience"
-              style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: colors.textPrimary,
-                marginBottom: spacing.sm,
-              }}
-            >
-              Years of Experience *
-            </label>
-            <input
-              id="experience"
-              type="text"
-              required
-              value={formData.experience}
-              onChange={(e) => handleChange('experience', e.target.value)}
-              placeholder="e.g., 5 years, 2 years, etc."
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                fontSize: '15px',
-                border: `1px solid ${colors.border}`,
-                borderRadius: borderRadius.md,
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
-
           {/* Reason */}
           <div style={{ marginBottom: spacing.xl }}>
             <label

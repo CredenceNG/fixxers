@@ -547,8 +547,31 @@ input:focus {
 }
 
 /* Admin Gig Detail Page - Mobile Responsive */
+.admin-gig-detail-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
 @media (max-width: 768px) {
   /* Stack the main grid (Gig content and Fixer Info/Statistics sidebar) */
+  .admin-gig-detail-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Ensure main content appears first */
+  .admin-gig-main {
+    order: 1;
+  }
+
+  /* Sidebar (Fixer Info and Statistics) appears after main content */
+  .admin-gig-sidebar {
+    order: 2;
+  }
+
+  /* Also handle generic 2fr 1fr grids */
   div[style*="gridTemplateColumns"][style*="2fr 1fr"] {
     grid-template-columns: 1fr !important;
   }
@@ -566,6 +589,14 @@ input:focus {
 @media (max-width: 768px) {
   /* Stack all repeat(2, 1fr) grids to single column */
   div[style*="gridTemplateColumns"][style*="repeat(2, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Client Request New Page - Mobile Responsive */
+@media (max-width: 768px) {
+  /* Stack Urgency and Preferred Date fields vertically */
+  .request-urgency-date-grid {
     grid-template-columns: 1fr !important;
   }
 }

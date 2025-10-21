@@ -142,9 +142,9 @@ export default async function AdminGigReviewPage({ params }: { params: Promise<{
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+        <div className="admin-gig-detail-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
           {/* Main Content */}
-          <div>
+          <div className="admin-gig-main">
             {/* Basic Information */}
             <div
               style={{
@@ -278,7 +278,7 @@ export default async function AdminGigReviewPage({ params }: { params: Promise<{
           </div>
 
           {/* Sidebar */}
-          <div>
+          <div className="admin-gig-sidebar">
             {/* Fixer Information */}
             <div
               style={{

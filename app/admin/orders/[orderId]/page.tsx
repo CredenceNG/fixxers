@@ -262,7 +262,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
         </div>
 
         {/* Parties Involved */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px' }}>
+        <div className="admin-order-parties" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px' }}>
           {/* Client Details */}
           <div style={{
             backgroundColor: 'white',

@@ -42,6 +42,7 @@
 /* Dropdown Menu Styles */
 .dropdownContainer {
   position: relative;
+  display: inline-block;
 }
 
 .moreButton {
@@ -58,7 +59,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 40;
+  z-index: 9998;
   background-color: transparent;
 }
 
@@ -67,8 +68,9 @@
   top: calc(100% + 8px);
   right: 0;
   min-width: 220px;
-  z-index: 50;
+  z-index: 9999;
   overflow: hidden;
+  display: block;
 }
 
 .dropdownItem {

@@ -350,11 +350,12 @@ export default function FixerServicesPage() {
       }
     }
 
-    if (selectedNeighborhoodIds.length === 0) {
-      setError('Please select at least one service area neighborhood.');
-      setLoading(false);
-      return;
-    }
+    // Service areas are now optional - user can add them later
+    // if (selectedNeighborhoodIds.length === 0) {
+    //   setError('Please select at least one service area neighborhood.');
+    //   setLoading(false);
+    //   return;
+    // }
 
     try {
       // Map service forms to API format - expand multiple subcategories into separate services
@@ -391,9 +392,11 @@ export default function FixerServicesPage() {
 
       setSuccess('Services saved successfully! Redirecting to dashboard...');
 
+      // Use router.push and router.refresh to ensure proper navigation without logout
       setTimeout(() => {
-        window.location.href = '/fixer/dashboard';
-      }, 2000);
+        router.push('/fixer/dashboard');
+        router.refresh();
+      }, 1500);
     } catch (err: any) {
       setError(err.message || 'Failed to save services');
     } finally {
@@ -1061,15 +1064,15 @@ export default function FixerServicesPage() {
 
           {/* SERVICE AREA SELECTION */}
           <div style={{ ...styles.section, marginBottom: '32px' }}>
-            <h2 style={styles.sectionTitle}>Service Areas</h2>
+            <h2 style={styles.sectionTitle}>Service Areas <span style={{ fontSize: '14px', fontWeight: '400', color: colors.textSecondary }}>(optional)</span></h2>
             <p style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '20px' }}>
-              Select the neighborhoods where you offer your services. You can select multiple areas.
+              Select the neighborhoods where you offer your services. You can select multiple areas or add them later.
             </p>
 
             {/* Cascading Location Selects */}
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
-                Country <span style={{ color: colors.error }}>*</span>
+                Country
               </label>
               <select
                 value={countryId}
@@ -1100,7 +1103,7 @@ export default function FixerServicesPage() {
             {countryId && (
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
-                  State <span style={{ color: colors.error }}>*</span>
+                  State
                 </label>
                 <select
                   value={stateId}
