@@ -119,16 +119,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Mark profile for admin review
-    await prisma.fixerProfile.update({
-      where: { fixerId: user.id },
-      data: {
-        pendingChanges: true, // Mark for admin review
-      },
-    });
-
-    // If fixer was previously approved, reset status to PENDING for re-review
+    // Mark profile for admin review (only for re-reviews, not new applications)
     if (!isNewApplication) {
+      await prisma.fixerProfile.update({
+        where: { fixerId: user.id },
+        data: {
+          pendingChanges: true, // Mark for admin re-review
+        },
+      });
+
+      // Reset status to PENDING for re-review
       await prisma.user.update({
         where: { id: user.id },
         data: { status: 'PENDING' },
