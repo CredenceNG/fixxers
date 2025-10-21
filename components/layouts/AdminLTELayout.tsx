@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, ReactNode } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { colors } from '@/lib/theme';
@@ -39,6 +39,21 @@ export default function AdminLTELayout({
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
   const pathname = usePathname();
   const router = useRouter();
+
+  // Auto-collapse sidebar on mobile
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setSidebarCollapsed(true);
+      }
+    };
+
+    // Check on initial load
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
 

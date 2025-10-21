@@ -458,19 +458,26 @@ input:focus {
     grid-template-columns: 1fr !important;
     gap: 24px;
   }
-  
-  /* On mobile, Actions section should come after Service Categories */
+
+  /* On mobile, Actions section should come after all content (at the bottom) */
   .admin-user-detail-grid {
     display: flex;
     flex-direction: column;
   }
-  
+
   .admin-user-detail-left {
     order: 1;
   }
-  
+
   .admin-user-detail-right {
     order: 2;
+  }
+
+  /* Ensure Action cards stack vertically within the Action section */
+  .admin-user-detail-right > div {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 }
 
@@ -520,5 +527,45 @@ input:focus {
   .admin-categories-header > a {
     width: 100%;
     text-align: center;
+  }
+}
+
+/* Admin Agent Detail Page - Mobile Responsive (Stack Agent Profile and Statistics vertically) */
+@media (max-width: 768px) {
+  /* This targets the main content grid with Agent Profile and Statistics */
+  [style*="grid"][style*="gridTemplateColumns"][style*="1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Admin Request Detail Page - Mobile Responsive */
+@media (max-width: 1023px) {
+  /* Stack the main grid (Request content and Client Info sidebar) */
+  div[style*="gridTemplateColumns"][style*="2fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Admin Gig Detail Page - Mobile Responsive */
+@media (max-width: 768px) {
+  /* Stack the main grid (Gig content and Fixer Info/Statistics sidebar) */
+  div[style*="gridTemplateColumns"][style*="2fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Admin Disputes Detail Page - Mobile Responsive */
+@media (max-width: 768px) {
+  /* Stack Dispute Details and Order Details sections vertically */
+  div[style*="gridTemplateColumns"][style*="1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Admin Orders Detail Page - Mobile Responsive */
+@media (max-width: 768px) {
+  /* Stack all repeat(2, 1fr) grids to single column */
+  div[style*="gridTemplateColumns"][style*="repeat(2, 1fr)"] {
+    grid-template-columns: 1fr !important;
   }
 }

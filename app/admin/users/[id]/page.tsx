@@ -5,6 +5,7 @@ import Link from 'next/link';
 import AdminDashboardWrapper from '@/components/layouts/AdminDashboardWrapper';
 import { colors, borderRadius } from '@/lib/theme';
 import { FixerActionButtons } from './FixerActionButtons';
+import { InternalMessaging } from './InternalMessaging';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -157,7 +158,7 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }} className="admin-user-detail-grid">
         {/* Left Column - Profile Details */}
-        <div className="admin-user-detail-left">
+        <div className="admin-user-detail-left" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Basic Info */}
           <div style={{ backgroundColor: 'white', borderRadius: borderRadius.lg, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '20px' }}>
             <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.textPrimary, marginBottom: '24px', paddingBottom: '16px', borderBottom: `2px solid ${colors.border}` }}>
@@ -292,6 +293,15 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
                 </div>
               )}
             </div>
+
+          {/* Internal Messaging */}
+          {user.email && (
+            <InternalMessaging
+              userId={user.id}
+              userEmail={user.email}
+              userName={user.name || 'User'}
+            />
+          )}
           </div>
 
         {/* Right Column - Actions */}

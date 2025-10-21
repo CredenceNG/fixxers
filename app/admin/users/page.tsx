@@ -469,6 +469,9 @@ export default async function UsersPage({ searchParams }: PageProps) {
             <thead>
               <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
                 <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Action
+                </th>
+                <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   User
                 </th>
                 <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -486,14 +489,24 @@ export default async function UsersPage({ searchParams }: PageProps) {
                 <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   Joined
                 </th>
-                <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Action
-                </th>
               </tr>
             </thead>
             <tbody>
               {users.map((u) => (
                 <tr key={u.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <td style={{ padding: '16px 20px' }}>
+                    <Link
+                      href={`/admin/users/${u.id}`}
+                      style={{
+                        color: colors.primary,
+                        fontWeight: '600',
+                        fontSize: '14px',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      View
+                    </Link>
+                  </td>
                   <td style={{ padding: '16px 20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: colors.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.white, fontWeight: '600', fontSize: '16px' }}>
@@ -561,19 +574,6 @@ export default async function UsersPage({ searchParams }: PageProps) {
                   </td>
                   <td style={{ padding: '16px 20px', fontSize: '14px', color: colors.textSecondary }}>
                     {formatDate(u.createdAt)}
-                  </td>
-                  <td style={{ padding: '16px 20px' }}>
-                    <Link
-                      href={`/admin/users/${u.id}`}
-                      style={{
-                        color: colors.primary,
-                        fontWeight: '600',
-                        fontSize: '14px',
-                        textDecoration: 'none',
-                      }}
-                    >
-                      View
-                    </Link>
                   </td>
                 </tr>
               ))}
