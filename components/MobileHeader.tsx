@@ -194,50 +194,55 @@ export default function MobileHeader({ user, isAgent = false, agentStatus = null
           )}
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="mobile-menu-btn"
-          onClick={toggleMenu}
-          style={{
-            display: 'none',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '8px',
-          }}
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? (
-            // Close icon
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke={colors.textPrimary}
-              strokeWidth="2"
-              strokeLinecap="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          ) : (
-            // Hamburger icon
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke={colors.textPrimary}
-              strokeWidth="2"
-              strokeLinecap="round"
-            >
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          )}
-        </button>
+        {/* Mobile Actions - Notification Bell + Menu Button */}
+        <div className="mobile-actions" style={{ display: 'none', gap: '8px', alignItems: 'center' }}>
+          {user && <NotificationBell />}
+          <button
+            className="mobile-menu-btn"
+            onClick={toggleMenu}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            aria-label="Toggle menu"
+          >
+            {isMenuOpen ? (
+              // Close icon
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={colors.textPrimary}
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            ) : (
+              // Hamburger icon
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={colors.textPrimary}
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu Dropdown */}
@@ -375,8 +380,8 @@ export default function MobileHeader({ user, isAgent = false, agentStatus = null
           .desktop-nav {
             display: none !important;
           }
-          .mobile-menu-btn {
-            display: block !important;
+          .mobile-actions {
+            display: flex !important;
           }
           .mobile-menu {
             display: block !important;

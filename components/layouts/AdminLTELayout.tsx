@@ -4,6 +4,7 @@ import { useState, useEffect, ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { colors } from '@/lib/theme';
+import { NotificationBell } from '../NotificationBell';
 
 interface MenuItem {
   label: string;
@@ -342,7 +343,7 @@ export default function AdminLTELayout({
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            {/* Quick Actions could go here */}
+            <NotificationBell />
           </div>
         </header>
 
