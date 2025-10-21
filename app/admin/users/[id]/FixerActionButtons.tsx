@@ -12,6 +12,7 @@ interface FixerActionButtonsProps {
   status: string;
   hasPendingChanges: boolean;
   wasApproved: boolean;
+  hasFixerProfile: boolean;
 }
 
 export function FixerActionButtons({
@@ -21,6 +22,7 @@ export function FixerActionButtons({
   status,
   hasPendingChanges,
   wasApproved,
+  hasFixerProfile,
 }: FixerActionButtonsProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -41,8 +43,11 @@ export function FixerActionButtons({
         body: JSON.stringify({ fixerId, approved: true }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to approve fixer');
+        // Show detailed error message from API
+        throw new Error(data.error || 'Failed to approve fixer');
       }
 
       setSuccess('Fixer approved successfully!');
@@ -176,6 +181,31 @@ export function FixerActionButtons({
       }, 1500);
     } catch (err: any) {
       setError(err.message || 'Failed to reactivate fixer');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendProfileReminder = async () => {
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await fetch(`/api/admin/users/${fixerId}/send-profile-reminder`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send reminder');
+      }
+
+      setSuccess('Reminder email sent successfully!');
+    } catch (err: any) {
+      setError(err.message || 'Failed to send reminder');
     } finally {
       setLoading(false);
     }
@@ -365,19 +395,33 @@ export function FixerActionButtons({
               </p>
             </div>
           )}
+
+          {/* Profile Incomplete Warning */}
+          {!hasFixerProfile && (
+            <div style={{ padding: '16px', backgroundColor: '#FEF5E7', borderRadius: borderRadius.md, marginBottom: '4px', border: '1px solid #F39C12' }}>
+              <p style={{ fontSize: '14px', color: '#95620D', fontWeight: '600', margin: '0 0 8px 0' }}>
+                ⚠️ Cannot Approve - Profile Incomplete
+              </p>
+              <p style={{ fontSize: '13px', color: '#95620D', margin: 0 }}>
+                This user has not completed their fixer profile setup yet (Step 1: Profile Information). They must complete their profile before approval.
+              </p>
+            </div>
+          )}
+
           <button
             onClick={handleApprove}
-            disabled={loading}
+            disabled={loading || !hasFixerProfile}
             style={{
               width: '100%',
               padding: '12px 24px',
               fontSize: '14px',
               fontWeight: '600',
               color: 'white',
-              backgroundColor: loading ? colors.textSecondary : colors.success,
+              backgroundColor: loading || !hasFixerProfile ? colors.textSecondary : colors.success,
               border: 'none',
               borderRadius: borderRadius.md,
-              cursor: loading ? 'not-allowed' : 'pointer',
+              cursor: loading || !hasFixerProfile ? 'not-allowed' : 'pointer',
+              opacity: !hasFixerProfile ? 0.6 : 1,
             }}
           >
             {loading ? 'Processing...' : isReReview ? 'Re-Approve Fixer' : 'Approve Fixer'}
@@ -418,6 +462,27 @@ export function FixerActionButtons({
           >
             Request Additional Details
           </button>
+
+          {/* Send Reminder Button - Only show if profile is incomplete */}
+          {!hasFixerProfile && fixerEmail && (
+            <button
+              onClick={handleSendProfileReminder}
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '12px 24px',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#F39C12',
+                backgroundColor: 'white',
+                border: `2px solid #F39C12`,
+                borderRadius: borderRadius.md,
+                cursor: loading ? 'not-allowed' : 'pointer',
+              }}
+            >
+              Send Reminder to Complete Profile
+            </button>
+          )}
         </div>
       )}
     </div>

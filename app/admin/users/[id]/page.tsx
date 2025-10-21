@@ -361,6 +361,7 @@ export default async function AdminUserReviewPage({ params, searchParams }: Page
                 status={user.status}
                 hasPendingChanges={user.fixerProfile?.pendingChanges || false}
                 wasApproved={!!user.fixerProfile?.approvedAt}
+                hasFixerProfile={!!user.fixerProfile}
               />
 
               <div style={{ marginTop: '24px', padding: '16px', backgroundColor: colors.gray100, borderRadius: borderRadius.lg }}>
