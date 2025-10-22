@@ -264,7 +264,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
         {/* Parties Involved */}
         <div className="admin-order-parties" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px' }}>
           {/* Client Details */}
-          <div style={{
+          <div className="admin-order-client" style={{
             backgroundColor: 'white',
             borderRadius: borderRadius.lg,
             padding: '24px',
@@ -301,7 +301,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
           </div>
 
           {/* Fixer Details */}
-          <div style={{
+          <div className="admin-order-provider" style={{
             backgroundColor: 'white',
             borderRadius: borderRadius.lg,
             padding: '24px',

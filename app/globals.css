@@ -462,6 +462,43 @@ input:focus {
   }
 }
 
+/* Admin Order Detail Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .admin-order-parties {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .admin-order-client {
+    order: 1;
+  }
+
+  .admin-order-provider {
+    order: 2;
+  }
+}
+
+/* Admin Users Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .admin-users-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .admin-stat-card {
+    padding: 12px !important;
+  }
+
+  .admin-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .admin-stat-value {
+    font-size: 24px !important;
+  }
+}
+
 /* Admin User Detail Page - Mobile Responsive */
 .admin-user-detail-grid {
   display: grid;
