@@ -329,12 +329,12 @@ export default async function FixerDashboard({ searchParams }: PageProps) {
       )}
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-        <DashboardStat label="My Services" value={stats.totalServices} icon="🛠️" />
-        <DashboardStat label="Pending Quotes" value={stats.pendingQuotes} icon="📝" color={colors.warning} />
-        <DashboardStat label="Active Jobs" value={stats.activeOrders} icon="⚡" color={colors.primary} />
-        <DashboardStat label="Completed" value={stats.completedOrders} icon="✅" color={colors.success} />
-        <DashboardStat label="Avg Rating" value={avgRating} icon="⭐" color="#F59E0B" />
+      <div className="fixer-dashboard-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+        <DashboardStat className="fixer-dashboard-stat-card fixer-dashboard-stat-label fixer-dashboard-stat-value" label="My Services" value={stats.totalServices} icon="🛠️" />
+        <DashboardStat className="fixer-dashboard-stat-card fixer-dashboard-stat-label fixer-dashboard-stat-value" label="Pending Quotes" value={stats.pendingQuotes} icon="📝" color={colors.warning} />
+        <DashboardStat className="fixer-dashboard-stat-card fixer-dashboard-stat-label fixer-dashboard-stat-value" label="Active Jobs" value={stats.activeOrders} icon="⚡" color={colors.primary} />
+        <DashboardStat className="fixer-dashboard-stat-card fixer-dashboard-stat-label fixer-dashboard-stat-value" label="Completed" value={stats.completedOrders} icon="✅" color={colors.success} />
+        <DashboardStat className="fixer-dashboard-stat-card fixer-dashboard-stat-label fixer-dashboard-stat-value" label="Avg Rating" value={avgRating} icon="⭐" color="#F59E0B" />
       </div>
 
       {/* Inspection Quotes Awaiting Final Submission */}

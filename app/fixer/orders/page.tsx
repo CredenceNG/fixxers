@@ -86,27 +86,31 @@ export default async function FixerOrdersPage() {
     >
       {/* Stats */}
       <div
+        className="fixer-orders-stats-grid"
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: '20px',
+          gap: '24px',
           marginBottom: '32px',
         }}
       >
-        <DashboardStat label="Total Orders" value={stats.total} icon="📦" />
+        <DashboardStat className="fixer-orders-stat-card fixer-orders-stat-label fixer-orders-stat-value" label="Total Orders" value={stats.total} icon="📦" />
         <DashboardStat
+          className="fixer-orders-stat-card fixer-orders-stat-label fixer-orders-stat-value"
           label="Pending"
           value={stats.pending}
           icon="⏳"
           color={colors.warning}
         />
         <DashboardStat
+          className="fixer-orders-stat-card fixer-orders-stat-label fixer-orders-stat-value"
           label="Paid"
           value={stats.paid}
           icon="💰"
           color={colors.primary}
         />
         <DashboardStat
+          className="fixer-orders-stat-card fixer-orders-stat-label fixer-orders-stat-value"
           label="Completed"
           value={stats.completed}
           icon="✅"

@@ -158,11 +158,11 @@ export default async function ClientDashboard() {
       <UpgradeSuccessMessage />
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-        <DashboardStat label="Total Requests" value={stats.totalRequests} icon="📋" />
-        <DashboardStat label="Pending Requests" value={stats.pendingRequests} icon="⏳" color={colors.warning} />
-        <DashboardStat label="Active Orders" value={stats.activeOrders} icon="🔧" color={colors.primary} />
-        <DashboardStat label="Completed" value={stats.completedOrders} icon="✅" color={colors.success} />
+      <div className="client-dashboard-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+        <DashboardStat className="client-dashboard-stat-card client-dashboard-stat-label client-dashboard-stat-value" label="Total Requests" value={stats.totalRequests} icon="📋" />
+        <DashboardStat className="client-dashboard-stat-card client-dashboard-stat-label client-dashboard-stat-value" label="Pending Requests" value={stats.pendingRequests} icon="⏳" color={colors.warning} />
+        <DashboardStat className="client-dashboard-stat-card client-dashboard-stat-label client-dashboard-stat-value" label="Active Orders" value={stats.activeOrders} icon="🔧" color={colors.primary} />
+        <DashboardStat className="client-dashboard-stat-card client-dashboard-stat-label client-dashboard-stat-value" label="Completed" value={stats.completedOrders} icon="✅" color={colors.success} />
       </div>
 
       {/* Gig Orders */}

@@ -81,11 +81,11 @@ export default async function MyGigsPage() {
       }
     >
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-        <DashboardStat label="Total Offers" value={stats.totalGigs} icon="📋" />
-        <DashboardStat label="Active" value={stats.activeGigs} icon="✅" color={colors.success} />
-        <DashboardStat label="Pending Review" value={stats.pendingGigs} icon="⏳" color={colors.warning} />
-        <DashboardStat label="Total Orders" value={stats.totalOrders} icon="🛒" color={colors.primary} />
+      <div className="fixer-gigs-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+        <DashboardStat className="fixer-gigs-stat-card fixer-gigs-stat-label fixer-gigs-stat-value" label="Total Offers" value={stats.totalGigs} icon="📋" />
+        <DashboardStat className="fixer-gigs-stat-card fixer-gigs-stat-label fixer-gigs-stat-value" label="Active" value={stats.activeGigs} icon="✅" color={colors.success} />
+        <DashboardStat className="fixer-gigs-stat-card fixer-gigs-stat-label fixer-gigs-stat-value" label="Pending Review" value={stats.pendingGigs} icon="⏳" color={colors.warning} />
+        <DashboardStat className="fixer-gigs-stat-card fixer-gigs-stat-label fixer-gigs-stat-value" label="Total Orders" value={stats.totalOrders} icon="🛒" color={colors.primary} />
       </div>
 
       {/* Gigs List */}

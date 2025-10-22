@@ -188,9 +188,10 @@ interface DashboardStatProps {
   value: string | number;
   icon?: string;
   color?: string;
+  className?: string;
 }
 
-export function DashboardStat({ label, value, icon, color = colors.primary }: DashboardStatProps) {
+export function DashboardStat({ label, value, icon, color = colors.primary, className }: DashboardStatProps) {
   const statStyle: CSSProperties = {
     backgroundColor: colors.white,
     borderRadius: borderRadius.lg,
@@ -229,7 +230,7 @@ export function DashboardStat({ label, value, icon, color = colors.primary }: Da
   };
 
   return (
-    <div style={statStyle}>
+    <div style={statStyle} className={className}>
       {icon && (
         <div style={iconStyle}>
           <span>{icon}</span>

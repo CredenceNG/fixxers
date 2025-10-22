@@ -95,21 +95,24 @@ export default async function FixerQuotesPage() {
         >
             {/* Stats */}
             <div
+                className="fixer-quotes-stats-grid"
                 style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                    gap: '20px',
+                    gap: '24px',
                     marginBottom: '32px',
                 }}
             >
-                <DashboardStat label="Total Quotes" value={stats.total} icon="📝" />
+                <DashboardStat className="fixer-quotes-stat-card fixer-quotes-stat-label fixer-quotes-stat-value" label="Total Quotes" value={stats.total} icon="📝" />
                 <DashboardStat
+                    className="fixer-quotes-stat-card fixer-quotes-stat-label fixer-quotes-stat-value"
                     label="Pending"
                     value={stats.pending}
                     icon="⏳"
                     color={colors.warning}
                 />
                 <DashboardStat
+                    className="fixer-quotes-stat-card fixer-quotes-stat-label fixer-quotes-stat-value"
                     label="Accepted"
                     value={stats.accepted}
                     icon="✅"

@@ -871,3 +871,108 @@ input:focus {
     font-size: 24px !important;
   }
 }
+
+/* Fixer Dashboard Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .fixer-dashboard-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .fixer-dashboard-stat-card {
+    padding: 12px !important;
+  }
+
+  .fixer-dashboard-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .fixer-dashboard-stat-value {
+    font-size: 24px !important;
+  }
+}
+
+/* Fixer Orders Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .fixer-orders-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .fixer-orders-stat-card {
+    padding: 12px !important;
+  }
+
+  .fixer-orders-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .fixer-orders-stat-value {
+    font-size: 24px !important;
+  }
+}
+
+/* Fixer Gigs Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .fixer-gigs-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .fixer-gigs-stat-card {
+    padding: 12px !important;
+  }
+
+  .fixer-gigs-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .fixer-gigs-stat-value {
+    font-size: 24px !important;
+  }
+}
+
+/* Fixer Quotes Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .fixer-quotes-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .fixer-quotes-stat-card {
+    padding: 12px !important;
+  }
+
+  .fixer-quotes-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .fixer-quotes-stat-value {
+    font-size: 24px !important;
+  }
+}
+
+/* Client Dashboard Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .client-dashboard-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .client-dashboard-stat-card {
+    padding: 12px !important;
+  }
+
+  .client-dashboard-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .client-dashboard-stat-value {
+    font-size: 24px !important;
+  }
+}
