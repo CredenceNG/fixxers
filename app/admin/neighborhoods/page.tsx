@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import AdminDashboardWrapper from '@/components/layouts/AdminDashboardWrapper';
 import NeighborhoodFilters from '@/components/NeighborhoodFilters';
 import { colors, borderRadius } from '@/lib/theme';
+import { NeighborhoodsTable } from './NeighborhoodsTable';
 
 export default async function AdminNeighborhoodsPage({
   searchParams,
@@ -137,14 +138,6 @@ export default async function AdminNeighborhoodsPage({
     },
   });
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
   return (
     <AdminDashboardWrapper
       userName={user.name || undefined}
@@ -183,133 +176,7 @@ export default async function AdminNeighborhoodsPage({
           padding: '0',
         }}
       >
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
-                <th
-                  style={{
-                    padding: '16px 20px',
-                    textAlign: 'left',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    color: colors.textSecondary,
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Name
-                </th>
-                <th
-                  style={{
-                    padding: '16px 20px',
-                    textAlign: 'left',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    color: colors.textSecondary,
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  City
-                </th>
-                <th
-                  style={{
-                    padding: '16px 20px',
-                    textAlign: 'left',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    color: colors.textSecondary,
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  State
-                </th>
-                <th
-                  style={{
-                    padding: '16px 20px',
-                    textAlign: 'left',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    color: colors.textSecondary,
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Country
-                </th>
-                <th
-                  style={{
-                    padding: '16px 20px',
-                    textAlign: 'left',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    color: colors.textSecondary,
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Service Requests
-                </th>
-                <th
-                  style={{
-                    padding: '16px 20px',
-                    textAlign: 'left',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    color: colors.textSecondary,
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Fixer Services
-                </th>
-                <th
-                  style={{
-                    padding: '16px 20px',
-                    textAlign: 'left',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    color: colors.textSecondary,
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Created
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {neighborhoods.length === 0 ? (
-                <tr>
-                  <td colSpan={7} style={{ padding: '48px 20px', textAlign: 'center', color: colors.textSecondary }}>
-                    {searchQuery ? 'No neighborhoods found matching your search' : 'No neighborhoods found'}
-                  </td>
-                </tr>
-              ) : (
-                neighborhoods.map((neighborhood) => (
-                  <tr key={neighborhood.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
-                    <td style={{ padding: '16px 20px', fontSize: '14px', fontWeight: '500', color: colors.textPrimary }}>
-                      {neighborhood.name}
-                    </td>
-                    <td style={{ padding: '16px 20px', fontSize: '14px', color: colors.textSecondary }}>
-                      {neighborhood.legacyCity}
-                    </td>
-                    <td style={{ padding: '16px 20px', fontSize: '14px', color: colors.textSecondary }}>
-                      {neighborhood.legacyState}
-                    </td>
-                    <td style={{ padding: '16px 20px', fontSize: '14px', color: colors.textSecondary }}>
-                      {neighborhood.legacyCountry}
-                    </td>
-                    <td style={{ padding: '16px 20px', fontSize: '14px', color: colors.textPrimary }}>
-                      {neighborhood._count.serviceRequests}
-                    </td>
-                    <td style={{ padding: '16px 20px', fontSize: '14px', color: colors.textPrimary }}>
-                      {neighborhood._count.fixerServices}
-                    </td>
-                    <td style={{ padding: '16px 20px', fontSize: '14px', color: colors.textSecondary }}>
-                      {formatDate(neighborhood.createdAt)}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <NeighborhoodsTable neighborhoods={neighborhoods} searchQuery={searchQuery} />
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
