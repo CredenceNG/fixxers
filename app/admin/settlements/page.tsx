@@ -93,48 +93,48 @@ export default async function SettlementsPage() {
       </div>
 
       {/* Summary Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '32px' }}>
-        <div style={{
+      <div className="admin-settlements-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+        <div className="admin-settlements-stat-card" style={{
           backgroundColor: colors.white,
           padding: '24px',
           borderRadius: '8px',
           border: `1px solid ${colors.border}`,
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         }}>
-          <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+          <div className="admin-settlements-stat-label" style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
             Pending Settlements
           </div>
-          <div style={{ fontSize: '32px', fontWeight: '700', color: colors.warning }}>
+          <div className="admin-settlements-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.warning }}>
             {paidOrders.length}
           </div>
         </div>
 
-        <div style={{
+        <div className="admin-settlements-stat-card" style={{
           backgroundColor: colors.white,
           padding: '24px',
           borderRadius: '8px',
           border: `1px solid ${colors.border}`,
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         }}>
-          <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+          <div className="admin-settlements-stat-label" style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
             Total Amount
           </div>
-          <div style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>
+          <div className="admin-settlements-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>
             ₦{paidOrders.reduce((sum, order) => sum + order.totalAmount, 0).toLocaleString()}
           </div>
         </div>
 
-        <div style={{
+        <div className="admin-settlements-stat-card" style={{
           backgroundColor: colors.white,
           padding: '24px',
           borderRadius: '8px',
           border: `1px solid ${colors.border}`,
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         }}>
-          <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+          <div className="admin-settlements-stat-label" style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
             To Settle with Fixers
           </div>
-          <div style={{ fontSize: '32px', fontWeight: '700', color: colors.success }}>
+          <div className="admin-settlements-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.success }}>
             ₦{paidOrders.reduce((sum, order) => sum + order.fixerAmount, 0).toLocaleString()}
           </div>
         </div>

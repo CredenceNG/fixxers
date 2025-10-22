@@ -136,56 +136,56 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="admin-stats-grid" style={{ marginBottom: '32px' }}>
-        <div style={cardStyle} className="admin-stat-card">
+      <div className="admin-dashboard-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+        <div style={cardStyle} className="admin-dashboard-stat-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
             <div>
-              <p className="admin-stat-title" style={{ color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Total Users</p>
-              <p className="admin-stat-value" style={{ fontWeight: '700', color: colors.textPrimary }}>{totalUsers}</p>
-              <p className="admin-stat-subtitle" style={{ color: colors.textLight, marginTop: '4px' }}>
+              <p className="admin-dashboard-stat-label" style={{ fontSize: '13px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Total Users</p>
+              <p className="admin-dashboard-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>{totalUsers}</p>
+              <p style={{ fontSize: '13px', color: colors.textLight, marginTop: '4px' }}>
                 {totalClients} Clients, {totalFixers} Fixers
               </p>
             </div>
-            <div className="admin-stat-icon">👥</div>
+            <div style={{ fontSize: '32px' }}>👥</div>
           </div>
         </div>
 
-        <div style={cardStyle} className="admin-stat-card">
+        <div style={cardStyle} className="admin-dashboard-stat-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
             <div>
-              <p className="admin-stat-title" style={{ color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Active Fixers</p>
-              <p className="admin-stat-value" style={{ fontWeight: '700', color: '#28a745' }}>{activeFixers}</p>
-              <p className="admin-stat-subtitle" style={{ color: colors.textLight, marginTop: '4px' }}>
+              <p className="admin-dashboard-stat-label" style={{ fontSize: '13px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Active Fixers</p>
+              <p className="admin-dashboard-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: '#28a745' }}>{activeFixers}</p>
+              <p style={{ fontSize: '13px', color: colors.textLight, marginTop: '4px' }}>
                 {pendingFixers} pending approval
               </p>
             </div>
-            <div className="admin-stat-icon">🔧</div>
+            <div style={{ fontSize: '32px' }}>🔧</div>
           </div>
         </div>
 
-        <div style={cardStyle} className="admin-stat-card">
+        <div style={cardStyle} className="admin-dashboard-stat-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
             <div>
-              <p className="admin-stat-title" style={{ color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Total Orders</p>
-              <p className="admin-stat-value" style={{ fontWeight: '700', color: colors.primary }}>{totalOrders}</p>
-              <p className="admin-stat-subtitle" style={{ color: colors.textLight, marginTop: '4px' }}>
+              <p className="admin-dashboard-stat-label" style={{ fontSize: '13px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Total Orders</p>
+              <p className="admin-dashboard-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.primary }}>{totalOrders}</p>
+              <p style={{ fontSize: '13px', color: colors.textLight, marginTop: '4px' }}>
                 {completedOrders} completed
               </p>
             </div>
-            <div className="admin-stat-icon">📦</div>
+            <div style={{ fontSize: '32px' }}>📦</div>
           </div>
         </div>
 
-        <div style={cardStyle} className="admin-stat-card">
+        <div style={cardStyle} className="admin-dashboard-stat-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
             <div>
-              <p className="admin-stat-title" style={{ color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Platform Earnings</p>
-              <p className="admin-stat-value" style={{ fontWeight: '700', color: colors.primary }}>₦{Math.round(platformEarnings).toLocaleString()}</p>
-              <p className="admin-stat-subtitle" style={{ color: colors.textLight, marginTop: '4px' }}>
+              <p className="admin-dashboard-stat-label" style={{ fontSize: '13px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Platform Earnings</p>
+              <p className="admin-dashboard-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.primary }}>₦{Math.round(platformEarnings).toLocaleString()}</p>
+              <p style={{ fontSize: '13px', color: colors.textLight, marginTop: '4px' }}>
                 {platformFeePercentage}% of ₦{totalRevenue.toLocaleString()}
               </p>
             </div>
-            <div className="admin-stat-icon">💰</div>
+            <div style={{ fontSize: '32px' }}>💰</div>
           </div>
         </div>
       </div>

@@ -153,63 +153,63 @@ export default async function AdminDisputesPage({ searchParams }: PageProps) {
       </div>
 
       {/* Stats Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-        <div style={{
+      <div className="admin-disputes-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+        <div className="admin-disputes-stat-card" style={{
           backgroundColor: colors.white,
           padding: '20px',
           borderRadius: borderRadius.lg,
           border: `1px solid ${colors.border}`,
           borderLeft: `4px solid ${colors.warning}`,
         }}>
-          <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+          <p className="admin-disputes-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
             Open Disputes
           </p>
-          <p style={{ fontSize: '32px', fontWeight: '700', color: colors.warning }}>
+          <p className="admin-disputes-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.warning }}>
             {openCount}
           </p>
         </div>
 
-        <div style={{
+        <div className="admin-disputes-stat-card" style={{
           backgroundColor: colors.white,
           padding: '20px',
           borderRadius: borderRadius.lg,
           border: `1px solid ${colors.border}`,
           borderLeft: `4px solid #2196F3`,
         }}>
-          <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+          <p className="admin-disputes-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
             Under Review
           </p>
-          <p style={{ fontSize: '32px', fontWeight: '700', color: '#2196F3' }}>
+          <p className="admin-disputes-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: '#2196F3' }}>
             {underReviewCount}
           </p>
         </div>
 
-        <div style={{
+        <div className="admin-disputes-stat-card" style={{
           backgroundColor: colors.white,
           padding: '20px',
           borderRadius: borderRadius.lg,
           border: `1px solid ${colors.border}`,
           borderLeft: `4px solid ${colors.error}`,
         }}>
-          <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+          <p className="admin-disputes-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
             Escalated
           </p>
-          <p style={{ fontSize: '32px', fontWeight: '700', color: colors.error }}>
+          <p className="admin-disputes-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.error }}>
             {escalatedCount}
           </p>
         </div>
 
-        <div style={{
+        <div className="admin-disputes-stat-card" style={{
           backgroundColor: colors.white,
           padding: '20px',
           borderRadius: borderRadius.lg,
           border: `1px solid ${colors.border}`,
           borderLeft: `4px solid ${colors.success}`,
         }}>
-          <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+          <p className="admin-disputes-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
             Resolved
           </p>
-          <p style={{ fontSize: '32px', fontWeight: '700', color: colors.success }}>
+          <p className="admin-disputes-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.success }}>
             {resolvedCount}
           </p>
         </div>

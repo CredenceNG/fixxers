@@ -102,12 +102,12 @@ export default async function AdminAnalyticsPage() {
         <h2 style={{ fontSize: '20px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
           User Metrics
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
-          <div style={statCardStyle}>
-            <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+        <div className="admin-analytics-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
+          <div className="admin-analytics-stat-card" style={statCardStyle}>
+            <p className="admin-analytics-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
               Total Users
             </p>
-            <p style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary, marginBottom: '4px' }}>
+            <p className="admin-analytics-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary, marginBottom: '4px' }}>
               {totalUsers}
             </p>
             <p style={{ fontSize: '13px', color: colors.textLight }}>
@@ -115,11 +115,11 @@ export default async function AdminAnalyticsPage() {
             </p>
           </div>
 
-          <div style={{ ...statCardStyle, borderLeftColor: '#28a745' }}>
-            <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+          <div className="admin-analytics-stat-card" style={{ ...statCardStyle, borderLeftColor: '#28a745' }}>
+            <p className="admin-analytics-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
               Clients
             </p>
-            <p style={{ fontSize: '32px', fontWeight: '700', color: '#28a745', marginBottom: '4px' }}>
+            <p className="admin-analytics-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: '#28a745', marginBottom: '4px' }}>
               {totalClients}
             </p>
             <p style={{ fontSize: '13px', color: colors.textLight }}>
@@ -127,11 +127,11 @@ export default async function AdminAnalyticsPage() {
             </p>
           </div>
 
-          <div style={{ ...statCardStyle, borderLeftColor: '#007bff' }}>
-            <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+          <div className="admin-analytics-stat-card" style={{ ...statCardStyle, borderLeftColor: '#007bff' }}>
+            <p className="admin-analytics-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
               Fixers
             </p>
-            <p style={{ fontSize: '32px', fontWeight: '700', color: '#007bff', marginBottom: '4px' }}>
+            <p className="admin-analytics-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: '#007bff', marginBottom: '4px' }}>
               {totalFixers}
             </p>
             <p style={{ fontSize: '13px', color: colors.textLight }}>

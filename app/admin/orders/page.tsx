@@ -166,87 +166,87 @@ export default async function AdminOrdersPage({
       </div>
 
       {/* Summary Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+      <div className="admin-orders-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', marginBottom: '32px' }}>
         <Link href="/admin/orders" style={{ textDecoration: 'none' }}>
-          <div style={{
+          <div className="admin-orders-stat-card" style={{
             backgroundColor: 'white',
             borderRadius: borderRadius.lg,
             padding: '24px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             cursor: 'pointer',
           }}>
-            <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+            <p className="admin-orders-stat-label" style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
               Total Orders
             </p>
-            <p style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>
+            <p className="admin-orders-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>
               {stats.total}
             </p>
           </div>
         </Link>
 
         <Link href="/admin/orders?status=PENDING" style={{ textDecoration: 'none' }}>
-          <div style={{
+          <div className="admin-orders-stat-card" style={{
             backgroundColor: 'white',
             borderRadius: borderRadius.lg,
             padding: '24px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             cursor: 'pointer',
           }}>
-            <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+            <p className="admin-orders-stat-label" style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
               Pending
             </p>
-            <p style={{ fontSize: '32px', fontWeight: '700', color: '#ffc107' }}>
+            <p className="admin-orders-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: '#ffc107' }}>
               {stats.pending}
             </p>
           </div>
         </Link>
 
         <Link href="/admin/orders?status=IN_PROGRESS" style={{ textDecoration: 'none' }}>
-          <div style={{
+          <div className="admin-orders-stat-card" style={{
             backgroundColor: 'white',
             borderRadius: borderRadius.lg,
             padding: '24px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             cursor: 'pointer',
           }}>
-            <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+            <p className="admin-orders-stat-label" style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
               In Progress
             </p>
-            <p style={{ fontSize: '32px', fontWeight: '700', color: colors.primary }}>
+            <p className="admin-orders-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.primary }}>
               {stats.inProgress}
             </p>
           </div>
         </Link>
 
         <Link href="/admin/orders?status=COMPLETED" style={{ textDecoration: 'none' }}>
-          <div style={{
+          <div className="admin-orders-stat-card" style={{
             backgroundColor: 'white',
             borderRadius: borderRadius.lg,
             padding: '24px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             cursor: 'pointer',
           }}>
-            <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+            <p className="admin-orders-stat-label" style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
               Completed
             </p>
-            <p style={{ fontSize: '32px', fontWeight: '700', color: '#28a745' }}>
+            <p className="admin-orders-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: '#28a745' }}>
               {stats.completed}
             </p>
           </div>
         </Link>
 
         <Link href="/admin/orders?status=SETTLED" style={{ textDecoration: 'none' }}>
-          <div style={{
+          <div className="admin-orders-stat-card" style={{
             backgroundColor: 'white',
             borderRadius: borderRadius.lg,
             padding: '24px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             cursor: 'pointer',
           }}>
-            <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+            <p className="admin-orders-stat-label" style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
               Settled
             </p>
-            <p style={{ fontSize: '32px', fontWeight: '700', color: '#28a745' }}>
+            <p className="admin-orders-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: '#28a745' }}>
               {stats.settled}
             </p>
           </div>

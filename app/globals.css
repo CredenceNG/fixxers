@@ -682,3 +682,192 @@ input:focus {
     order: 5;
   }
 }
+
+/* Admin Orders Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .admin-orders-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .admin-orders-stat-card {
+    padding: 12px !important;
+  }
+
+  .admin-orders-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .admin-orders-stat-value {
+    font-size: 24px !important;
+  }
+}
+
+/* Admin Settlements Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .admin-settlements-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .admin-settlements-stat-card {
+    padding: 12px !important;
+  }
+
+  .admin-settlements-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .admin-settlements-stat-value {
+    font-size: 24px !important;
+  }
+}
+
+/* Admin Requests Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .admin-requests-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .admin-requests-stat-card {
+    padding: 12px !important;
+  }
+
+  .admin-requests-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .admin-requests-stat-value {
+    font-size: 24px !important;
+  }
+}
+
+/* Admin Dashboard Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .admin-dashboard-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .admin-dashboard-stat-card {
+    padding: 12px !important;
+  }
+
+  .admin-dashboard-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .admin-dashboard-stat-value {
+    font-size: 24px !important;
+  }
+}
+
+/* Admin Reports Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .admin-reports-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .admin-reports-stat-card {
+    padding: 12px !important;
+  }
+
+  .admin-reports-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .admin-reports-stat-value {
+    font-size: 24px !important;
+  }
+}
+
+/* Admin Disputes Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .admin-disputes-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .admin-disputes-stat-card {
+    padding: 12px !important;
+  }
+
+  .admin-disputes-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .admin-disputes-stat-value {
+    font-size: 24px !important;
+  }
+}
+
+/* Admin Dashboard V2 Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .admin-dashboardv2-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .admin-dashboardv2-stat-card {
+    padding: 12px !important;
+  }
+
+  .admin-dashboardv2-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .admin-dashboardv2-stat-value {
+    font-size: 24px !important;
+  }
+}
+
+/* Admin Audit Logs Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .admin-auditlogs-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .admin-auditlogs-stat-card {
+    padding: 12px !important;
+  }
+
+  .admin-auditlogs-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .admin-auditlogs-stat-value {
+    font-size: 24px !important;
+  }
+}
+
+/* Admin Analytics Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .admin-analytics-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .admin-analytics-stat-card {
+    padding: 12px !important;
+  }
+
+  .admin-analytics-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .admin-analytics-stat-value {
+    font-size: 24px !important;
+  }
+}

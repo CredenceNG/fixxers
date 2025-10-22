@@ -160,12 +160,12 @@ export default async function AdminReportsPage() {
                 <h2 style={{ fontSize: '20px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
                     Report Statistics
                 </h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '24px' }}>
-                    <div style={statCardStyle}>
-                        <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+                <div className="admin-reports-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '24px' }}>
+                    <div className="admin-reports-stat-card" style={statCardStyle}>
+                        <p className="admin-reports-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
                             Total Reports
                         </p>
-                        <p style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary, marginBottom: '4px' }}>
+                        <p className="admin-reports-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary, marginBottom: '4px' }}>
                             {stats.total}
                         </p>
                         <p style={{ fontSize: '13px', color: colors.textLight }}>
@@ -173,11 +173,11 @@ export default async function AdminReportsPage() {
                         </p>
                     </div>
 
-                    <div style={{ ...statCardStyle, borderLeftColor: '#f97316' }}>
-                        <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+                    <div className="admin-reports-stat-card" style={{ ...statCardStyle, borderLeftColor: '#f97316' }}>
+                        <p className="admin-reports-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
                             Pending
                         </p>
-                        <p style={{ fontSize: '32px', fontWeight: '700', color: '#f97316', marginBottom: '4px' }}>
+                        <p className="admin-reports-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: '#f97316', marginBottom: '4px' }}>
                             {stats.pending}
                         </p>
                         <p style={{ fontSize: '13px', color: colors.textLight }}>
@@ -185,11 +185,11 @@ export default async function AdminReportsPage() {
                         </p>
                     </div>
 
-                    <div style={{ ...statCardStyle, borderLeftColor: '#007bff' }}>
-                        <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+                    <div className="admin-reports-stat-card" style={{ ...statCardStyle, borderLeftColor: '#007bff' }}>
+                        <p className="admin-reports-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
                             Reviewing
                         </p>
-                        <p style={{ fontSize: '32px', fontWeight: '700', color: '#007bff', marginBottom: '4px' }}>
+                        <p className="admin-reports-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: '#007bff', marginBottom: '4px' }}>
                             {stats.reviewing}
                         </p>
                         <p style={{ fontSize: '13px', color: colors.textLight }}>
@@ -197,11 +197,11 @@ export default async function AdminReportsPage() {
                         </p>
                     </div>
 
-                    <div style={{ ...statCardStyle, borderLeftColor: '#28a745' }}>
-                        <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+                    <div className="admin-reports-stat-card" style={{ ...statCardStyle, borderLeftColor: '#28a745' }}>
+                        <p className="admin-reports-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
                             Resolved
                         </p>
-                        <p style={{ fontSize: '32px', fontWeight: '700', color: '#28a745', marginBottom: '4px' }}>
+                        <p className="admin-reports-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: '#28a745', marginBottom: '4px' }}>
                             {stats.resolved}
                         </p>
                         <p style={{ fontSize: '13px', color: colors.textLight }}>
@@ -209,11 +209,11 @@ export default async function AdminReportsPage() {
                         </p>
                     </div>
 
-                    <div style={{ ...statCardStyle, borderLeftColor: '#6c757d' }}>
-                        <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+                    <div className="admin-reports-stat-card" style={{ ...statCardStyle, borderLeftColor: '#6c757d' }}>
+                        <p className="admin-reports-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
                             Dismissed
                         </p>
-                        <p style={{ fontSize: '32px', fontWeight: '700', color: '#6c757d', marginBottom: '4px' }}>
+                        <p className="admin-reports-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: '#6c757d', marginBottom: '4px' }}>
                             {stats.dismissed}
                         </p>
                         <p style={{ fontSize: '13px', color: colors.textLight }}>

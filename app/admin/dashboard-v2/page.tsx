@@ -80,42 +80,42 @@ export default async function AdminDashboardV2() {
       </div>
 
       {/* Stats Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '32px' }}>
-        <div style={cardStyle}>
+      <div className="admin-dashboardv2-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+        <div className="admin-dashboardv2-stat-card" style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
             <div>
-              <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px' }}>Total Users</p>
-              <p style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>{totalUsers}</p>
+              <p className="admin-dashboardv2-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px' }}>Total Users</p>
+              <p className="admin-dashboardv2-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>{totalUsers}</p>
             </div>
             <div style={{ fontSize: '32px' }}>👥</div>
           </div>
         </div>
 
-        <div style={cardStyle}>
+        <div className="admin-dashboardv2-stat-card" style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
             <div>
-              <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px' }}>Active Fixers</p>
-              <p style={{ fontSize: '32px', fontWeight: '700', color: colors.primary }}>{totalFixers}</p>
+              <p className="admin-dashboardv2-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px' }}>Active Fixers</p>
+              <p className="admin-dashboardv2-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.primary }}>{totalFixers}</p>
             </div>
             <div style={{ fontSize: '32px' }}>🔧</div>
           </div>
         </div>
 
-        <div style={cardStyle}>
+        <div className="admin-dashboardv2-stat-card" style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
             <div>
-              <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px' }}>Total Orders</p>
-              <p style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>{totalOrders}</p>
+              <p className="admin-dashboardv2-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px' }}>Total Orders</p>
+              <p className="admin-dashboardv2-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>{totalOrders}</p>
             </div>
             <div style={{ fontSize: '32px' }}>📦</div>
           </div>
         </div>
 
-        <div style={cardStyle}>
+        <div className="admin-dashboardv2-stat-card" style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
             <div>
-              <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px' }}>Completed</p>
-              <p style={{ fontSize: '32px', fontWeight: '700', color: '#28a745' }}>{completedOrders}</p>
+              <p className="admin-dashboardv2-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px' }}>Completed</p>
+              <p className="admin-dashboardv2-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: '#28a745' }}>{completedOrders}</p>
             </div>
             <div style={{ fontSize: '32px' }}>✅</div>
           </div>

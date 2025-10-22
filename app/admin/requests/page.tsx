@@ -143,56 +143,56 @@ export default async function AdminRequestsPage({
       </div>
 
       {/* Summary Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '32px' }}>
-        <div style={{
+      <div className="admin-requests-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '32px' }}>
+        <div className="admin-requests-stat-card" style={{
           backgroundColor: 'white',
           borderRadius: borderRadius.lg,
           padding: '24px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         }}>
-          <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+          <p className="admin-requests-stat-label" style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
             Pending
           </p>
-          <p style={{ fontSize: '32px', fontWeight: '700', color: '#ffc107' }}>
+          <p className="admin-requests-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: '#ffc107' }}>
             {pendingRequests.length}
           </p>
         </div>
-        <div style={{
+        <div className="admin-requests-stat-card" style={{
           backgroundColor: 'white',
           borderRadius: borderRadius.lg,
           padding: '24px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         }}>
-          <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+          <p className="admin-requests-stat-label" style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
             Active
           </p>
-          <p style={{ fontSize: '32px', fontWeight: '700', color: colors.primary }}>
+          <p className="admin-requests-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.primary }}>
             {activeRequests.length}
           </p>
         </div>
-        <div style={{
+        <div className="admin-requests-stat-card" style={{
           backgroundColor: 'white',
           borderRadius: borderRadius.lg,
           padding: '24px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         }}>
-          <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+          <p className="admin-requests-stat-label" style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
             Completed
           </p>
-          <p style={{ fontSize: '32px', fontWeight: '700', color: '#28a745' }}>
+          <p className="admin-requests-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: '#28a745' }}>
             {completedRequests.length}
           </p>
         </div>
-        <div style={{
+        <div className="admin-requests-stat-card" style={{
           backgroundColor: 'white',
           borderRadius: borderRadius.lg,
           padding: '24px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         }}>
-          <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+          <p className="admin-requests-stat-label" style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
             Total
           </p>
-          <p style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>
+          <p className="admin-requests-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>
             {serviceRequests.length}
           </p>
         </div>

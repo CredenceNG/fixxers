@@ -125,8 +125,9 @@ export default async function AuditLogsPage({
         <h2 style={{ fontSize: '20px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
           System Activity
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
+        <div className="admin-auditlogs-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
           <div
+            className="admin-auditlogs-stat-card"
             style={{
               backgroundColor: colors.white,
               padding: '24px',
@@ -136,10 +137,10 @@ export default async function AuditLogsPage({
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             }}
           >
-            <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+            <p className="admin-auditlogs-stat-label" style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
               Total Events
             </p>
-            <p style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary, marginBottom: '4px' }}>
+            <p className="admin-auditlogs-stat-value" style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary, marginBottom: '4px' }}>
               {total}
             </p>
             <p style={{ fontSize: '13px', color: colors.textLight }}>
