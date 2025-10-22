@@ -42,6 +42,18 @@ export function NeighborhoodsTable({ neighborhoods, searchQuery }: Neighborhoods
               <th
                 style={{
                   padding: '16px 20px',
+                  textAlign: 'center',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  color: colors.textSecondary,
+                  textTransform: 'uppercase',
+                }}
+              >
+                Actions
+              </th>
+              <th
+                style={{
+                  padding: '16px 20px',
                   textAlign: 'left',
                   fontSize: '13px',
                   fontWeight: '600',
@@ -123,18 +135,6 @@ export function NeighborhoodsTable({ neighborhoods, searchQuery }: Neighborhoods
               >
                 Created
               </th>
-              <th
-                style={{
-                  padding: '16px 20px',
-                  textAlign: 'center',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  color: colors.textSecondary,
-                  textTransform: 'uppercase',
-                }}
-              >
-                Actions
-              </th>
             </tr>
           </thead>
           <tbody>
@@ -147,6 +147,23 @@ export function NeighborhoodsTable({ neighborhoods, searchQuery }: Neighborhoods
             ) : (
               neighborhoods.map((neighborhood) => (
                 <tr key={neighborhood.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                    <button
+                      onClick={() => setEditingNeighborhood(neighborhood)}
+                      style={{
+                        padding: '6px 16px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        color: colors.white,
+                        backgroundColor: colors.primary,
+                        border: 'none',
+                        borderRadius: borderRadius.md,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Edit
+                    </button>
+                  </td>
                   <td style={{ padding: '16px 20px', fontSize: '14px', fontWeight: '500', color: colors.textPrimary }}>
                     {neighborhood.name}
                   </td>
@@ -167,23 +184,6 @@ export function NeighborhoodsTable({ neighborhoods, searchQuery }: Neighborhoods
                   </td>
                   <td style={{ padding: '16px 20px', fontSize: '14px', color: colors.textSecondary }}>
                     {formatDate(neighborhood.createdAt)}
-                  </td>
-                  <td style={{ padding: '16px 20px', textAlign: 'center' }}>
-                    <button
-                      onClick={() => setEditingNeighborhood(neighborhood)}
-                      style={{
-                        padding: '6px 16px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        color: colors.white,
-                        backgroundColor: colors.primary,
-                        border: 'none',
-                        borderRadius: borderRadius.md,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Edit
-                    </button>
                   </td>
                 </tr>
               ))

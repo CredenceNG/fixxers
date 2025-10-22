@@ -73,3 +73,62 @@ export async function PUT(
     );
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const currentUser = await getCurrentUser();
+
+    if (!currentUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check if user has ADMIN role
+    const roles = currentUser.roles || [];
+    if (!roles.includes('ADMIN')) {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    }
+
+    const { id } = await params;
+
+    // Check if neighborhood exists and get counts
+    const neighborhood = await prisma.neighborhood.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: {
+            serviceRequests: true,
+            fixerServices: true,
+          },
+        },
+      },
+    });
+
+    if (!neighborhood) {
+      return NextResponse.json({ error: 'Neighborhood not found' }, { status: 404 });
+    }
+
+    // Check if neighborhood has associated records
+    if (neighborhood._count.serviceRequests > 0 || neighborhood._count.fixerServices > 0) {
+      return NextResponse.json({
+        error: `Cannot delete neighborhood. It has ${neighborhood._count.serviceRequests} service request(s) and ${neighborhood._count.fixerServices} fixer service(s) associated with it.`
+      }, { status: 400 });
+    }
+
+    // Delete the neighborhood
+    await prisma.neighborhood.delete({ where: { id } });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Neighborhood deleted successfully'
+    });
+  } catch (error: any) {
+    console.error('Error deleting neighborhood:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete neighborhood' },
+      { status: 500 }
+    );
+  }
+}

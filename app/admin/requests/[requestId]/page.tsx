@@ -167,11 +167,11 @@ export default async function AdminRequestDetailPage({
         ← Back to Requests
       </Link>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+      <div className="admin-request-detail-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
         {/* Main Content */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Request Status and Actions */}
-          <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, boxShadow: shadows.md, padding: '24px' }}>
+          <div className="admin-request-status" style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, boxShadow: shadows.md, padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <div>
                 <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.textPrimary, marginBottom: '8px' }}>
@@ -192,7 +192,7 @@ export default async function AdminRequestDetailPage({
           </div>
 
           {/* Request Details */}
-          <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, boxShadow: shadows.md, padding: '24px' }}>
+          <div className="admin-request-details" style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, boxShadow: shadows.md, padding: '24px' }}>
             <h2 style={{ fontSize: '18px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
               Request Details
             </h2>
@@ -286,7 +286,7 @@ export default async function AdminRequestDetailPage({
 
           {/* Quotes */}
           {request.quotes.length > 0 && (
-            <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, boxShadow: shadows.md, padding: '24px' }}>
+            <div className="admin-request-quotes" style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, boxShadow: shadows.md, padding: '24px' }}>
               <h2 style={{ fontSize: '18px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
                 Quotes ({request.quotes.length})
               </h2>
@@ -330,7 +330,7 @@ export default async function AdminRequestDetailPage({
         {/* Sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Client Info */}
-          <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, boxShadow: shadows.md, padding: '24px' }}>
+          <div className="admin-request-client" style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, boxShadow: shadows.md, padding: '24px' }}>
             <h2 style={{ fontSize: '18px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
               Client Information
             </h2>
@@ -376,7 +376,7 @@ export default async function AdminRequestDetailPage({
 
           {/* Admin Info */}
           {request.adminApproved && (
-            <div style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, boxShadow: shadows.md, padding: '24px' }}>
+            <div className="admin-request-review" style={{ backgroundColor: colors.white, borderRadius: borderRadius.lg, boxShadow: shadows.md, padding: '24px' }}>
               <h2 style={{ fontSize: '18px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
                 Admin Review
               </h2>

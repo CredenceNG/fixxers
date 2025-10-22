@@ -653,3 +653,32 @@ input:focus {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* Admin Request Detail Page - Mobile Responsive */
+@media (max-width: 768px) {
+  .admin-request-detail-grid {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* Order: Status (1), Details (2), Client (3), Review (4), Quotes (5) */
+  .admin-request-status {
+    order: 1;
+  }
+
+  .admin-request-details {
+    order: 2;
+  }
+
+  .admin-request-client {
+    order: 3;
+  }
+
+  .admin-request-review {
+    order: 4;
+  }
+
+  .admin-request-quotes {
+    order: 5;
+  }
+}

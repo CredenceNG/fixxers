@@ -18,6 +18,7 @@ interface EditNeighborhoodModalProps {
 export function EditNeighborhoodModal({ neighborhood, onClose }: EditNeighborhoodModalProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     name: neighborhood.name,
@@ -50,6 +51,34 @@ export function EditNeighborhoodModal({ neighborhood, onClose }: EditNeighborhoo
       setError(err.message || 'Failed to update neighborhood');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm(`Are you sure you want to delete "${neighborhood.name}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    setDeleting(true);
+    setError('');
+
+    try {
+      const response = await fetch(`/api/admin/neighborhoods/${neighborhood.id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete neighborhood');
+      }
+
+      router.refresh();
+      onClose();
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete neighborhood');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -233,40 +262,59 @@ export function EditNeighborhoodModal({ neighborhood, onClose }: EditNeighborhoo
           </div>
 
           {/* Buttons */}
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between' }}>
             <button
               type="button"
-              onClick={onClose}
-              disabled={loading}
-              style={{
-                padding: '12px 24px',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: colors.textPrimary,
-                backgroundColor: colors.white,
-                border: `2px solid ${colors.border}`,
-                borderRadius: borderRadius.md,
-                cursor: loading ? 'not-allowed' : 'pointer',
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
+              onClick={handleDelete}
+              disabled={loading || deleting}
               style={{
                 padding: '12px 24px',
                 fontSize: '14px',
                 fontWeight: '600',
                 color: colors.white,
-                backgroundColor: loading ? colors.textSecondary : colors.primary,
+                backgroundColor: loading || deleting ? colors.textSecondary : colors.error,
                 border: 'none',
                 borderRadius: borderRadius.md,
-                cursor: loading ? 'not-allowed' : 'pointer',
+                cursor: loading || deleting ? 'not-allowed' : 'pointer',
               }}
             >
-              {loading ? 'Saving...' : 'Save Changes'}
+              {deleting ? 'Deleting...' : 'Delete'}
             </button>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={loading || deleting}
+                style={{
+                  padding: '12px 24px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: colors.textPrimary,
+                  backgroundColor: colors.white,
+                  border: `2px solid ${colors.border}`,
+                  borderRadius: borderRadius.md,
+                  cursor: loading || deleting ? 'not-allowed' : 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading || deleting}
+                style={{
+                  padding: '12px 24px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: colors.white,
+                  backgroundColor: loading || deleting ? colors.textSecondary : colors.primary,
+                  border: 'none',
+                  borderRadius: borderRadius.md,
+                  cursor: loading || deleting ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {loading ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
           </div>
         </form>
       </div>
