@@ -99,7 +99,8 @@ export default async function UnifiedProfilePage() {
   const existingData = {
     // Use fixer profile data as primary source if both exist, otherwise use client
     name: user.name || '',
-    primaryPhone: fixerProfile?.primaryPhone || clientProfile?.primaryPhone || '',
+    // Use user.phone from registration if no profile exists yet
+    primaryPhone: fixerProfile?.primaryPhone || clientProfile?.primaryPhone || user.phone || '',
     secondaryPhone: fixerProfile?.secondaryPhone || clientProfile?.secondaryPhone || '',
     alternateEmail: clientProfile?.alternateEmail || '',
     streetAddress: fixerProfile?.streetAddress || clientProfile?.streetAddress || '',

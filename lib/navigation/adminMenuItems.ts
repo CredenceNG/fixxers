@@ -12,6 +12,7 @@ export const adminMenuItems = [
       { label: 'All Users', href: '/admin/users', icon: '' },
       { label: 'Clients', href: '/admin/users?role=CLIENT', icon: '' },
       { label: 'Fixers', href: '/admin/users?role=FIXER', icon: '' },
+      { label: 'Contact Changes', href: '/admin/contact-changes', icon: '', badge: '', badgeColor: '#ffc107' },
     ],
   },
   {

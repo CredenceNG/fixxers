@@ -6,18 +6,14 @@ import { sendMagicLinkSMS } from "@/lib/sms";
 import { z } from "zod";
 import { authLimiter, getClientIdentifier, rateLimitResponse } from "@/lib/ratelimit";
 
-const registerSchema = z
-  .object({
-    email: z.string().email().optional(),
-    phone: z.string().optional(),
-    name: z.string().optional(),
-    role: z.enum(["CLIENT", "FIXER"]).optional(),
-    roles: z.array(z.enum(["CLIENT", "FIXER"])).optional(),
-    referralCode: z.string().optional(), // Quick Wins - Referral code from referrer
-  })
-  .refine((data) => data.email || data.phone, {
-    message: "Either email or phone is required",
-  });
+const registerSchema = z.object({
+  email: z.string().email().min(1, 'Email is required'),
+  phone: z.string().min(1, 'Phone number is required'),
+  name: z.string().optional(),
+  role: z.enum(["CLIENT", "FIXER"]).optional(),
+  roles: z.array(z.enum(["CLIENT", "FIXER"])).optional(),
+  referralCode: z.string().optional(), // Quick Wins - Referral code from referrer
+});
 
 export async function POST(request: NextRequest) {
   // Apply rate limiting (5 requests per 15 minutes per IP)
@@ -86,17 +82,25 @@ export async function POST(request: NextRequest) {
     // Generate magic link
     const token = await generateMagicLink(user.id);
 
-    // Send magic link via email or SMS
-    if (validated.email) {
-      await sendMagicLinkEmail(validated.email, token, true);
-    } else if (validated.phone) {
+    // Send magic link based on SEND_MAGIC_LINK_VIA env variable
+    const sendVia = process.env.SEND_MAGIC_LINK_VIA || "email";
+
+    if (sendVia === "both") {
+      await Promise.all([
+        sendMagicLinkEmail(validated.email, token, true),
+        sendMagicLinkSMS(validated.phone, token, true)
+      ]);
+    } else if (sendVia === "sms") {
       await sendMagicLinkSMS(validated.phone, token, true);
+    } else {
+      // Default to email
+      await sendMagicLinkEmail(validated.email, token, true);
     }
 
     return NextResponse.json({
       success: true,
       message: `Registration link sent to your ${
-        validated.email ? "email" : "phone"
+        sendVia === "both" ? "email and phone" : sendVia === "sms" ? "phone" : "email"
       }`,
     });
   } catch (error) {

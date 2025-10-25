@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, subcategoryId, description, tags, requirements, packages, status } = body;
+    const { title, subcategoryId, description, tags, requirements, images, packages, status } = body;
 
     // Validation
     if (!title || !subcategoryId || !description || !packages || packages.length === 0) {
@@ -50,6 +50,7 @@ export async function POST(request: Request) {
         slug,
         tags: tags || [],
         requirements: requirements || [],
+        images: images || [],
         searchKeywords: [...(tags || []), title.toLowerCase()],
         status: status || 'PENDING_REVIEW',
         publishedAt: status === 'ACTIVE' ? new Date() : null,

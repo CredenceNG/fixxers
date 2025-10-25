@@ -10,6 +10,7 @@ interface AdminDashboardWrapperProps {
   pendingAgentApplications?: number;
   pendingReports?: number;
   activeDisputes?: number;
+  pendingContactChanges?: number;
 }
 
 export default function AdminDashboardWrapper({
@@ -20,9 +21,21 @@ export default function AdminDashboardWrapper({
   pendingAgentApplications = 0,
   pendingReports = 0,
   activeDisputes = 0,
+  pendingContactChanges = 0,
 }: AdminDashboardWrapperProps) {
   // Update menu items with dynamic badges
   const menuItemsWithBadges = adminMenuItems.map((item) => {
+    if (item.label === 'Users' && item.children) {
+      return {
+        ...item,
+        children: item.children.map((child) => {
+          if (child.label === 'Contact Changes' && pendingContactChanges > 0) {
+            return { ...child, badge: String(pendingContactChanges) };
+          }
+          return child;
+        }),
+      };
+    }
     if (item.label === 'Agents' && item.children) {
       return {
         ...item,

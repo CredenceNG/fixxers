@@ -120,7 +120,13 @@ export async function getCurrentUser() {
       status: true,
       profileImage: true,
       bio: true,
+      pendingEmail: true,
+      pendingPhone: true,
+      emailChangeRequested: true,
+      phoneChangeRequested: true,
       createdAt: true,
+      fixerProfile: true,
+      clientProfile: true,
     },
   });
 

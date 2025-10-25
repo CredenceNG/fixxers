@@ -14,7 +14,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Public routes that don't require authentication
-  const publicRoutes = ['/', '/auth/register', '/auth/login', '/auth/verify', '/services', '/about', '/gigs'];
+  const publicRoutes = ['/', '/auth/register', '/auth/login', '/auth/verify', '/services', '/about', '/gigs', '/pending'];
   const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route) || pathname.startsWith('/api/auth'));
 
   // Routes that don't require profile completion check
@@ -45,6 +45,16 @@ export function middleware(request: NextRequest) {
     }
 
     if (payload) {
+      // Check if user status is PENDING and redirect to pending page
+      // Allow /profile, /fixer/profile, /client/profile for new users to complete their profile
+      const allowedPendingRoutes = ['/pending', '/profile', '/fixer/profile', '/client/profile', '/api/auth/logout', '/api/profile', '/api/fixer/profile', '/api/client/profile', '/api/categories'];
+      const isAllowedForPending = allowedPendingRoutes.some(route => pathname.startsWith(route));
+
+      if (payload.userStatus === 'PENDING' && !isAllowedForPending) {
+        console.log(`[Middleware] User status is PENDING (userId: ${payload.userId}, roles: ${payload.roles?.join(',')}), redirecting to /pending from: ${pathname}`);
+        return NextResponse.redirect(new URL('/pending', request.url));
+      }
+
       // Role-based access control
       const role = payload.role;
       const roles = payload.roles || [role];

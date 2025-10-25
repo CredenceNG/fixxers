@@ -32,6 +32,7 @@ export function CreateGigForm({ categories }: { categories: Category[] }) {
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
   const [requirements, setRequirements] = useState(['']);
+  const [imageUrl, setImageUrl] = useState('');
 
   // Packages
   const [packages, setPackages] = useState<PackageData[]>([
@@ -57,6 +58,7 @@ export function CreateGigForm({ categories }: { categories: Category[] }) {
           description,
           tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
           requirements: requirements.filter(Boolean),
+          images: imageUrl ? [imageUrl] : [],
           packages: packages.map((pkg) => ({
             ...pkg,
             price: parseFloat(pkg.price),
@@ -223,6 +225,20 @@ export function CreateGigForm({ categories }: { categories: Category[] }) {
               placeholder="plumbing, repair, emergency, 24/7 (comma separated)"
               style={inputStyle}
             />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Image URL (optional)</label>
+            <input
+              type="url"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://example.com/image.jpg"
+              style={inputStyle}
+            />
+            <p style={{ fontSize: '12px', color: colors.textSecondary, marginTop: '4px' }}>
+              Add a high-quality image URL showcasing your work
+            </p>
           </div>
         </div>
       </DashboardCard>

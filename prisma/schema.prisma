@@ -195,6 +195,12 @@ model User {
   emailNotifications    Boolean     @default(true)
   smsNotifications      Boolean     @default(false)
 
+  // Pending contact changes
+  pendingEmail          String?
+  pendingPhone          String?
+  emailChangeRequested  Boolean     @default(false)
+  phoneChangeRequested  Boolean     @default(false)
+
   // Quick Wins - Referral
   referralCode      String?         @unique
   referredById      String?         // User who referred this user

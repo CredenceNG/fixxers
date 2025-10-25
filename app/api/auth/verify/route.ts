@@ -59,12 +59,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Update user status to ACTIVE if it was PENDING
+    // Update user status to ACTIVE if it was PENDING CLIENT
+    // CLIENTs are auto-activated on verification, FIXERs need admin approval via fixerProfile.approvedAt
+    let finalUserStatus = user.status;
     if (user.status === 'PENDING' && user.roles?.includes('CLIENT')) {
       await prisma.user.update({
         where: { id: userId },
         data: { status: 'ACTIVE' },
       });
+      finalUserStatus = 'ACTIVE';
     }
 
     // Check if user has profiles
@@ -81,13 +84,14 @@ export async function GET(request: NextRequest) {
       role === 'ADMIN'
     );
 
-    // Generate session token
+    // Generate session token with the UPDATED status
     const sessionToken = generateSessionToken({
       userId: user.id,
       email: user.email || undefined,
       phone: user.phone || undefined,
       role: roles[0] || 'CLIENT',
       roles,
+      userStatus: finalUserStatus,
       hasProfile,
       hasFixerProfile,
       hasClientProfile,
@@ -104,7 +108,7 @@ export async function GET(request: NextRequest) {
       if (!hasFixerProfile) {
         redirectUrl = '/profile';
       } else {
-        redirectUrl = user.status === 'PENDING' ? '/fixer/pending' : '/fixer/dashboard';
+        redirectUrl = finalUserStatus === 'PENDING' ? '/fixer/pending' : '/fixer/dashboard';
       }
     } else if (roles.includes('CLIENT')) {
       // Check if profile is completed first
@@ -115,7 +119,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    console.log(`[Auth Verify] User: ${user.email || user.phone}, Roles: ${roles.join(', ')}, Status: ${user.status}, Redirecting to: ${redirectUrl}`);
+    console.log(`[Auth Verify] User: ${user.email || user.phone}, Roles: ${roles.join(', ')}, Final Status: ${finalUserStatus}, Redirecting to: ${redirectUrl}`);
 
     // Return HTML with meta refresh and cookie setting
     const html = `

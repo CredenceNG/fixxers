@@ -12,7 +12,8 @@ export default function RegisterPage() {
 
   const [formData, setFormData] = useState({
     name: '',
-    emailOrPhone: '',
+    email: '',
+    phone: '',
     roles: ['CLIENT'] as ('CLIENT' | 'FIXER')[],
     referralCode: referralCode || '', // Quick Wins - Capture referral code from URL
   });
@@ -24,8 +25,6 @@ export default function RegisterPage() {
       setFormData(prev => ({ ...prev, referralCode }));
     }
   }, [referralCode]);
-
-  const isEmail = formData.emailOrPhone.includes('@');
 
   const toggleRole = (role: 'CLIENT' | 'FIXER') => {
     setFormData(prev => ({
@@ -49,14 +48,10 @@ export default function RegisterPage() {
     try {
       const payload: any = {
         name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
         roles: formData.roles,
       };
-
-      if (isEmail) {
-        payload.email = formData.emailOrPhone;
-      } else {
-        payload.phone = formData.emailOrPhone;
-      }
 
       // Quick Wins - Include referral code if present
       if (formData.referralCode) {
@@ -73,7 +68,7 @@ export default function RegisterPage() {
 
       if (response.ok) {
         toast.success(data.message);
-        setFormData({ name: '', emailOrPhone: '', roles: ['CLIENT'], referralCode: referralCode || '' });
+        setFormData({ name: '', email: '', phone: '', roles: ['CLIENT'], referralCode: referralCode || '' });
       } else {
         toast.error(data.error || 'Registration failed');
       }
@@ -184,13 +179,43 @@ export default function RegisterPage() {
                   color: colors.textPrimary,
                   marginBottom: '8px'
                 }}>
-                  Email or phone number
+                  Email
                 </label>
                 <input
-                  type="text"
-                  value={formData.emailOrPhone}
-                  onChange={(e) => setFormData({ ...formData, emailOrPhone: e.target.value })}
-                  placeholder="Enter your email or phone"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="Enter your email"
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: `1px solid ${colors.border}`,
+                    borderRadius: borderRadius.md,
+                    fontSize: '16px',
+                    outline: 'none'
+                  }}
+                  required
+                  disabled={loading}
+                  onFocus={(e) => e.target.style.borderColor = colors.primary}
+                  onBlur={(e) => e.target.style.borderColor = colors.border}
+                />
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: colors.textPrimary,
+                  marginBottom: '8px'
+                }}>
+                  Phone number
+                </label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="Enter your phone number"
                   style={{
                     width: '100%',
                     padding: '12px 16px',
