@@ -84,18 +84,19 @@ export async function trackLogout(
  * Get analytics insights
  */
 export async function getAnalyticsInsights(days: number = 7) {
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - days);
+  try {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
 
-  // Daily active users
-  const dailyActiveUsers = await prisma.userActivity.groupBy({
-    by: ['userId'],
-    where: {
-      createdAt: { gte: startDate },
-      userId: { not: null },
-    },
-    _count: true,
-  });
+    // Daily active users
+    const dailyActiveUsers = await prisma.userActivity.groupBy({
+      by: ['userId'],
+      where: {
+        createdAt: { gte: startDate },
+        userId: { not: null },
+      },
+      _count: true,
+    });
 
   // Total page views
   const pageViews = await prisma.userActivity.count({
@@ -159,30 +160,43 @@ export async function getAnalyticsInsights(days: number = 7) {
     _count: true,
   });
 
-  return {
-    dailyActiveUsers: dailyActiveUsers.length,
-    totalPageViews: pageViews,
-    totalLogins: logins,
-    popularPages: popularPages.map((p) => ({
-      page: p.page,
-      views: p._count,
-    })),
-    recentActivities,
-    activityByType: activityByType.map((a) => ({
-      action: a.action,
-      count: a._count,
-    })),
-  };
+    return {
+      dailyActiveUsers: dailyActiveUsers.length,
+      totalPageViews: pageViews,
+      totalLogins: logins,
+      popularPages: popularPages.map((p) => ({
+        page: p.page,
+        views: p._count,
+      })),
+      recentActivities,
+      activityByType: activityByType.map((a) => ({
+        action: a.action,
+        count: a._count,
+      })),
+    };
+  } catch (error) {
+    console.error('[Analytics] Failed to get insights:', error);
+    // Return empty data if table doesn't exist yet
+    return {
+      dailyActiveUsers: 0,
+      totalPageViews: 0,
+      totalLogins: 0,
+      popularPages: [],
+      recentActivities: [],
+      activityByType: [],
+    };
+  }
 }
 
 /**
  * Get daily activity trends
  */
 export async function getDailyTrends(days: number = 30) {
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - days);
+  try {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
 
-  const activities = await prisma.userActivity.findMany({
+    const activities = await prisma.userActivity.findMany({
     where: {
       createdAt: { gte: startDate },
     },
@@ -219,12 +233,16 @@ export async function getDailyTrends(days: number = 30) {
     }
   });
 
-  return Object.values(dailyData).map((day) => ({
-    date: day.date,
-    logins: day.logins,
-    pageViews: day.pageViews,
-    activeUsers: day.activeUsers.size,
-  })).sort((a, b) => a.date.localeCompare(b.date));
+    return Object.values(dailyData).map((day) => ({
+      date: day.date,
+      logins: day.logins,
+      pageViews: day.pageViews,
+      activeUsers: day.activeUsers.size,
+    })).sort((a, b) => a.date.localeCompare(b.date));
+  } catch (error) {
+    console.error('[Analytics] Failed to get daily trends:', error);
+    return [];
+  }
 }
 
 /**
@@ -232,11 +250,12 @@ export async function getDailyTrends(days: number = 30) {
  * Calculates based on time between first and last activity per session
  */
 export async function getAverageSessionDuration(days: number = 7) {
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - days);
+  try {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
 
-  // Get all activities grouped by sessionId
-  const activities = await prisma.userActivity.findMany({
+    // Get all activities grouped by sessionId
+    const activities = await prisma.userActivity.findMany({
     where: {
       createdAt: { gte: startDate },
       sessionId: { not: null },
@@ -276,20 +295,25 @@ export async function getAverageSessionDuration(days: number = 7) {
     return durationMs / (1000 * 60); // Convert to minutes
   });
 
-  const totalDuration = durations.reduce((sum, duration) => sum + duration, 0);
-  const averageDuration = totalDuration / durations.length;
+    const totalDuration = durations.reduce((sum, duration) => sum + duration, 0);
+    const averageDuration = totalDuration / durations.length;
 
-  return Math.round(averageDuration);
+    return Math.round(averageDuration);
+  } catch (error) {
+    console.error('[Analytics] Failed to get average session duration:', error);
+    return 0;
+  }
 }
 
 /**
  * Get session statistics
  */
 export async function getSessionStats(days: number = 7) {
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - days);
+  try {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
 
-  const activities = await prisma.userActivity.findMany({
+    const activities = await prisma.userActivity.findMany({
     where: {
       createdAt: { gte: startDate },
       sessionId: { not: null },
@@ -320,17 +344,25 @@ export async function getSessionStats(days: number = 7) {
     sessions[sessionId].actions++;
   });
 
-  const sessionData = Object.values(sessions);
+    const sessionData = Object.values(sessions);
 
-  return {
-    totalSessions: sessionData.length,
-    averageDuration: sessionData.length > 0
-      ? Math.round(sessionData.reduce((sum, s) => sum + (s.end.getTime() - s.start.getTime()), 0) / sessionData.length / 1000 / 60)
-      : 0,
-    averageActionsPerSession: sessionData.length > 0
-      ? Math.round(sessionData.reduce((sum, s) => sum + s.actions, 0) / sessionData.length)
-      : 0,
-  };
+    return {
+      totalSessions: sessionData.length,
+      averageDuration: sessionData.length > 0
+        ? Math.round(sessionData.reduce((sum, s) => sum + (s.end.getTime() - s.start.getTime()), 0) / sessionData.length / 1000 / 60)
+        : 0,
+      averageActionsPerSession: sessionData.length > 0
+        ? Math.round(sessionData.reduce((sum, s) => sum + s.actions, 0) / sessionData.length)
+        : 0,
+    };
+  } catch (error) {
+    console.error('[Analytics] Failed to get session stats:', error);
+    return {
+      totalSessions: 0,
+      averageDuration: 0,
+      averageActionsPerSession: 0,
+    };
+  }
 }
 
 /**
@@ -338,11 +370,12 @@ export async function getSessionStats(days: number = 7) {
  * Analyzes common page sequences in user sessions
  */
 export async function getUserJourneyPaths(days: number = 7, limit: number = 10) {
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - days);
+  try {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
 
-  // Get all page views grouped by session
-  const activities = await prisma.userActivity.findMany({
+    // Get all page views grouped by session
+    const activities = await prisma.userActivity.findMany({
     where: {
       createdAt: { gte: startDate },
       action: 'PAGE_VIEW',
@@ -385,29 +418,38 @@ export async function getUserJourneyPaths(days: number = 7, limit: number = 10) 
     }
   });
 
-  // Sort by frequency and return top paths
-  return Object.entries(pathCounts)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, limit)
-    .map(([path, count]) => ({ path, count }));
+    // Sort by frequency and return top paths
+    return Object.entries(pathCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, limit)
+      .map(([path, count]) => ({ path, count }));
+  } catch (error) {
+    console.error('[Analytics] Failed to get user journey paths:', error);
+    return [];
+  }
 }
 
 /**
  * Get currently active users (logged in within last 15 minutes)
  */
 export async function getActiveUsersNow() {
-  const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+  try {
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
 
-  const activeUserIds = await prisma.userActivity.findMany({
+    const activeUserIds = await prisma.userActivity.findMany({
     where: {
       createdAt: { gte: fifteenMinutesAgo },
       userId: { not: null },
     },
-    select: {
-      userId: true,
-    },
-    distinct: ['userId'],
-  });
+      select: {
+        userId: true,
+      },
+      distinct: ['userId'],
+    });
 
-  return activeUserIds.length;
+    return activeUserIds.length;
+  } catch (error) {
+    console.error('[Analytics] Failed to get active users now:', error);
+    return 0;
+  }
 }
