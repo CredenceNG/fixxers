@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifySessionToken } from './lib/auth-jwt';
+import { trackActivity } from './lib/analytics';
 
 export const runtime = 'nodejs';
 
@@ -145,6 +146,18 @@ export function middleware(request: NextRequest) {
   // Add pathname to headers for layout to detect AdminLTE routes
   const response = NextResponse.next();
   response.headers.set('x-pathname', pathname);
+
+  // Track page views for authenticated users (non-blocking)
+  if (token) {
+    const payload = verifySessionToken(token);
+    if (payload?.userId && !pathname.startsWith('/api') && !pathname.startsWith('/_next')) {
+      // Use a hash of the token as sessionId for privacy
+      const sessionId = token.substring(0, 32);
+      trackActivity(payload.userId, 'PAGE_VIEW', pathname, undefined, request, sessionId).catch(err =>
+        console.error('[Analytics] Failed to track page view:', err)
+      );
+    }
+  }
 
   // Add security headers
   // Prevent XSS attacks

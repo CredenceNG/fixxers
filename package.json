@@ -60,6 +60,7 @@
     "react-dom": "^19.2.0",
     "react-dropzone": "^14.3.8",
     "react-hot-toast": "^2.6.0",
+    "recharts": "^3.3.0",
     "resend": "^6.1.2",
     "stripe": "^19.1.0",
     "swr": "^2.3.6",

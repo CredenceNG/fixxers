@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyMagicLink, generateSessionToken } from '@/lib/auth';
+import { trackLogin } from '@/lib/analytics';
 
 export async function GET(request: NextRequest) {
   try {
@@ -120,6 +121,11 @@ export async function GET(request: NextRequest) {
     }
 
     console.log(`[Auth Verify] User: ${user.email || user.phone}, Roles: ${roles.join(', ')}, Final Status: ${finalUserStatus}, Redirecting to: ${redirectUrl}`);
+
+    // Track login activity (non-blocking)
+    trackLogin(user.id, 'magic-link', request).catch(err =>
+      console.error('[Analytics] Failed to track login:', err)
+    );
 
     // Return HTML with meta refresh and cookie setting
     const html = `

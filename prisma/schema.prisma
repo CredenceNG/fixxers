@@ -258,6 +258,9 @@ model User {
   // Audit Log Relations
   auditLogs           AuditLog[]
 
+  // Activity Tracking
+  activities          UserActivity[]
+
   @@index([email])
   @@index([phone])
   @@index([status])
@@ -1387,6 +1390,49 @@ model AuditLog {
   @@index([targetType])
   @@index([targetId])
   @@index([createdAt])
+}
+
+// User Activity Tracking
+model UserActivity {
+  id          String         @id @default(cuid())
+  userId      String?
+  user        User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // Activity details
+  action      ActivityAction
+  page        String?        // /fixer/dashboard, /gigs, etc.
+
+  // Context
+  ipAddress   String?
+  userAgent   String?
+  sessionId   String?        // Track session duration
+
+  // Metadata (flexible JSON storage for additional data)
+  metadata    Json?
+
+  createdAt   DateTime       @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([sessionId])
+}
+
+enum ActivityAction {
+  LOGIN
+  LOGOUT
+  PAGE_VIEW
+  ORDER_CREATED
+  ORDER_COMPLETED
+  GIG_CREATED
+  GIG_PUBLISHED
+  PROFILE_UPDATED
+  PROFILE_COMPLETED
+  SEARCH
+  QUOTE_SUBMITTED
+  REVIEW_SUBMITTED
+  PAYMENT_MADE
+  REGISTRATION
 }
 
 // Dispute Resolution System

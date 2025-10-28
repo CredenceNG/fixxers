@@ -3,6 +3,8 @@ import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import AdminDashboardWrapper from '@/components/layouts/AdminDashboardWrapper';
 import { colors, borderRadius } from '@/lib/theme';
+import { getAnalyticsInsights, getActiveUsersNow, getDailyTrends, getSessionStats, getUserJourneyPaths } from '@/lib/analytics';
+import DailyTrendsChart from './DailyTrendsChart';
 
 const prismaAny = prisma as any;
 
@@ -65,6 +67,19 @@ export default async function AdminAnalyticsPage() {
   });
   const platformFeePercentage = platformFeeSetting ? parseFloat(platformFeeSetting.value) : 10;
   const platformEarnings = totalRevenue * (platformFeePercentage / 100);
+
+  // Activity analytics (last 7 days)
+  const activityInsights = await getAnalyticsInsights(7);
+  const activeUsersNow = await getActiveUsersNow();
+
+  // Daily trends for charts (last 30 days)
+  const dailyTrends = await getDailyTrends(30);
+
+  // Session statistics
+  const sessionStats = await getSessionStats(7);
+
+  // User journey paths
+  const journeyPaths = await getUserJourneyPaths(7, 10);
 
   const cardStyle = {
     backgroundColor: colors.white,
@@ -269,6 +284,268 @@ export default async function AdminAnalyticsPage() {
             <p style={{ fontSize: '13px', color: colors.textLight }}>
               Per completed order
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* User Activity Insights */}
+      <div style={{ marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
+          User Activity (Last 7 Days)
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '24px' }}>
+          <div style={{ ...statCardStyle, borderLeftColor: '#17a2b8' }}>
+            <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+              Active Users Now
+            </p>
+            <p style={{ fontSize: '32px', fontWeight: '700', color: '#17a2b8', marginBottom: '4px' }}>
+              {activeUsersNow}
+            </p>
+            <p style={{ fontSize: '13px', color: colors.textLight }}>
+              Active in last 15 minutes
+            </p>
+          </div>
+
+          <div style={statCardStyle}>
+            <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+              Daily Active Users
+            </p>
+            <p style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary, marginBottom: '4px' }}>
+              {activityInsights.dailyActiveUsers}
+            </p>
+            <p style={{ fontSize: '13px', color: colors.textLight }}>
+              Unique users with activity
+            </p>
+          </div>
+
+          <div style={statCardStyle}>
+            <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+              Total Page Views
+            </p>
+            <p style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary, marginBottom: '4px' }}>
+              {activityInsights.totalPageViews}
+            </p>
+            <p style={{ fontSize: '13px', color: colors.textLight }}>
+              All page visits
+            </p>
+          </div>
+
+          <div style={statCardStyle}>
+            <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+              Total Logins
+            </p>
+            <p style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary, marginBottom: '4px' }}>
+              {activityInsights.totalLogins}
+            </p>
+            <p style={{ fontSize: '13px', color: colors.textLight }}>
+              Login events
+            </p>
+          </div>
+        </div>
+
+        {/* Session Statistics */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '24px' }}>
+          <div style={{ ...statCardStyle, borderLeftColor: '#6c757d' }}>
+            <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+              Total Sessions
+            </p>
+            <p style={{ fontSize: '32px', fontWeight: '700', color: '#6c757d', marginBottom: '4px' }}>
+              {sessionStats.totalSessions}
+            </p>
+            <p style={{ fontSize: '13px', color: colors.textLight }}>
+              Last 7 days
+            </p>
+          </div>
+
+          <div style={{ ...statCardStyle, borderLeftColor: '#17a2b8' }}>
+            <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+              Avg. Session Duration
+            </p>
+            <p style={{ fontSize: '32px', fontWeight: '700', color: '#17a2b8', marginBottom: '4px' }}>
+              {sessionStats.averageDuration} min
+            </p>
+            <p style={{ fontSize: '13px', color: colors.textLight }}>
+              Per session
+            </p>
+          </div>
+
+          <div style={{ ...statCardStyle, borderLeftColor: '#28a745' }}>
+            <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>
+              Avg. Actions/Session
+            </p>
+            <p style={{ fontSize: '32px', fontWeight: '700', color: '#28a745', marginBottom: '4px' }}>
+              {sessionStats.averageActionsPerSession}
+            </p>
+            <p style={{ fontSize: '13px', color: colors.textLight }}>
+              Interactions per visit
+            </p>
+          </div>
+        </div>
+
+        {/* Most Visited Pages */}
+        <div style={cardStyle}>
+          <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
+            Most Visited Pages
+          </h3>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
+                  <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', color: colors.textLight, fontWeight: '600' }}>Page</th>
+                  <th style={{ textAlign: 'right', padding: '12px', fontSize: '13px', color: colors.textLight, fontWeight: '600' }}>Views</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activityInsights.popularPages.length > 0 ? (
+                  activityInsights.popularPages.map((page, index) => (
+                    <tr key={index} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                      <td style={{ padding: '12px', fontSize: '14px', color: colors.textPrimary }}>{page.page}</td>
+                      <td style={{ padding: '12px', fontSize: '14px', color: colors.textPrimary, textAlign: 'right', fontWeight: '600' }}>{page.views}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={2} style={{ padding: '24px', textAlign: 'center', fontSize: '14px', color: colors.textLight }}>
+                      No page view data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* Daily Trends Chart */}
+      <div style={{ marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
+          Daily Trends (Last 30 Days)
+        </h2>
+        <div style={cardStyle}>
+          <DailyTrendsChart data={dailyTrends} />
+        </div>
+      </div>
+
+      {/* Recent Activity Feed */}
+      <div style={{ marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
+          Recent Activity
+        </h2>
+        <div style={cardStyle}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
+                  <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', color: colors.textLight, fontWeight: '600' }}>User</th>
+                  <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', color: colors.textLight, fontWeight: '600' }}>Action</th>
+                  <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', color: colors.textLight, fontWeight: '600' }}>Page</th>
+                  <th style={{ textAlign: 'right', padding: '12px', fontSize: '13px', color: colors.textLight, fontWeight: '600' }}>Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activityInsights.recentActivities.length > 0 ? (
+                  activityInsights.recentActivities.slice(0, 20).map((activity) => (
+                    <tr key={activity.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                      <td style={{ padding: '12px', fontSize: '14px', color: colors.textPrimary }}>
+                        {activity.user?.name || activity.user?.email || 'Anonymous'}
+                      </td>
+                      <td style={{ padding: '12px', fontSize: '14px' }}>
+                        <span style={{
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          backgroundColor: activity.action === 'LOGIN' ? '#E8F4FD' : activity.action === 'PAGE_VIEW' ? '#F0F0F0' : '#FEF5E7',
+                          color: activity.action === 'LOGIN' ? '#1565C0' : activity.action === 'PAGE_VIEW' ? '#666' : '#95620D',
+                        }}>
+                          {activity.action}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px', fontSize: '14px', color: colors.textSecondary }}>
+                        {activity.page || '-'}
+                      </td>
+                      <td style={{ padding: '12px', fontSize: '13px', color: colors.textLight, textAlign: 'right' }}>
+                        {new Date(activity.createdAt).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} style={{ padding: '24px', textAlign: 'center', fontSize: '14px', color: colors.textLight }}>
+                      No recent activity data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* Activity Breakdown */}
+      <div style={{ marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
+          Activity Breakdown
+        </h2>
+        <div style={cardStyle}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '24px' }}>
+            {activityInsights.activityByType.map((item) => (
+              <div key={item.action}>
+                <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px' }}>
+                  {item.action}
+                </p>
+                <p style={{ fontSize: '24px', fontWeight: '700', color: colors.primary }}>
+                  {item.count}
+                </p>
+              </div>
+            ))}
+            {activityInsights.activityByType.length === 0 && (
+              <p style={{ fontSize: '14px', color: colors.textLight, textAlign: 'center', gridColumn: '1 / -1' }}>
+                No activity data available
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* User Journey Paths */}
+      <div style={{ marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: '600', color: colors.textPrimary, marginBottom: '16px' }}>
+          Common User Journeys
+        </h2>
+        <div style={cardStyle}>
+          <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '16px' }}>
+            Most frequent page navigation paths (first 3 pages per session)
+          </p>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
+                  <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', color: colors.textLight, fontWeight: '600' }}>Journey Path</th>
+                  <th style={{ textAlign: 'right', padding: '12px', fontSize: '13px', color: colors.textLight, fontWeight: '600' }}>Occurrences</th>
+                </tr>
+              </thead>
+              <tbody>
+                {journeyPaths.length > 0 ? (
+                  journeyPaths.map((journey, index) => (
+                    <tr key={index} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                      <td style={{ padding: '12px', fontSize: '14px', color: colors.textPrimary, fontFamily: 'monospace' }}>
+                        {journey.path}
+                      </td>
+                      <td style={{ padding: '12px', fontSize: '14px', color: colors.textPrimary, textAlign: 'right', fontWeight: '600' }}>
+                        {journey.count}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={2} style={{ padding: '24px', textAlign: 'center', fontSize: '14px', color: colors.textLight }}>
+                      No journey data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
