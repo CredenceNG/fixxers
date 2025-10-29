@@ -5,6 +5,7 @@ import AdminDashboardWrapper from '@/components/layouts/AdminDashboardWrapper';
 import { colors, borderRadius } from '@/lib/theme';
 import { getAnalyticsInsights, getActiveUsersNow, getDailyTrends, getSessionStats, getUserJourneyPaths } from '@/lib/analytics';
 import DailyTrendsChart from './DailyTrendsChart';
+import RecentActivityTable from './RecentActivityTable';
 
 const prismaAny = prisma as any;
 
@@ -436,53 +437,7 @@ export default async function AdminAnalyticsPage() {
           Recent Activity
         </h2>
         <div style={cardStyle}>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
-                  <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', color: colors.textLight, fontWeight: '600' }}>User</th>
-                  <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', color: colors.textLight, fontWeight: '600' }}>Action</th>
-                  <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', color: colors.textLight, fontWeight: '600' }}>Page</th>
-                  <th style={{ textAlign: 'right', padding: '12px', fontSize: '13px', color: colors.textLight, fontWeight: '600' }}>Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activityInsights.recentActivities.length > 0 ? (
-                  activityInsights.recentActivities.slice(0, 20).map((activity) => (
-                    <tr key={activity.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
-                      <td style={{ padding: '12px', fontSize: '14px', color: colors.textPrimary }}>
-                        {activity.user?.name || activity.user?.email || 'Anonymous'}
-                      </td>
-                      <td style={{ padding: '12px', fontSize: '14px' }}>
-                        <span style={{
-                          padding: '4px 8px',
-                          borderRadius: '4px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          backgroundColor: activity.action === 'LOGIN' ? '#E8F4FD' : activity.action === 'PAGE_VIEW' ? '#F0F0F0' : '#FEF5E7',
-                          color: activity.action === 'LOGIN' ? '#1565C0' : activity.action === 'PAGE_VIEW' ? '#666' : '#95620D',
-                        }}>
-                          {activity.action}
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px', fontSize: '14px', color: colors.textSecondary }}>
-                        {activity.page || '-'}
-                      </td>
-                      <td style={{ padding: '12px', fontSize: '13px', color: colors.textLight, textAlign: 'right' }}>
-                        {new Date(activity.createdAt).toLocaleString()}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={4} style={{ padding: '24px', textAlign: 'center', fontSize: '14px', color: colors.textLight }}>
-                      No recent activity data available
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <RecentActivityTable activities={activityInsights.recentActivities} />
         </div>
       </div>
 
