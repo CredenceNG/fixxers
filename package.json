@@ -19,9 +19,10 @@
     "test:coverage": "vitest --coverage",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
+    "db:migrate": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate && prisma migrate deploy"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
