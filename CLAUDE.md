@@ -166,6 +166,14 @@ Always verify mobile responsiveness by:
 - Use `getCurrentUser()` from `@/lib/auth` for authentication
 - Import theme constants from `@/lib/theme`: `colors`, `borderRadius`, `shadows`
 
+## Git Commit Guidelines
+
+- **DO NOT** include Claude Code or Anthropic branding in commit messages
+- **DO NOT** add "Co-Authored-By: Claude" signatures
+- **DO NOT** add emoji or marketing links in commit messages
+- Write clear, professional commit messages following conventional commits format
+- Example: `feat: Add user authentication` NOT `feat: Add user authentication 🤖 Generated with Claude Code`
+
 ## Recent Implementations
 
 Examples of mobile-responsive pages:
