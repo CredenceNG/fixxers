@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/components/Footer";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 import { headers } from "next/headers";
 
 export const metadata: Metadata = {
@@ -33,6 +34,7 @@ export default async function RootLayout({
             `,
           }}
         />
+        <AnalyticsTracker />
         <div style={{ flex: 1 }}>
           {children}
         </div>
