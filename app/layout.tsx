@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Footer from "@/components/Footer";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
-import { headers } from "next/headers";
+import ConditionalFooter from "@/components/ConditionalFooter";
 
 export const metadata: Metadata = {
   title: "Fixers - Local Services Marketplace",
@@ -10,17 +9,11 @@ export const metadata: Metadata = {
   viewport: "width=device-width, initial-scale=1, maximum-scale=5",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || "";
-
-  // Hide global footer for AdminLTE dashboard routes (all admin routes use AdminLTE layout)
-  const hideFooter = pathname.startsWith("/admin/");
-
   return (
     <html lang="en">
       <body className="antialiased" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -38,7 +31,7 @@ export default async function RootLayout({
         <div style={{ flex: 1 }}>
           {children}
         </div>
-        {!hideFooter && <Footer />}
+        <ConditionalFooter />
       </body>
     </html>
   );
