@@ -20,9 +20,10 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
+    "db:migrate:safe": "bash scripts/migrate-safe.sh",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate && prisma migrate deploy"
+    "postinstall": "prisma generate && npm run db:migrate:safe"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
