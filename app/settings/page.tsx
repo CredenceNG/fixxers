@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import DashboardLayoutWithHeader from '@/components/DashboardLayoutWithHeader';
 import SettingsForm from './SettingsForm';
 
@@ -8,7 +9,9 @@ export default function SettingsPage() {
       subtitle="Manage your notification preferences and account settings"
     >
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <SettingsForm />
+        <Suspense fallback={<div>Loading...</div>}>
+          <SettingsForm />
+        </Suspense>
       </div>
     </DashboardLayoutWithHeader>
   );
