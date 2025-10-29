@@ -62,6 +62,10 @@ export default async function AdminAnalyticsPage() {
   });
   const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
 
+  // Payment statistics for conversion tracking
+  const totalPayments = await prisma.payment.count();
+  const settledPayments = await prisma.payment.count({ where: { status: 'RELEASED' } });
+
   const platformFeeSetting = await prisma.platformSettings.findUnique({
     where: { key: 'PLATFORM_FEE_PERCENTAGE' },
   });
@@ -602,6 +606,30 @@ export default async function AdminAnalyticsPage() {
               </p>
               <p style={{ fontSize: '12px', color: colors.textLight, marginTop: '4px' }}>
                 {pendingRequests} of {totalRequests} requests
+              </p>
+            </div>
+
+            <div>
+              <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px' }}>
+                Orders Completed
+              </p>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: '#28a745' }}>
+                {completedOrders}
+              </p>
+              <p style={{ fontSize: '12px', color: colors.textLight, marginTop: '4px' }}>
+                Total successful orders
+              </p>
+            </div>
+
+            <div>
+              <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '8px' }}>
+                Payments Settled
+              </p>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: '#28a745' }}>
+                {settledPayments}
+              </p>
+              <p style={{ fontSize: '12px', color: colors.textLight, marginTop: '4px' }}>
+                {totalPayments > 0 ? ((settledPayments / totalPayments) * 100).toFixed(1) : 0}% of {totalPayments} payments
               </p>
             </div>
           </div>
