@@ -976,3 +976,89 @@ input:focus {
     font-size: 24px !important;
   }
 }
+
+/* Admin Analytics Page - Mobile Responsive */
+@media (max-width: 768px) {
+  /* Header */
+  .admin-analytics-header h1 {
+    font-size: 24px !important;
+  }
+
+  .admin-analytics-header p {
+    font-size: 14px !important;
+  }
+
+  /* Stats grids - 2 columns on mobile */
+  .admin-analytics-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  /* Stat cards - compact padding */
+  .admin-analytics-stat-card {
+    padding: 12px !important;
+  }
+
+  .admin-analytics-stat-label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .admin-analytics-stat-value {
+    font-size: 24px !important;
+  }
+
+  /* Section headings */
+  .admin-analytics-section h2 {
+    font-size: 18px !important;
+  }
+
+  /* Tables - allow horizontal scroll */
+  .admin-analytics-table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Pagination controls - stack vertically */
+  .admin-analytics-pagination {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .admin-analytics-pagination > div:first-child {
+    text-align: center;
+  }
+
+  /* Pagination buttons - smaller */
+  .admin-analytics-pagination button {
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+  }
+
+  /* Charts - reduce height on mobile */
+  .admin-analytics-chart {
+    height: 300px !important;
+  }
+
+  /* Cards - reduce padding */
+  .admin-analytics-card {
+    padding: 16px !important;
+  }
+
+  /* Journey paths - smaller text */
+  .admin-analytics-journey-path {
+    font-size: 12px !important;
+  }
+
+  /* Activity breakdown grid - 2 columns */
+  .admin-analytics-breakdown-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+
+  /* Conversion grid - 2 columns */
+  .admin-analytics-conversion-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+}

@@ -91,7 +91,7 @@ export default function RecentActivityTable({ activities }: RecentActivityTableP
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div style={{
+        <div className="admin-analytics-pagination" style={{
           marginTop: '20px',
           display: 'flex',
           justifyContent: 'space-between',
